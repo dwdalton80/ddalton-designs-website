@@ -2,32 +2,35 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
-// Public pages
+// Critical page — loaded eagerly
 import Home from './pages/Home';
-import Portfolio from './pages/Portfolio';
-import PortfolioDetail from './pages/PortfolioDetail';
-import About from './pages/About';
-import Services from './pages/Services';
-import Contact from './pages/Contact';
-import TermsOfService from './pages/TermsOfService';
-import PrivacyPolicy from './pages/PrivacyPolicy';
 
-// Admin layout + pages
-import AdminLayout from './components/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import ClientRequests from './pages/admin/ClientRequests';
-import Clients from './pages/admin/Clients';
-import Estimates from './pages/admin/Estimates';
-import Invoices from './pages/admin/Invoices';
-import Tasks from './pages/admin/Tasks';
-import PortfolioManager from './pages/admin/PortfolioManager';
-import AdminPortalMessages from './pages/admin/PortalMessages';
-import ProjectPlans from './pages/admin/ProjectPlans';
-import ClientPortal from './pages/portal/ClientPortal';
+// Public pages — code split
+const Portfolio = lazy(() => import('./pages/Portfolio'));
+const PortfolioDetail = lazy(() => import('./pages/PortfolioDetail'));
+const About = lazy(() => import('./pages/About'));
+const Services = lazy(() => import('./pages/Services'));
+const Contact = lazy(() => import('./pages/Contact'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+
+// Admin layout + pages — code split
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const ClientRequests = lazy(() => import('./pages/admin/ClientRequests'));
+const Clients = lazy(() => import('./pages/admin/Clients'));
+const Estimates = lazy(() => import('./pages/admin/Estimates'));
+const Invoices = lazy(() => import('./pages/admin/Invoices'));
+const Tasks = lazy(() => import('./pages/admin/Tasks'));
+const PortfolioManager = lazy(() => import('./pages/admin/PortfolioManager'));
+const AdminPortalMessages = lazy(() => import('./pages/admin/PortalMessages'));
+const ProjectPlans = lazy(() => import('./pages/admin/ProjectPlans'));
+const ClientPortal = lazy(() => import('./pages/portal/ClientPortal'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -49,7 +52,14 @@ const AuthenticatedApp = () => {
     }
   }
 
+  const PageLoader = () => (
+    <div className="fixed inset-0 flex items-center justify-center bg-background">
+      <div className="w-8 h-8 border-4 border-border border-t-accent rounded-full animate-spin"></div>
+    </div>
+  );
+
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Home />} />
@@ -79,6 +89,7 @@ const AuthenticatedApp = () => {
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </Suspense>
   );
 };
 
