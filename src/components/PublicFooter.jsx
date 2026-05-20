@@ -36,7 +36,11 @@ export default function PublicFooter() {
       </div>
       <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-white/40">
         <span>© {new Date().getFullYear()} DDalton Designs. All rights reserved.</span>
-        <span>Design & Photography by Derek Dalton</span>
+        <div className="flex items-center gap-4">
+          <Link to="/terms" className="hover:text-white/60 transition-colors">Terms of Service</Link>
+          <Link to="/privacy" className="hover:text-white/60 transition-colors">Privacy Policy</Link>
+          <span>Design & Photography by Derek Dalton</span>
+        </div>
       </div>
     </footer>
   );
