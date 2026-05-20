@@ -65,7 +65,13 @@
       "type": "string",
       "format": "date"
     },
+    "payment_terms": {
+      "type": "string"
+    },
     "notes": {
+      "type": "string"
+    },
+    "pdf_url": {
       "type": "string"
     }
   },

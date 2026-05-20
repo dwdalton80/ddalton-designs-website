@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Receipt, X, Send, CheckCircle, DollarSign } from 'lucide-react';
+import { Receipt, X, Send, CheckCircle, DollarSign, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import GenerateInvoiceModal from '@/components/admin/invoices/GenerateInvoiceModal';
 
 const STATUS_COLORS = {
   unpaid: 'bg-red-50 text-red-600',
@@ -15,6 +16,7 @@ export default function Invoices() {
   const [selected, setSelected] = useState(null);
   const [sending, setSending] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [showGenerate, setShowGenerate] = useState(false);
 
   const fetch = () => {
     base44.entities.Invoice.list('-created_date', 100)
@@ -45,11 +47,16 @@ export default function Invoices() {
   const outstanding = invoices.filter(i => i.status !== 'paid').reduce((s, i) => s + (i.total || 0), 0);
 
   return (
+    <>
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display font-black text-3xl">Invoices</h1>
         </div>
+        <button onClick={() => setShowGenerate(true)}
+          className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition-all">
+          <Plus size={16} /> Generate Invoice
+        </button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
@@ -140,5 +147,12 @@ export default function Invoices() {
         )}
       </div>
     </div>
+    {showGenerate && (
+      <GenerateInvoiceModal
+        onClose={() => setShowGenerate(false)}
+        onCreated={() => { setShowGenerate(false); fetch(); }}
+      />
+    )}
+    </>
   );
 }
