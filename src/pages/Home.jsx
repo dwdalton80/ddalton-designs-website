@@ -62,8 +62,8 @@ export default function Home() {
             <div className="relative">
               <div className="aspect-[4/5] rounded-2xl overflow-hidden" style={{ background: '#111' }}>
                 <img
-                  src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=90"
-                  alt="Design work"
+                  src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/6ac0d76d3_Untitleddesign.jpeg"
+                  alt="Web Design Development"
                   className="w-full h-full object-cover opacity-90"
                 />
               </div>
