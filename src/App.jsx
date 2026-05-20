@@ -23,6 +23,9 @@ import Estimates from './pages/admin/Estimates';
 import Invoices from './pages/admin/Invoices';
 import Tasks from './pages/admin/Tasks';
 import PortfolioManager from './pages/admin/PortfolioManager';
+import AdminPortalMessages from './pages/admin/PortalMessages';
+import ProjectPlans from './pages/admin/ProjectPlans';
+import ClientPortal from './pages/portal/ClientPortal';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -63,7 +66,12 @@ const AuthenticatedApp = () => {
         <Route path="invoices" element={<Invoices />} />
         <Route path="tasks" element={<Tasks />} />
         <Route path="portfolio" element={<PortfolioManager />} />
+        <Route path="messages" element={<AdminPortalMessages />} />
+        <Route path="plans" element={<ProjectPlans />} />
       </Route>
+
+      {/* Client Portal */}
+      <Route path="/portal" element={<ClientPortal />} />
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>

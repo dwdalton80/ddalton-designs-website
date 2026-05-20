@@ -1,0 +1,102 @@
+import { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { MessageSquare, FileText, Receipt, FileSignature, LogIn } from 'lucide-react';
+import PortalMessages from './PortalMessages';
+import PortalInvoices from './PortalInvoices';
+import PortalProjectPlans from './PortalProjectPlans';
+
+const TABS = [
+  { id: 'messages', label: 'Messages', icon: MessageSquare },
+  { id: 'invoices', label: 'Invoices', icon: Receipt },
+  { id: 'plans', label: 'Project Plans', icon: FileSignature },
+];
+
+export default function ClientPortal() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState('messages');
+
+  useEffect(() => {
+    base44.auth.me()
+      .then(u => { setUser(u); setLoading(false); })
+      .catch(() => { setLoading(false); });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-border border-t-accent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="bg-card border border-border rounded-2xl p-10 max-w-md w-full text-center shadow-lg">
+          <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <LogIn size={24} className="text-accent" />
+          </div>
+          <h1 className="font-display font-black text-3xl mb-2">Client Portal</h1>
+          <p className="text-muted-foreground text-sm mb-6">Sign in to access your invoices, messages, and project plans from DDalton Designs.</p>
+          <button
+            onClick={() => base44.auth.redirectToLogin(window.location.href)}
+            className="w-full px-6 py-3 bg-foreground text-primary-foreground font-semibold rounded-xl hover:bg-accent transition-all"
+          >
+            Sign In
+          </button>
+          <p className="text-xs text-muted-foreground mt-4">Don't have access? <a href="/contact" className="text-accent underline">Contact Derek</a></p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-foreground text-primary-foreground px-6 py-5">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div>
+            <div className="font-display font-black text-xl">DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs</div>
+            <div className="text-xs text-white/50 mt-0.5">Client Portal</div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right hidden sm:block">
+              <div className="text-sm font-semibold">{user.full_name}</div>
+              <div className="text-xs text-white/50">{user.email}</div>
+            </div>
+            <button
+              onClick={() => base44.auth.logout('/')}
+              className="text-xs text-white/50 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-white/20 hover:border-white/40"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="bg-card border-b border-border">
+        <div className="max-w-5xl mx-auto px-6 flex gap-1 pt-2">
+          {TABS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-all -mb-px ${tab === id ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+            >
+              <Icon size={15} />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        {tab === 'messages' && <PortalMessages user={user} />}
+        {tab === 'invoices' && <PortalInvoices user={user} />}
+        {tab === 'plans' && <PortalProjectPlans user={user} />}
+      </div>
+    </div>
+  );
+}

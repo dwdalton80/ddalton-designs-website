@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, X, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, X, ChevronRight, MessageSquare, FileSignature } from 'lucide-react';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -10,6 +10,8 @@ const navItems = [
   { href: '/admin/invoices', label: 'Invoices', icon: Receipt },
   { href: '/admin/tasks', label: 'Productivity', icon: CheckSquare },
   { href: '/admin/portfolio', label: 'Portfolio', icon: Image },
+  { href: '/admin/messages', label: 'Portal Messages', icon: MessageSquare },
+  { href: '/admin/plans', label: 'Project Plans', icon: FileSignature },
 ];
 
 export default function AdminLayout() {
