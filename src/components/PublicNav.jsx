@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function PublicNav() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -45,12 +46,16 @@ export default function PublicNav() {
           >
             Get a Quote
           </Link>
+          <ThemeToggle />
         </div>
 
         {/* Mobile menu toggle */}
-        <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+        <div className="md:hidden flex items-center gap-3">
+          <ThemeToggle />
+          <button onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
