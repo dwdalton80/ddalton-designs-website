@@ -1,0 +1,45 @@
+{
+  "name": "ClientRequest",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "project_type": {
+      "type": "string",
+      "enum": [
+        "website",
+        "logo",
+        "marketing",
+        "other"
+      ]
+    },
+    "message": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "read",
+        "converted",
+        "archived"
+      ],
+      "default": "new"
+    },
+    "budget": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "email",
+    "message"
+  ]
+}
