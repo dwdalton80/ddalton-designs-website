@@ -58,10 +58,19 @@ export default function Estimates() {
 
   const sendEstimate = async (est) => {
     setSending(true);
+    const portalUrl = `${window.location.origin}/portal`;
+
+    // Invite the client to the app (so they can log in to the portal)
+    try {
+      await base44.users.inviteUser(est.client_email, 'user');
+    } catch (err) {
+      // User may already exist — that's fine, continue
+    }
+
     await base44.integrations.Core.SendEmail({
       to: est.client_email,
-      subject: `Design Estimate from DDalton Designs`,
-      body: `Hi ${est.client_name},\n\nThank you for your interest in DDalton Designs!\n\nHere is your estimate:\n\n${est.line_items?.map(i => `• ${i.description}: ${i.quantity} × $${i.rate} = $${i.total}`).join('\n')}\n\nSubtotal: $${est.subtotal}\n${est.tax_rate ? `Tax (${est.tax_rate}%): $${((est.subtotal || 0) * est.tax_rate / 100).toFixed(2)}\n` : ''}${est.discount ? `Discount: -$${est.discount}\n` : ''}Total: $${est.total}\n\n${est.notes ? `Notes: ${est.notes}\n\n` : ''}Please reply to this email to accept or request changes.\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
+      subject: `Your Design Estimate from DDalton Designs`,
+      body: `Hi ${est.client_name},\n\nThank you for your interest in DDalton Designs! I've prepared an estimate for you.\n\nESTIMATE SUMMARY\n────────────────\n${est.line_items?.map(i => `• ${i.description}: ${i.quantity} × $${i.rate} = $${i.total}`).join('\n')}\n\nSubtotal: $${est.subtotal}${est.tax_rate ? `\nTax (${est.tax_rate}%): $${((est.subtotal || 0) * est.tax_rate / 100).toFixed(2)}` : ''}${est.discount ? `\nDiscount: -$${est.discount}` : ''}\nTotal: $${est.total}\n\n${est.notes ? `Notes: ${est.notes}\n\n` : ''}────────────────\nVIEW YOUR CLIENT PORTAL\nYou can view this estimate, any invoices, and project plans — plus send me messages — through your dedicated client portal:\n\n${portalUrl}\n\nYou'll receive a separate login invitation to access your portal. If you already have an account, just log in with your email.\n\nPlease reply to this email or reach out through the portal if you have any questions or would like to move forward.\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
     });
     await base44.entities.Estimate.update(est.id, { status: 'sent', sent_at: new Date().toISOString() });
     setSending(false);
