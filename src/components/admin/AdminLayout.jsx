@@ -24,7 +24,7 @@ export default function AdminLayout() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-foreground text-primary-foreground flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:flex`}>
         <div className="px-6 py-6 border-b border-white/10">
           <Link to="/" className="font-display font-black text-xl">
-            DD<span style={{ color: '#FF4D4D' }}>alton</span>
+            DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs
           </Link>
           <div className="text-xs text-white/40 mt-0.5 font-body">Admin Panel</div>
         </div>
