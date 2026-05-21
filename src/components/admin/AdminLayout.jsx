@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, X, ChevronRight, MessageSquare, FileSignature, LogOut } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -17,7 +17,33 @@ const navItems = [
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    base44.auth.me().then(user => {
+      if (user && user.role === 'admin') {
+        setIsAdmin(true);
+      } else {
+        base44.auth.redirectToLogin(window.location.href);
+      }
+      setAuthChecked(true);
+    }).catch(() => {
+      base44.auth.redirectToLogin(window.location.href);
+      setAuthChecked(true);
+    });
+  }, []);
+
+  if (!authChecked) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-border border-t-accent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -49,7 +75,7 @@ export default function AdminLayout() {
         <div className="px-6 py-4 border-t border-white/10 flex flex-col gap-2">
           <Link to="/" className="text-xs text-white/40 hover:text-white/60 transition-colors">← View Public Site</Link>
           <button
-            onClick={() => base44.auth.logout('/')}
+            onClick={() => base44.auth.logout(window.location.origin)}
             className="flex items-center gap-2 text-xs text-white/40 hover:text-white/60 transition-colors"
           >
             <LogOut size={12} /> Sign Out
