@@ -77,7 +77,7 @@ export default function Portfolio() {
                   >
                     <Link
                       to={`/portfolio/${item.id}`}
-                      className={`group relative rounded-2xl overflow-hidden bg-muted block ${i === 0 ? 'md:col-span-2 aspect-[16/7]' : 'aspect-[4/3]'}`}
+                      className="group relative rounded-2xl overflow-hidden bg-muted block aspect-[4/3]"
                     >
                       {(item.cover_image || item.images?.[0]) ? (
                         <img
