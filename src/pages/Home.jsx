@@ -177,14 +177,14 @@ export default function Home() {
                   viewport={{ once: true }}
                   variants={fadeUp}
                 >
-                  <Link to={`/portfolio/${item.id}`} className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted block">
+                  <Link to={`/portfolio/${item.id}`} className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted block" style={{ position: 'relative' }}>
                     {item.images?.[0] && (
                       <img
                         src={item.images[0]}
                         alt={item.title}
                         loading="lazy"
                         decoding="async"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                       />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
