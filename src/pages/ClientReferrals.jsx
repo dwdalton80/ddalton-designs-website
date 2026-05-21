@@ -19,11 +19,21 @@ export default function ClientReferrals() {
   useEffect(() => {
     base44.auth.me()
       .then(async u => {
+        if (!u) {
+          setLoading(false);
+          return;
+        }
         setUser(u);
-        // Find client by user email
-        const clients = await base44.entities.Client.filter({ email: u.email }, null, 1);
-        if (clients && clients.length > 0) {
-          setClient(clients[0]);
+        // Verify client access - check if a referral exists for this email
+        // This ensures only past referrers can submit new referrals
+        try {
+          const existingReferrals = await base44.entities.Referral.filter({ referrer_email: u.email }, null, 1);
+          if (existingReferrals && existingReferrals.length > 0) {
+            // User has submitted a referral before, they're a valid referrer
+            setClient({ email: u.email, name: u.full_name });
+          }
+        } catch (err) {
+          // If filter fails due to RLS, user doesn't have permission
         }
         setLoading(false);
       })
