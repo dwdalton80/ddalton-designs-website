@@ -36,7 +36,7 @@ export default function AdminDashboard() {
   const newRequests = requests.filter(r => r.status === 'new').length;
   const pendingEstimates = estimates.filter(e => ['draft', 'sent'].includes(e.status)).length;
   const unpaidInvoices = invoices.filter(i => i.status !== 'paid').length;
-  const totalRevenue = invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + (i.total || 0), 0);
+  const totalRevenue = invoices.reduce((sum, i) => sum + (i.paid_amount || (i.status === 'paid' ? i.total : 0) || 0), 0);
   const activeTasks = tasks.filter(t => t.status !== 'done').length;
 
   const stats = [
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
       <div className="bg-card rounded-2xl border border-border p-6">
         <div className="mb-4">
           <h2 className="font-display font-bold text-xl">Revenue (Last 6 Months)</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">Paid invoices only</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Paid invoices + partial payments</p>
         </div>
         <RevenueChart invoices={invoices} />
       </div>

@@ -15,9 +15,9 @@ export default function RevenueChart({ invoices }) {
     const revenue = invoices
       .filter(inv => {
         const d = new Date(inv.created_date);
-        return inv.status === 'paid' && d >= start && d <= end;
+        return d >= start && d <= end;
       })
-      .reduce((sum, inv) => sum + (inv.total || 0), 0);
+      .reduce((sum, inv) => sum + (inv.paid_amount || (inv.status === 'paid' ? inv.total : 0) || 0), 0);
     return { month: label, revenue };
   });
 
