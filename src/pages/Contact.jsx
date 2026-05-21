@@ -52,7 +52,7 @@ export default function Contact() {
               <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Let's Connect</div>
               <h1 className="font-display font-black text-6xl md:text-7xl mb-6">Start a Project</h1>
               <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-                Fill out the form and I'll get back to you within 24 hours with a personalized response and a free quote.
+                Fill out the form and I'll get back to you within 48 hours with a personalized response and a free quote.
               </p>
               <div className="space-y-5">
                 <div className="flex items-center gap-4">
