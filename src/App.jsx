@@ -7,6 +7,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from '@/lib/ThemeContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Critical page — loaded eagerly
 import Home from './pages/Home';
@@ -76,7 +77,7 @@ const AuthenticatedApp = () => {
       <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/referrals" element={<Referrals />} />
-      <Route path="/my-referrals" element={<MyReferrals />} />
+      <Route path="/my-referrals" element={<ProtectedRoute><MyReferrals /></ProtectedRoute>} />
       <Route path="/client-referrals" element={<ClientReferrals />} />
       <Route path="/referral-tracker/:id" element={<ReferralTracker />} />
       <Route path="/terms" element={<TermsOfService />} />
