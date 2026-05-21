@@ -31,6 +31,7 @@ const Tasks = lazy(() => import('./pages/admin/Tasks'));
 const PortfolioManager = lazy(() => import('./pages/admin/PortfolioManager'));
 const AdminPortalMessages = lazy(() => import('./pages/admin/PortalMessages'));
 const ProjectPlans = lazy(() => import('./pages/admin/ProjectPlans'));
+const Expenses = lazy(() => import('./pages/admin/Expenses'));
 const ClientPortal = lazy(() => import('./pages/portal/ClientPortal'));
 
 const AuthenticatedApp = () => {
@@ -83,6 +84,7 @@ const AuthenticatedApp = () => {
         <Route path="portfolio" element={<PortfolioManager />} />
         <Route path="messages" element={<AdminPortalMessages />} />
         <Route path="plans" element={<ProjectPlans />} />
+        <Route path="expenses" element={<Expenses />} />
       </Route>
 
       {/* Client Portal */}
