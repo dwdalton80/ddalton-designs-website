@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, X, ChevronRight, MessageSquare, FileSignature } from 'lucide-react';
+import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, X, ChevronRight, MessageSquare, FileSignature, LogOut } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -45,8 +46,14 @@ export default function AdminLayout() {
             );
           })}
         </nav>
-        <div className="px-6 py-4 border-t border-white/10">
+        <div className="px-6 py-4 border-t border-white/10 flex flex-col gap-2">
           <Link to="/" className="text-xs text-white/40 hover:text-white/60 transition-colors">← View Public Site</Link>
+          <button
+            onClick={() => base44.auth.logout()}
+            className="flex items-center gap-2 text-xs text-white/40 hover:text-white/60 transition-colors"
+          >
+            <LogOut size={12} /> Sign Out
+          </button>
         </div>
       </aside>
 
