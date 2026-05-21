@@ -41,6 +41,18 @@ export default function AdminReferrals() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
+      const referral = referrals.find(r => r.id === id);
+      
+      // Only send email if status is actually changing to a notifiable status
+      if (referral && referral.status !== newStatus && ['contacted', 'converted', 'rejected'].includes(newStatus)) {
+        await base44.functions.invoke('sendReferralStatusUpdate', {
+          referrer_email: referral.referrer_email,
+          referrer_name: referral.referrer_name,
+          status: newStatus,
+          referred_client_name: referral.referred_client_name
+        });
+      }
+
       await base44.entities.Referral.update(id, { status: newStatus });
       setReferrals(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
     } catch (error) {
