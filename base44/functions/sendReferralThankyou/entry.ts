@@ -3,7 +3,12 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { referral_id, referrer_email, referrer_name } = await req.json();
+    const { referral_id, referrer_email, referrer_name, token } = await req.json();
+
+    const secretToken = Deno.env.get('FUNCTION_SECRET_TOKEN');
+    if (!secretToken || token !== secretToken) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     if (!referral_id || !referrer_email) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
