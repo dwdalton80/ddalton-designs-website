@@ -17,6 +17,7 @@ const PortfolioDetail = lazy(() => import('./pages/PortfolioDetail'));
 const About = lazy(() => import('./pages/About'));
 const Services = lazy(() => import('./pages/Services'));
 const Contact = lazy(() => import('./pages/Contact'));
+const Referrals = lazy(() => import('./pages/Referrals'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
@@ -32,6 +33,7 @@ const PortfolioManager = lazy(() => import('./pages/admin/PortfolioManager'));
 const AdminPortalMessages = lazy(() => import('./pages/admin/PortalMessages'));
 const ProjectPlans = lazy(() => import('./pages/admin/ProjectPlans'));
 const Expenses = lazy(() => import('./pages/admin/Expenses'));
+const AdminReferrals = lazy(() => import('./pages/admin/Referrals'));
 const ClientPortal = lazy(() => import('./pages/portal/ClientPortal'));
 
 const AuthenticatedApp = () => {
@@ -70,6 +72,7 @@ const AuthenticatedApp = () => {
       <Route path="/about" element={<About />} />
       <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/referrals" element={<Referrals />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
 
@@ -85,6 +88,7 @@ const AuthenticatedApp = () => {
         <Route path="messages" element={<AdminPortalMessages />} />
         <Route path="plans" element={<ProjectPlans />} />
         <Route path="expenses" element={<Expenses />} />
+        <Route path="referrals" element={<AdminReferrals />} />
       </Route>
 
       {/* Client Portal */}

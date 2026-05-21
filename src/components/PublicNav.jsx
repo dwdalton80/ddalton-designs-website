@@ -24,6 +24,7 @@ export default function PublicNav() {
     { href: '/services', label: 'Services' },
     { href: '/about', label: 'About' },
     { href: '/contact', label: 'Contact' },
+    { href: '/referrals', label: 'Refer & Earn' },
     { href: '/portal', label: 'Client Portal' },
   ];
 
