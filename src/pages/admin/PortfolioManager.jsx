@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Plus, X, Trash2, Star, Upload, Image } from 'lucide-react';
+import ReactQuill from 'react-quill';
 
 const CATEGORIES = ['website', 'logo', 'marketing'];
 
@@ -165,8 +166,16 @@ export default function PortfolioManager() {
               </div>
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Description</label>
-                <textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
-                  className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm resize-none" />
+                <div className="rounded-xl border border-border overflow-hidden bg-background">
+                  <ReactQuill
+                    theme="snow"
+                    value={form.description || ''}
+                    onChange={val => setForm(f => ({ ...f, description: val }))}
+                    modules={{ toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link'], ['clean']] }}
+                    className="text-sm"
+                    style={{ minHeight: '120px' }}
+                  />
+                </div>
               </div>
               {/* Cover Image */}
               <div>
