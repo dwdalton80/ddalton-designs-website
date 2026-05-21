@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Inbox, FileText, Receipt, CheckSquare, TrendingUp, Users } from 'lucide-react';
+import { Inbox, FileText, Receipt, CheckSquare, TrendingUp, Users, Gift } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import StatCard from '@/components/admin/dashboard/StatCard';
 import RevenueChart from '@/components/admin/dashboard/RevenueChart';
@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   const [invoices, setInvoices] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [clients, setClients] = useState([]);
+  const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,12 +24,14 @@ export default function AdminDashboard() {
       base44.entities.Invoice.list('-created_date', 50),
       base44.entities.Task.list('-created_date', 50),
       base44.entities.Client.list('-created_date', 50),
-    ]).then(([r, e, i, t, c]) => {
+      base44.entities.Referral.list('-referral_date', 50),
+    ]).then(([r, e, i, t, c, ref]) => {
       setRequests(r);
       setEstimates(e);
       setInvoices(i);
       setTasks(t);
       setClients(c);
+      setReferrals(ref);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
@@ -38,10 +41,13 @@ export default function AdminDashboard() {
   const unpaidInvoices = invoices.filter(i => i.status !== 'paid').length;
   const totalRevenue = invoices.reduce((sum, i) => sum + (i.paid_amount || (i.status === 'paid' ? i.total : 0) || 0), 0);
   const activeTasks = tasks.filter(t => t.status !== 'done').length;
+  const referralsSubmitted = referrals.length;
+  const convertedReferrals = referrals.filter(r => r.status === 'converted').length;
 
   const stats = [
     { icon: Inbox, label: 'New Requests', value: newRequests, href: '/admin/requests', colorClass: 'bg-blue-50 text-blue-600' },
     { icon: Users, label: 'Total Clients', value: clients.length, href: '/admin/clients', colorClass: 'bg-purple-50 text-purple-600' },
+    { icon: Gift, label: 'Referrals Submitted', value: referralsSubmitted, href: '/admin/referrals', colorClass: 'bg-pink-50 text-pink-600' },
     { icon: FileText, label: 'Pending Estimates', value: pendingEstimates, href: '/admin/estimates', colorClass: 'bg-yellow-50 text-yellow-600' },
     { icon: Receipt, label: 'Unpaid Invoices', value: unpaidInvoices, href: '/admin/invoices', colorClass: 'bg-red-50 text-red-600' },
     { icon: TrendingUp, label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, href: '/admin/invoices', colorClass: 'bg-green-50 text-green-600' },
