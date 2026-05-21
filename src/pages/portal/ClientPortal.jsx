@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { MessageSquare, FileText, Receipt, FileSignature, LogIn } from 'lucide-react';
+import { useTheme } from '@/lib/ThemeContext';
 import PortalMessages from './PortalMessages';
 import PortalInvoices from './PortalInvoices';
 import PortalProjectPlans from './PortalProjectPlans';
@@ -15,6 +16,10 @@ export default function ClientPortal() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('messages');
+  const { theme } = useTheme();
+  const logoSrc = theme === 'dark'
+    ? 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/bb38fba8e_D.png'
+    : 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/a412249e5_D.png';
 
   useEffect(() => {
     base44.auth.me()
@@ -56,9 +61,12 @@ export default function ClientPortal() {
       {/* Header */}
       <div className="bg-foreground text-primary-foreground px-6 py-5">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div>
-            <div className="font-display font-black text-xl">DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs</div>
-            <div className="text-xs text-white/50 mt-0.5">Client Portal</div>
+          <div className="flex items-center gap-3">
+            <img src={logoSrc} alt="DDalton Designs Logo" className="h-10 w-auto" />
+            <div>
+              <div className="font-display font-black text-xl">DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs</div>
+              <div className="text-xs text-white/50 mt-0.5">Client Portal</div>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">
