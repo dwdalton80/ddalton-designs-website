@@ -5,10 +5,10 @@ import { format } from 'date-fns';
 
 const STATUS_COLORS = {
   draft: 'bg-secondary text-muted-foreground',
-  sent: 'bg-blue-50 text-blue-600',
-  viewed: 'bg-yellow-50 text-yellow-600',
-  accepted: 'bg-green-50 text-green-600',
-  declined: 'bg-red-50 text-red-600',
+  sent: 'bg-blue-500/15 text-blue-500',
+  viewed: 'bg-yellow-500/15 text-yellow-500',
+  accepted: 'bg-green-500/15 text-green-500',
+  declined: 'bg-red-500/15 text-red-500',
 };
 
 const emptyItem = { description: '', quantity: 1, rate: 0, total: 0 };

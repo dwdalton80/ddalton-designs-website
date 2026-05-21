@@ -5,9 +5,9 @@ import { format } from 'date-fns';
 import GenerateInvoiceModal from '@/components/admin/invoices/GenerateInvoiceModal';
 
 const STATUS_COLORS = {
-  unpaid: 'bg-red-50 text-red-600',
-  partial: 'bg-yellow-50 text-yellow-600',
-  paid: 'bg-green-50 text-green-600',
+  unpaid: 'bg-red-500/15 text-red-500',
+  partial: 'bg-yellow-500/15 text-yellow-500',
+  paid: 'bg-green-500/15 text-green-500',
 };
 
 export default function Invoices() {

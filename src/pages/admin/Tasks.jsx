@@ -7,13 +7,13 @@ const STATUSES = ['todo', 'in_progress', 'done'];
 const PRIORITIES = ['low', 'medium', 'high'];
 const STATUS_STYLES = {
   todo: 'bg-secondary text-muted-foreground',
-  in_progress: 'bg-blue-50 text-blue-600',
-  done: 'bg-green-50 text-green-600',
+  in_progress: 'bg-blue-500/15 text-blue-500',
+  done: 'bg-green-500/15 text-green-500',
 };
 const PRIORITY_STYLES = {
   low: 'bg-secondary text-muted-foreground',
-  medium: 'bg-yellow-50 text-yellow-600',
-  high: 'bg-red-50 text-red-600',
+  medium: 'bg-yellow-500/15 text-yellow-500',
+  high: 'bg-red-500/15 text-red-500',
 };
 
 export default function Tasks() {

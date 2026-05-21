@@ -4,10 +4,10 @@ import { Plus, FileSignature, Trash2, Send, X, PlusCircle, MinusCircle } from 'l
 
 const statusColors = {
   draft: 'bg-secondary text-muted-foreground',
-  sent: 'bg-yellow-50 text-yellow-700',
-  viewed: 'bg-blue-50 text-blue-600',
-  signed: 'bg-green-50 text-green-600',
-  declined: 'bg-red-50 text-red-600',
+  sent: 'bg-yellow-500/15 text-yellow-500',
+  viewed: 'bg-blue-500/15 text-blue-500',
+  signed: 'bg-green-500/15 text-green-500',
+  declined: 'bg-red-500/15 text-red-500',
 };
 
 const emptyPlan = {
