@@ -25,11 +25,11 @@ export default function PublicNav() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-background/95 backdrop-blur-sm shadow-sm border-b border-border' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex flex-col items-center gap-1">
+        <Link to="/" className="flex items-center gap-3">
+          <img src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/a412249e5_D.png" alt="DDalton Designs Logo" className="h-10 w-auto" />
           <span className="font-display font-black text-xl tracking-tight text-foreground">
             DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs
           </span>
-          <img src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/a412249e5_D.png" alt="DDalton Designs Logo" className="h-10 w-auto" />
         </Link>
 
         {/* Desktop links */}
