@@ -12,6 +12,7 @@ export default function PortfolioManager() {
   const [form, setForm] = useState({ title: '', category: 'website', images: [], description: '', url: '', client_name: '', featured: false, order: 0 });
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const fetch = () => {
     base44.entities.PortfolioItem.list('order', 100)
@@ -40,10 +41,15 @@ export default function PortfolioManager() {
 
   const save = async (e) => {
     e.preventDefault();
-    if (editing) await base44.entities.PortfolioItem.update(editing, form);
-    else await base44.entities.PortfolioItem.create(form);
-    setShowForm(false);
-    fetch();
+    setSaveError('');
+    try {
+      if (editing) await base44.entities.PortfolioItem.update(editing, form);
+      else await base44.entities.PortfolioItem.create(form);
+      setShowForm(false);
+      fetch();
+    } catch (err) {
+      setSaveError(err?.message || 'Failed to save. Please try again.');
+    }
   };
 
   const del = async (id) => {
@@ -142,8 +148,8 @@ export default function PortfolioManager() {
                 </div>
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Live URL</label>
-                  <input type="url" value={form.url} onChange={e => setForm({ ...form, url: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" placeholder="https://" />
+                  <input type="text" value={form.url} onChange={e => setForm({ ...form, url: e.target.value })}
+                   className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" placeholder="https://" />
                 </div>
               </div>
               <div>
@@ -185,6 +191,7 @@ export default function PortfolioManager() {
                     className="w-16 px-2 py-1 rounded-lg border border-border bg-background focus:outline-none focus:border-accent text-sm" />
                 </div>
               </div>
+              {saveError && <p className="text-sm text-red-500 bg-red-50 rounded-xl px-3 py-2">{saveError}</p>}
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium">Cancel</button>
                 <button type="submit" className="flex-1 py-2.5 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-red-600 transition-all">Save Item</button>
