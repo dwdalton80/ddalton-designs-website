@@ -49,7 +49,7 @@ export default function AdminLayout() {
         <div className="px-6 py-4 border-t border-white/10 flex flex-col gap-2">
           <Link to="/" className="text-xs text-white/40 hover:text-white/60 transition-colors">← View Public Site</Link>
           <button
-            onClick={() => base44.auth.logout()}
+            onClick={() => base44.auth.logout('/')}
             className="flex items-center gap-2 text-xs text-white/40 hover:text-white/60 transition-colors"
           >
             <LogOut size={12} /> Sign Out
