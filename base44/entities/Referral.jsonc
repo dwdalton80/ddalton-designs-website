@@ -65,15 +65,18 @@
     "referred_client_email"
   ],
   "rls": {
-    "create": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
+    "create": {},
     "read": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.referrer_email": "{{user.email}}"
+        }
+      ]
     },
     "update": {
       "user_condition": {
