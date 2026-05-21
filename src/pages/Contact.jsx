@@ -70,7 +70,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground uppercase tracking-wider mb-0.5">Response Time</div>
-                    <div className="font-medium">Within 24 hours</div>
+                    <div className="font-medium">Within 48 hours</div>
                   </div>
                 </div>
               </div>
