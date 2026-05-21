@@ -1,0 +1,89 @@
+{
+  "name": "Referral",
+  "type": "object",
+  "properties": {
+    "referrer_name": {
+      "type": "string",
+      "description": "The name of the person who made the referral"
+    },
+    "referrer_email": {
+      "type": "string",
+      "description": "The email of the person who made the referral"
+    },
+    "referred_client_name": {
+      "type": "string",
+      "description": "The name of the client who was referred"
+    },
+    "referred_client_email": {
+      "type": "string",
+      "description": "The email of the client who was referred"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "contacted",
+        "converted",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Current status of the referral"
+    },
+    "referral_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the referral was made"
+    },
+    "conversion_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the referred client became a paying customer"
+    },
+    "payout_amount": {
+      "type": "number",
+      "default": 100,
+      "description": "Amount to be paid for a successful referral"
+    },
+    "payout_status": {
+      "type": "string",
+      "enum": [
+        "unpaid",
+        "paid"
+      ],
+      "default": "unpaid",
+      "description": "Status of the referral payout"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about the referral"
+    }
+  },
+  "required": [
+    "referrer_name",
+    "referrer_email",
+    "referred_client_name",
+    "referred_client_email"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
