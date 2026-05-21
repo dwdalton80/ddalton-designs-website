@@ -19,7 +19,7 @@ export default function ClientPortal() {
   useEffect(() => {
     base44.auth.me()
       .then(u => { setUser(u); setLoading(false); })
-      .catch(() => { setLoading(false); });
+      .catch(() => { base44.auth.redirectToLogin(window.location.href); setLoading(false); });
   }, []);
 
   if (loading) {
