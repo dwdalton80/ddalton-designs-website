@@ -138,7 +138,7 @@ export default function Referrals() {
           <h2 className="font-display font-black text-4xl md:text-5xl mb-6">Track Your Referrals</h2>
           <p className="text-lg mb-8 text-white/80">Once you submit a referral, you can log into the admin dashboard to track the status and see when payments are made.</p>
           <Link
-            to="/admin"
+            to="/my-referrals"
             className="inline-block px-8 py-4 bg-accent text-white font-semibold rounded-xl hover:bg-red-600 transition-all"
           >
             View Referral Dashboard
