@@ -40,6 +40,7 @@ export default function ClientReferrals() {
     setError('');
 
     try {
+      // Create referral
       await base44.entities.Referral.create({
         referrer_name: user.full_name,
         referrer_email: user.email,
@@ -47,6 +48,20 @@ export default function ClientReferrals() {
         referred_client_email: formData.referred_client_email,
         referral_date: new Date().toISOString(),
         status: 'pending',
+      });
+
+      // Send confirmation email to referrer
+      await base44.functions.invoke('sendReferrerConfirmation', {
+        referrer_name: user.full_name,
+        referrer_email: user.email,
+        referred_client_name: formData.referred_client_name,
+      });
+
+      // Send lead qualification email to referred person
+      await base44.functions.invoke('sendLeadQualification', {
+        referred_client_name: formData.referred_client_name,
+        referred_client_email: formData.referred_client_email,
+        referrer_name: user.full_name,
       });
 
       setSubmitted(true);

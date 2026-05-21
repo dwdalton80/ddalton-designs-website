@@ -28,11 +28,18 @@ export default function ReferralForm() {
         status: 'pending'
       });
 
-      // Send thank you email
-      await base44.functions.invoke('sendReferralThankyou', {
-        referral_id: referral.id,
+      // Send confirmation email to referrer
+      await base44.functions.invoke('sendReferrerConfirmation', {
         referrer_email: formData.referrer_email,
-        referrer_name: formData.referrer_name
+        referrer_name: formData.referrer_name,
+        referred_client_name: formData.referred_client_name,
+      });
+
+      // Send lead qualification email to referred person
+      await base44.functions.invoke('sendLeadQualification', {
+        referred_client_name: formData.referred_client_name,
+        referred_client_email: formData.referred_client_email,
+        referrer_name: formData.referrer_name,
       });
 
       setSubmitted(true);
