@@ -4,11 +4,11 @@ import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
 const stats = [
-  { icon: Clock, value: '15+', label: 'Years Experience' },
-  { icon: Star, value: '30+', label: 'Projects Completed' },
-  { icon: Award, value: '3', label: 'Design Awards' },
-  { icon: Camera, value: '5K+', label: 'Photos Taken' },
-];
+{ icon: Clock, value: '15+', label: 'Years Experience' },
+{ icon: Star, value: '30+', label: 'Projects Completed' },
+{ icon: Award, value: '3', label: 'Design Awards' },
+{ icon: Camera, value: '5K+', label: 'Photos Taken' }];
+
 
 export default function About() {
   return (
@@ -42,11 +42,11 @@ export default function About() {
             </div>
             <div className="relative">
               <div className="aspect-[3/4] rounded-2xl overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=700&q=85"
-                  alt="Derek Dalton"
-                  className="w-full h-full object-cover"
-                />
+                <img src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/88f0a22e3_49345F4C-4170-410D-8153-D285540B7FB8.PNG"
+
+                alt="Derek Dalton"
+                className="w-full h-full object-cover" />
+                
               </div>
               <div className="absolute -bottom-5 -right-5 bg-accent text-white p-5 rounded-xl text-center shadow-xl">
                 <div className="font-display font-black text-3xl">15+</div>
@@ -57,13 +57,13 @@ export default function About() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-24">
-            {stats.map(({ icon: Icon, value, label }) => (
-              <div key={label} className="text-center p-8 border border-border rounded-2xl">
+            {stats.map(({ icon: Icon, value, label }) =>
+            <div key={label} className="text-center p-8 border border-border rounded-2xl">
                 <Icon size={24} className="mx-auto mb-3 text-accent" />
                 <div className="font-display font-black text-4xl mb-1">{value}</div>
                 <div className="text-sm text-muted-foreground font-medium">{label}</div>
               </div>
-            ))}
+            )}
           </div>
 
           {/* Skills */}
@@ -71,27 +71,27 @@ export default function About() {
             <h2 className="font-display font-black text-4xl mb-10">Skills & Expertise</h2>
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { title: 'Web Design & Development', items: ['UI/UX Design', 'Responsive Layouts', 'WordPress', 'Custom Web Apps', 'Landing Pages'] },
-                { title: 'Brand & Graphic Design', items: ['Logo Design', 'Brand Identity', 'Typography', 'Color Theory', 'Print Design'] },
-                { title: 'Photography & Media', items: ['Product Photography', 'Portrait Photography', 'Photo Editing', 'Marketing Materials', 'Social Media Graphics'] },
-              ].map(group => (
-                <div key={group.title}>
+              { title: 'Web Design & Development', items: ['UI/UX Design', 'Responsive Layouts', 'WordPress', 'Custom Web Apps', 'Landing Pages'] },
+              { title: 'Brand & Graphic Design', items: ['Logo Design', 'Brand Identity', 'Typography', 'Color Theory', 'Print Design'] },
+              { title: 'Photography & Media', items: ['Product Photography', 'Portrait Photography', 'Photo Editing', 'Marketing Materials', 'Social Media Graphics'] }].
+              map((group) =>
+              <div key={group.title}>
                   <h3 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">{group.title}</h3>
                   <ul className="space-y-2">
-                    {group.items.map(s => (
-                      <li key={s} className="text-white/60 text-sm flex items-center gap-2">
+                    {group.items.map((s) =>
+                  <li key={s} className="text-white/60 text-sm flex items-center gap-2">
                         <span className="w-1 h-1 rounded-full bg-accent flex-shrink-0" />
                         {s}
                       </li>
-                    ))}
+                  )}
                   </ul>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
       </section>
       <PublicFooter />
-    </div>
-  );
+    </div>);
+
 }
