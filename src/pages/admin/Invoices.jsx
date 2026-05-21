@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Receipt, X, Send, CheckCircle, DollarSign, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import GenerateInvoiceModal from '@/components/admin/invoices/GenerateInvoiceModal';
+import ManualInvoiceModal from '@/components/admin/invoices/ManualInvoiceModal';
 
 const STATUS_COLORS = {
   unpaid: 'bg-red-500/15 text-red-500',
@@ -17,6 +18,7 @@ export default function Invoices() {
   const [sending, setSending] = useState(false);
   const [filter, setFilter] = useState('all');
   const [showGenerate, setShowGenerate] = useState(false);
+  const [showManual, setShowManual] = useState(false);
 
   const fetch = () => {
     base44.entities.Invoice.list('-created_date', 100)
@@ -53,10 +55,16 @@ export default function Invoices() {
         <div>
           <h1 className="font-display font-black text-3xl">Invoices</h1>
         </div>
-        <button onClick={() => setShowGenerate(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition-all">
-          <Plus size={16} /> Generate Invoice
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setShowManual(true)}
+            className="flex items-center gap-2 px-5 py-2.5 border border-border text-sm font-semibold rounded-xl hover:border-foreground transition-all">
+            <Plus size={16} /> Manual Invoice
+          </button>
+          <button onClick={() => setShowGenerate(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition-all">
+            <Plus size={16} /> From Estimate
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
@@ -147,6 +155,12 @@ export default function Invoices() {
         )}
       </div>
     </div>
+    {showManual && (
+      <ManualInvoiceModal
+        onClose={() => setShowManual(false)}
+        onCreated={() => { setShowManual(false); fetch(); }}
+      />
+    )}
     {showGenerate && (
       <GenerateInvoiceModal
         onClose={() => setShowGenerate(false)}
