@@ -22,11 +22,19 @@ export default function ReferralForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      await base44.entities.Referral.create({
+      const referral = await base44.entities.Referral.create({
         ...formData,
         referral_date: new Date().toISOString(),
         status: 'pending'
       });
+
+      // Send thank you email
+      await base44.functions.invoke('sendReferralThankyou', {
+        referral_id: referral.id,
+        referrer_email: formData.referrer_email,
+        referrer_name: formData.referrer_name
+      });
+
       setSubmitted(true);
       setFormData({
         referrer_name: '',
