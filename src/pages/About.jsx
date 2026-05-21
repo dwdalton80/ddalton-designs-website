@@ -5,7 +5,7 @@ import PublicFooter from '@/components/PublicFooter';
 
 const stats = [
   { icon: Clock, value: '15+', label: 'Years Experience' },
-  { icon: Star, value: '100+', label: 'Projects Completed' },
+  { icon: Star, value: '30+', label: 'Projects Completed' },
   { icon: Award, value: '3', label: 'Design Awards' },
   { icon: Camera, value: '5K+', label: 'Photos Taken' },
 ];
