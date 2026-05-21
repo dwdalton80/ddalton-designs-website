@@ -12,6 +12,7 @@ export default function PortfolioManager() {
   const [form, setForm] = useState({ title: '', category: 'website', images: [], description: '', url: '', client_name: '', featured: false, order: 0 });
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [saveError, setSaveError] = useState('');
 
   const fetch = () => {
@@ -21,8 +22,17 @@ export default function PortfolioManager() {
   };
   useEffect(() => { fetch(); }, []);
 
-  const openAdd = () => { setForm({ title: '', category: 'website', images: [], description: '', url: '', client_name: '', featured: false, order: items.length }); setEditing(null); setImageUrl(''); setShowForm(true); };
+  const openAdd = () => { setForm({ title: '', category: 'website', cover_image: '', images: [], description: '', url: '', client_name: '', featured: false, order: items.length }); setEditing(null); setImageUrl(''); setShowForm(true); };
   const openEdit = (item) => { setForm({ ...item }); setEditing(item.id); setImageUrl(''); setShowForm(true); };
+
+  const handleCoverUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingCover(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => ({ ...f, cover_image: file_url }));
+    setUploadingCover(false);
+  };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
@@ -158,8 +168,33 @@ export default function PortfolioManager() {
                 <textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
                   className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm resize-none" />
               </div>
+              {/* Cover Image */}
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Images</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">
+                  Cover Image <span className="normal-case font-normal text-muted-foreground">(shown on home page &amp; portfolio grid)</span>
+                </label>
+                <div className="flex items-start gap-3">
+                  {form.cover_image && (
+                    <div className="relative w-24 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                      <img src={form.cover_image} alt="Cover" className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => setForm(f => ({ ...f, cover_image: '' }))}
+                        className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/60 flex items-center justify-center text-white">
+                        <X size={9} />
+                      </button>
+                    </div>
+                  )}
+                  <label className="flex items-center gap-2 px-4 py-2 border border-dashed border-accent rounded-xl cursor-pointer hover:bg-accent/5 transition-colors text-sm text-accent font-medium w-fit">
+                    <Upload size={14} /> {uploadingCover ? 'Uploading...' : form.cover_image ? 'Replace Cover' : 'Upload Cover Image'}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploadingCover} />
+                  </label>
+                </div>
+              </div>
+
+              {/* Detail Images */}
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">
+                  Detail Images <span className="normal-case font-normal text-muted-foreground">(shown on portfolio item page)</span>
+                </label>
                 <div className="flex gap-2 mb-2">
                   <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Paste image URL..."
                     className="flex-1 px-3 py-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />

@@ -13,11 +13,16 @@
         "marketing"
       ]
     },
+    "cover_image": {
+      "type": "string",
+      "description": "Cover image shown on home page and portfolio grid"
+    },
     "images": {
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "description": "Detail images shown on the portfolio item page"
     },
     "description": {
       "type": "string"

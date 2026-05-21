@@ -79,9 +79,9 @@ export default function Portfolio() {
                       to={`/portfolio/${item.id}`}
                       className={`group relative rounded-2xl overflow-hidden bg-muted block ${i === 0 ? 'md:col-span-2 aspect-[16/7]' : 'aspect-[4/3]'}`}
                     >
-                      {item.images?.[0] ? (
+                      {(item.cover_image || item.images?.[0]) ? (
                         <img
-                          src={item.images[0]}
+                          src={item.cover_image || item.images[0]}
                           alt={item.title}
                           loading="lazy"
                           decoding="async"

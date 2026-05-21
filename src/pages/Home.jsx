@@ -178,9 +178,9 @@ export default function Home() {
                   variants={fadeUp}
                 >
                   <Link to={`/portfolio/${item.id}`} className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted block" style={{ position: 'relative' }}>
-                    {item.images?.[0] && (
+                    {(item.cover_image || item.images?.[0]) && (
                       <img
-                        src={item.images[0]}
+                        src={item.cover_image || item.images[0]}
                         alt={item.title}
                         loading="lazy"
                         decoding="async"
