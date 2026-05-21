@@ -17,9 +17,10 @@ export default function ClientPortal() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('messages');
   const { theme } = useTheme();
+  // Header is always dark (bg-foreground), so use the inverted logic vs nav
   const logoSrc = theme === 'dark'
-    ? 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/bb38fba8e_D.png'
-    : 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/a412249e5_D.png';
+    ? 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/a412249e5_D.png'
+    : 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/bb38fba8e_D.png';
 
   useEffect(() => {
     base44.auth.me()
