@@ -78,7 +78,10 @@ export default function PortfolioDetail() {
           {item.description && (
             <div className="max-w-2xl">
               <h2 className="font-display font-bold text-2xl mb-4">About This Project</h2>
-              <p className="text-muted-foreground leading-relaxed text-lg">{item.description}</p>
+              <div
+                className="text-muted-foreground leading-relaxed text-lg prose prose-neutral max-w-none"
+                dangerouslySetInnerHTML={{ __html: item.description }}
+              />
             </div>
           )}
 
