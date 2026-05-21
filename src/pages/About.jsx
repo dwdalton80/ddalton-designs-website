@@ -67,7 +67,7 @@ export default function About() {
           </div>
 
           {/* Skills */}
-          <div className="bg-foreground text-primary-foreground rounded-2xl p-10 md:p-16">
+          <div className="bg-[#111] text-white rounded-2xl p-10 md:p-16">
             <h2 className="font-display font-black text-4xl mb-10">Skills & Expertise</h2>
             <div className="grid md:grid-cols-3 gap-8">
               {[

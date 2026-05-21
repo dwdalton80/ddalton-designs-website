@@ -82,7 +82,7 @@ export default function PortfolioDetail() {
             </div>
           )}
 
-          <div className="mt-16 p-8 bg-foreground text-primary-foreground rounded-2xl text-center">
+          <div className="mt-16 p-8 bg-[#111] text-white rounded-2xl text-center">
             <h3 className="font-display font-bold text-3xl mb-3">Love What You See?</h3>
             <p className="text-white/60 mb-6">Let's create something bold for your brand.</p>
             <Link to="/contact" className="inline-flex items-center gap-2 px-7 py-3 bg-accent text-white rounded-full font-semibold text-sm hover:bg-red-600 transition-all">

@@ -75,7 +75,7 @@ export default function Services() {
             ))}
           </div>
 
-          <div className="mt-20 text-center p-12 bg-foreground text-primary-foreground rounded-2xl">
+          <div className="mt-20 text-center p-12 bg-[#111] text-white rounded-2xl">
             <h2 className="font-display font-black text-4xl mb-4">Need Something Custom?</h2>
             <p className="text-white/60 mb-8 max-w-md mx-auto">Every project is different. Let's talk about what you need and I'll put together a tailored proposal.</p>
             <Link
