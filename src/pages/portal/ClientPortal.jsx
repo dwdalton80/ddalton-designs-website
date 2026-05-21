@@ -5,8 +5,11 @@ import { useTheme } from '@/lib/ThemeContext';
 import PortalMessages from './PortalMessages';
 import PortalInvoices from './PortalInvoices';
 import PortalProjectPlans from './PortalProjectPlans';
+import PortalDashboard from './PortalDashboard';
+import { LayoutDashboard } from 'lucide-react';
 
 const TABS = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
   { id: 'invoices', label: 'Invoices', icon: Receipt },
   { id: 'plans', label: 'Project Plans', icon: FileSignature },
@@ -15,7 +18,7 @@ const TABS = [
 export default function ClientPortal() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('messages');
+  const [tab, setTab] = useState('dashboard');
   const { theme } = useTheme();
   // Header is always dark (bg-foreground), so use the inverted logic vs nav
   const logoSrc = theme === 'dark'
@@ -102,6 +105,7 @@ export default function ClientPortal() {
 
       {/* Content */}
       <div className="max-w-5xl mx-auto px-6 py-8">
+        {tab === 'dashboard' && <PortalDashboard user={user} onNavigate={setTab} />}
         {tab === 'messages' && <PortalMessages user={user} />}
         {tab === 'invoices' && <PortalInvoices user={user} />}
         {tab === 'plans' && <PortalProjectPlans user={user} />}
