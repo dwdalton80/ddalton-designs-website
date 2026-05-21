@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 export default function PublicFooter() {
   return (
     <footer className="bg-[#111] text-white py-16 px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div>
           <div className="font-display font-black text-2xl mb-3">
             DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs
@@ -32,6 +32,13 @@ export default function PublicFooter() {
           >
             Start a Project
           </Link>
+        </div>
+        <div className="flex items-center justify-center md:justify-end">
+          <img
+            src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/bb38fba8e_D.png"
+            alt="DDalton Designs Logo"
+            className="h-32 w-auto opacity-80"
+          />
         </div>
       </div>
       <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-white/40">
