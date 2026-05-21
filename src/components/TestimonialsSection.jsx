@@ -100,7 +100,7 @@ export default function TestimonialsSection() {
                 </div>
 
                 {/* Quote text */}
-                <p className="text-foreground/80 leading-relaxed text-lg md:text-xl font-display mb-8">
+                <p className="text-foreground leading-relaxed text-lg md:text-xl font-display mb-8">
                   "{t.quote}"
                 </p>
 
