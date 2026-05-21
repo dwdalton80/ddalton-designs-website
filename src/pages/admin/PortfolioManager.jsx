@@ -42,9 +42,10 @@ export default function PortfolioManager() {
   const save = async (e) => {
     e.preventDefault();
     setSaveError('');
+    const { id, created_date, updated_date, created_by, ...data } = form;
     try {
-      if (editing) await base44.entities.PortfolioItem.update(editing, form);
-      else await base44.entities.PortfolioItem.create(form);
+      if (editing) await base44.entities.PortfolioItem.update(editing, data);
+      else await base44.entities.PortfolioItem.create(data);
       setShowForm(false);
       fetch();
     } catch (err) {
