@@ -78,9 +78,28 @@
       ]
     },
     "update": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "$and": [
+            {
+              "data.client_email": "{{user.email}}"
+            },
+            {
+              "data.status": {
+                "$in": [
+                  "sent",
+                  "viewed"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     },
     "delete": {
       "user_condition": {
