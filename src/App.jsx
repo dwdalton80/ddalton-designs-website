@@ -19,6 +19,7 @@ const Services = lazy(() => import('./pages/Services'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Referrals = lazy(() => import('./pages/Referrals'));
 const MyReferrals = lazy(() => import('./pages/MyReferrals'));
+const ClientReferrals = lazy(() => import('./pages/ClientReferrals'));
 const ReferralTracker = lazy(() => import('./pages/ReferralTracker'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
@@ -76,6 +77,7 @@ const AuthenticatedApp = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/referrals" element={<Referrals />} />
       <Route path="/my-referrals" element={<MyReferrals />} />
+      <Route path="/client-referrals" element={<ClientReferrals />} />
       <Route path="/referral-tracker/:id" element={<ReferralTracker />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
