@@ -78,7 +78,7 @@ export default function Contact() {
               <div className="mt-16 p-6 border border-border rounded-2xl">
                 <div className="text-sm font-semibold mb-3">What happens next?</div>
                 <ol className="space-y-2 text-sm text-muted-foreground">
-                  {['I review your request and project details', 'I send you a personalized estimate within 24–48 hrs', 'We hop on a quick call to align on scope & timeline', 'We get to work!'].map((s, i) => (
+                  {['I review your request and project details', 'I send you a personalized estimate within 48–72 hrs', 'We hop on a quick call to align on scope & timeline', 'We get to work!'].map((s, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <span className="w-5 h-5 rounded-full bg-accent/10 text-accent text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
                       {s}
