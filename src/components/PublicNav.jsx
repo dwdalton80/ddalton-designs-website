@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useTheme } from '@/lib/ThemeContext';
 
 export default function PublicNav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { theme } = useTheme();
+  const logoSrc = theme === 'dark'
+    ? 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/bb38fba8e_D.png'
+    : 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/a412249e5_D.png';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -26,7 +31,7 @@ export default function PublicNav() {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-background/95 backdrop-blur-sm shadow-sm border-b border-border' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3">
-          <img src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/a412249e5_D.png" alt="DDalton Designs Logo" className="h-10 w-auto" />
+          <img src={logoSrc} alt="DDalton Designs Logo" className="h-10 w-auto" />
           <span className="font-display font-black text-xl tracking-tight text-foreground">
             DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs
           </span>
