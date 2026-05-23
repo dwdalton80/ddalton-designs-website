@@ -53,7 +53,7 @@ export default function AdminLayout() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#111] text-white flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:flex`}>
         <div className="px-6 py-6 border-b border-white/10">
           <Link to="/" className="font-display font-black text-xl">
-            DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs
+            DD<span style={{ color: '#FF4F00' }}>alton</span> Designs
           </Link>
           <div className="text-xs text-white/40 mt-0.5 font-body">Admin Panel</div>
         </div>
@@ -96,7 +96,7 @@ export default function AdminLayout() {
           <button onClick={() => setSidebarOpen(true)}>
             <Menu size={22} />
           </button>
-          <span className="font-display font-bold text-lg">DD<span style={{ color: '#FF4D4D' }}>alton</span></span>
+          <span className="font-display font-bold text-lg">DD<span style={{ color: '#FF4F00' }}>alton</span></span>
         </header>
         <main className="flex-1 p-6 md:p-8 overflow-auto">
           <Outlet />

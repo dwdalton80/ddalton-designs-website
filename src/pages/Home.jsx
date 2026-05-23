@@ -54,7 +54,7 @@ export default function Home() {
               >
                 Design That
                 <br />
-                <span style={{ color: '#FF4D4D' }}>Demands</span>
+                <span style={{ color: '#FF4F00' }}>Demands</span>
                 <br />
                 Attention
               </motion.h1>
@@ -217,14 +217,14 @@ export default function Home() {
           className="max-w-4xl mx-auto text-center"
         >
           <h2 className="font-display font-black text-5xl md:text-6xl mb-6">
-            Ready to Build Something <span style={{ color: '#FF4D4D' }}>Bold?</span>
+            Ready to Build Something <span style={{ color: '#FF4F00' }}>Bold?</span>
           </h2>
           <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
             Let's talk about your project. Whether you need a new website, a logo, or a full brand refresh — I'm ready to help.
           </p>
           <Link
             to="/contact"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white font-semibold rounded-full text-lg hover:bg-red-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white font-semibold rounded-full text-lg hover:bg-[#CC3F00] transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             Get a Free Quote <ArrowRight size={20} />
           </Link>

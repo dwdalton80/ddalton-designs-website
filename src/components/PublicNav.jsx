@@ -15,9 +15,7 @@ export default function PublicNav() {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const { theme } = useTheme();
-  const logoSrc = theme === 'dark'
-    ? 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/bb38fba8e_D.png'
-    : 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/a412249e5_D.png';
+  const logoSrc = 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/ec63c5ae0_D.png';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

@@ -21,9 +21,7 @@ export default function ClientPortal() {
   const [tab, setTab] = useState('dashboard');
   const { theme } = useTheme();
   // Header is always dark (bg-foreground), so use the inverted logic vs nav
-  const logoSrc = theme === 'dark'
-    ? 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/a412249e5_D.png'
-    : 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/bb38fba8e_D.png';
+  const logoSrc = 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/ec63c5ae0_D.png';
 
   useEffect(() => {
     base44.auth.me()
