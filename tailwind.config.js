@@ -54,7 +54,7 @@ module.exports = {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			},
-        coral: '#FF4D4D',
+        coral: '#FF4F00',
   		}
   	}
   },

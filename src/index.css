@@ -16,13 +16,13 @@
     --secondary-foreground: 0 0% 7%;
     --muted: 36 20% 88%;
     --muted-foreground: 0 0% 40%;
-    --accent: 0 100% 64%;
+    --accent: 19 100% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 36 15% 82%;
     --input: 36 15% 82%;
-    --ring: 0 100% 64%;
+    --ring: 19 100% 50%;
     --radius: 0.375rem;
     --font-display: 'Playfair Display', serif;
     --font-body: 'Inter', sans-serif;
@@ -41,13 +41,13 @@
     --secondary-foreground: 36 33% 94%;
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 60%;
-    --accent: 0 100% 64%;
+    --accent: 19 100% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 18%;
     --input: 0 0% 18%;
-    --ring: 0 100% 64%;
+    --ring: 19 100% 50%;
   }
 }
 

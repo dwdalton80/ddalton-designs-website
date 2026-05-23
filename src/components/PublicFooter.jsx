@@ -6,7 +6,7 @@ export default function PublicFooter() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div>
           <div className="font-display font-black text-2xl mb-3">
-            DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs
+            DD<span style={{ color: '#FF4F00' }}>alton</span> Designs
           </div>
           <p className="text-sm text-white/60 leading-relaxed max-w-xs">
             Bold, intentional design for businesses that want to stand out. Web design, logos, and marketing materials.

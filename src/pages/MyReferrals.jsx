@@ -88,7 +88,7 @@ export default function MyReferrals() {
             <div className="bg-card rounded-xl border border-border p-12 text-center">
               <AlertCircle size={48} className="text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-6">You haven't submitted any referrals yet.</p>
-              <a href="/referrals" className="inline-block px-6 py-3 bg-accent text-white font-semibold rounded-xl hover:bg-red-600 transition-all">
+              <a href="/referrals" className="inline-block px-6 py-3 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] transition-all">
                 Submit Your First Referral
               </a>
             </div>

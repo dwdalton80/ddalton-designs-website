@@ -104,7 +104,7 @@ export default function ClientReferrals() {
           <p className="text-muted-foreground mb-8">You need to be signed in to submit referrals as a client.</p>
           <button
             onClick={() => base44.auth.redirectToLogin(window.location.href)}
-            className="px-8 py-3 bg-accent text-white font-semibold rounded-xl hover:bg-red-600 transition-all inline-block"
+            className="px-8 py-3 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] transition-all inline-block"
           >
             Sign In
           </button>
@@ -154,7 +154,7 @@ export default function ClientReferrals() {
                 <p className="text-muted-foreground mb-8">Thanks for referring {formData.referred_client_name}. Derek will reach out to them within 48 hours. You can track the referral status in your dashboard.</p>
                 <button
                   onClick={() => setSubmitted(false)}
-                  className="px-6 py-2 bg-accent text-white font-semibold rounded-xl hover:bg-red-600 transition-all inline-block"
+                  className="px-6 py-2 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] transition-all inline-block"
                 >
                   Submit Another Referral
                 </button>
@@ -222,7 +222,7 @@ export default function ClientReferrals() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full px-6 py-3 bg-accent text-white font-semibold rounded-xl hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="w-full px-6 py-3 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {submitting ? 'Submitting...' : 'Submit Referral'}
                 </button>

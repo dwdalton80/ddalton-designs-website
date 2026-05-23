@@ -148,7 +148,7 @@ export default function ReferralForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-4 bg-accent text-white font-semibold rounded-xl hover:bg-red-600 transition-all disabled:opacity-60"
+        className="w-full py-4 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] transition-all disabled:opacity-60"
       >
         {loading ? 'Submitting...' : 'Submit Referral'}
       </button>

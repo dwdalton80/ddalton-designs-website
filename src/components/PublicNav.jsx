@@ -44,7 +44,7 @@ export default function PublicNav() {
         <Link to="/" className="flex items-center gap-3">
           <img src={logoSrc} alt="DDalton Designs Logo" className="h-10 w-auto" />
           <span className="font-display font-black text-xl tracking-tight text-foreground">
-            DD<span style={{ color: '#FF4D4D' }}>alton</span> Designs
+            DD<span style={{ color: '#FF4F00' }}>alton</span> Designs
           </span>
         </Link>
 

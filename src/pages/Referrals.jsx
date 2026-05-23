@@ -68,7 +68,7 @@ export default function Referrals() {
             Know someone who needs stunning design work? Refer them and earn $100 when they become a client. It's that simple.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#form" className="px-8 py-4 bg-accent text-white font-semibold rounded-xl hover:bg-red-600 transition-all">
+            <a href="#form" className="px-8 py-4 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] transition-all">
               Submit a Referral
             </a>
             <Link to="/portfolio" className="px-8 py-4 border-2 border-foreground text-foreground font-semibold rounded-xl hover:bg-foreground hover:text-primary-foreground transition-all">
@@ -139,7 +139,7 @@ export default function Referrals() {
           <p className="text-lg mb-8 text-white/80">Once you submit a referral, you can log into the admin dashboard to track the status and see when payments are made.</p>
           <Link
             to="/my-referrals"
-            className="inline-block px-8 py-4 bg-accent text-white font-semibold rounded-xl hover:bg-red-600 transition-all"
+            className="inline-block px-8 py-4 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] transition-all"
           >
             View Referral Dashboard
           </Link>
