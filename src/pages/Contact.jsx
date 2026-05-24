@@ -51,6 +51,13 @@ export default function Contact() {
 
     const { _honeypot, ...payload } = data;
     await base44.entities.ClientRequest.create(payload);
+    await base44.functions.invoke('sendContactConfirmation', {
+      name: data.name,
+      email: data.email,
+      project_type: data.project_type,
+      budget: data.budget,
+      message: data.message,
+    });
     setSubmittedName(data.name);
     setSubmitted(true);
   };
