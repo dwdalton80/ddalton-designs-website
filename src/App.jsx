@@ -38,6 +38,7 @@ const AdminPortalMessages = lazy(() => import('./pages/admin/PortalMessages'));
 const ProjectPlans = lazy(() => import('./pages/admin/ProjectPlans'));
 const Expenses = lazy(() => import('./pages/admin/Expenses'));
 const AdminReferrals = lazy(() => import('./pages/admin/Referrals'));
+const AdminTestimonials = lazy(() => import('./pages/admin/Testimonials'));
 const ClientPortal = lazy(() => import('./pages/portal/ClientPortal'));
 
 const AuthenticatedApp = () => {
@@ -96,6 +97,7 @@ const AuthenticatedApp = () => {
         <Route path="plans" element={<ProjectPlans />} />
         <Route path="expenses" element={<Expenses />} />
         <Route path="referrals" element={<AdminReferrals />} />
+        <Route path="testimonials" element={<AdminTestimonials />} />
       </Route>
 
       {/* Client Portal */}
