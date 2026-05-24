@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing referred_client_email' }, { status: 400 });
     }
 
-    await base44.integrations.Core.SendEmail({
+    await base44.asServiceRole.integrations.Core.SendEmail({
       to: referred_client_email,
       subject: `${referrer_name} Referred You to DDalton Designs`,
       body: `Hi ${referred_client_name},
