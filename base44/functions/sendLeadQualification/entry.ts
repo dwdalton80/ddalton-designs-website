@@ -9,10 +9,17 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing referred_client_email' }, { status: 400 });
     }
 
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      to: referred_client_email,
-      subject: `${referrer_name} Referred You to DDalton Designs`,
-      body: `Hi ${referred_client_name},
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'DDalton Designs <onboarding@resend.dev>',
+        to: referred_client_email,
+        subject: `${referrer_name} Referred You to DDalton Designs`,
+        text: `Hi ${referred_client_name},
 
 ${referrer_name} recently referred you to DDalton Designs for your design needs. We specialize in creating bold, intentional design that helps businesses stand out.
 
@@ -31,8 +38,14 @@ Looking forward to connecting!
 Best regards,
 Derek Dalton
 DDalton Designs
-derek@ddaltondesigns.com`
+derek@ddaltondesigns.com`,
+      }),
     });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'Failed to send email');
+    }
 
     return Response.json({ success: true });
   } catch (error) {

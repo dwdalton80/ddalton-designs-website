@@ -9,10 +9,17 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing referrer_email' }, { status: 400 });
     }
 
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      to: referrer_email,
-      subject: 'Your Referral Has Been Received',
-      body: `Hi ${referrer_name},
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'DDalton Designs <onboarding@resend.dev>',
+        to: referrer_email,
+        subject: 'Your Referral Has Been Received',
+        text: `Hi ${referrer_name},
 
 Thank you for referring ${referred_client_name} to DDalton Designs! We've received your referral and will reach out to them within 48 hours to discuss their design needs.
 
@@ -23,8 +30,14 @@ We'll keep you updated every step of the way. Once they become a client, you'll 
 
 Best regards,
 Derek Dalton
-DDalton Designs`
+DDalton Designs`,
+      }),
     });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'Failed to send email');
+    }
 
     return Response.json({ success: true });
   } catch (error) {
