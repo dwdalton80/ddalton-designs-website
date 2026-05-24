@@ -92,12 +92,14 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.15 }}
               className="relative"
             >
-              <div className="aspect-[4/5] rounded-2xl overflow-hidden" style={{ background: '#111' }}>
+              <div className="aspect-[4/5] rounded-2xl overflow-hidden" style={{ background: '#F2EDE4' }}>
                 <img
                   src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/e0c91c156_6F5A8F1E-6CBA-471E-B410-138262ACBD75.png"
                   alt="Web Design Development"
-                  className="w-full h-full object-cover opacity-90"
+                  className="w-full h-full object-contain"
                   fetchpriority="high"
+                  loading="eager"
+                  decoding="sync"
                 />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-accent text-white px-6 py-4 rounded-xl font-display font-bold text-3xl shadow-xl">
