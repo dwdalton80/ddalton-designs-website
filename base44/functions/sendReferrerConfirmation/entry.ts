@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'DDalton Designs <onboarding@resend.dev>',
+        from: 'DDalton Designs <derek@ddaltondesigns.com>',
         to: referrer_email,
         subject: 'Your Referral Has Been Received',
         text: `Hi ${referrer_name},
