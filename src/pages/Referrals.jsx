@@ -1,10 +1,39 @@
+import { useEffect } from 'react';
 import { Gift, TrendingUp, Zap, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import ReferralForm from '@/components/ReferralForm';
 
+const OG_IMAGE = 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/2cbe21348_generated_image.png';
+const DEFAULT_OG_IMAGE = 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/8ef3c98e6_IMG_3935.png';
+
+function setMeta(property, content) {
+  const el = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
+  if (el) el.setAttribute('content', content);
+}
+
 export default function Referrals() {
+  useEffect(() => {
+    const prevTitle = document.title;
+    document.title = 'Refer & Earn $100 | DDalton Designs';
+    setMeta('og:title', 'Refer & Earn $100 | DDalton Designs');
+    setMeta('og:description', 'Refer a friend to DDalton Designs and earn $100 when they become a client. No cap on referrals.');
+    setMeta('og:image', OG_IMAGE);
+    setMeta('twitter:title', 'Refer & Earn $100 | DDalton Designs');
+    setMeta('twitter:description', 'Refer a friend to DDalton Designs and earn $100 when they become a client. No cap on referrals.');
+    setMeta('twitter:image', OG_IMAGE);
+    return () => {
+      document.title = prevTitle;
+      setMeta('og:title', 'DDalton Designs');
+      setMeta('og:description', 'Bold, intentional design for businesses that want to stand out.');
+      setMeta('og:image', DEFAULT_OG_IMAGE);
+      setMeta('twitter:title', 'DDalton Designs');
+      setMeta('twitter:description', 'Bold, intentional design for businesses that want to stand out.');
+      setMeta('twitter:image', DEFAULT_OG_IMAGE);
+    };
+  }, []);
+
   const steps = [
     {
       number: '1',
