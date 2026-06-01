@@ -20,7 +20,7 @@ export default function Estimates() {
   const [showForm, setShowForm] = useState(false);
   const [selected, setSelected] = useState(null);
   const [sending, setSending] = useState(false);
-  const [form, setForm] = useState({ client_name: '', client_email: '', line_items: [{ ...emptyItem }], tax_rate: 0, discount: 0, notes: '', valid_until: '' });
+  const [form, setForm] = useState({ client_id: '', client_name: '', client_email: '', line_items: [{ ...emptyItem }], tax_rate: 0, discount: 0, notes: '', valid_until: '' });
 
   const fetch = () => {
     Promise.all([
@@ -52,7 +52,7 @@ export default function Estimates() {
     const total = calcTotal(form.line_items, form.tax_rate, form.discount);
     await base44.entities.Estimate.create({ ...form, subtotal, total });
     setShowForm(false);
-    setForm({ client_name: '', client_email: '', line_items: [{ ...emptyItem }], tax_rate: 0, discount: 0, notes: '', valid_until: '' });
+    setForm({ client_id: '', client_name: '', client_email: '', line_items: [{ ...emptyItem }], tax_rate: 0, discount: 0, notes: '', valid_until: '' });
     fetch();
   };
 
@@ -81,6 +81,7 @@ export default function Estimates() {
   const convertToInvoice = async (est) => {
     await base44.entities.Invoice.create({
       estimate_id: est.id,
+      client_id: est.client_id,
       client_name: est.client_name,
       client_email: est.client_email,
       line_items: est.line_items,
@@ -195,18 +196,22 @@ export default function Estimates() {
               <button onClick={() => setShowForm(false)}><X size={18} /></button>
             </div>
             <form onSubmit={save} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Client Name *</label>
-                  <input required value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })}
-                    list="clients-list" className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
-                  <datalist id="clients-list">{clients.map(c => <option key={c.id} value={c.name} />)}</datalist>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Client Email *</label>
-                  <input required type="email" value={form.client_email} onChange={e => setForm({ ...form, client_email: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
-                </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Client *</label>
+                <select
+                  required
+                  value={form.client_id}
+                  onChange={e => {
+                    const client = clients.find(c => c.id === e.target.value);
+                    setForm({ ...form, client_id: client?.id || '', client_name: client?.name || '', client_email: client?.email || '' });
+                  }}
+                  className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm"
+                >
+                  <option value="">Select a client...</option>
+                  {clients.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} — {c.email}</option>
+                  ))}
+                </select>
               </div>
 
               <div>
