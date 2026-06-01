@@ -94,6 +94,11 @@ export default function Estimates() {
       notes: est.notes,
     });
     await base44.entities.Estimate.update(est.id, { status: 'accepted' });
+    await base44.integrations.Core.SendEmail({
+      to: 'derek@ddaltondesigns.com',
+      subject: `✅ Estimate Accepted: ${est.client_name} — $${(est.total || 0).toLocaleString()}`,
+      body: `${est.client_name} (${est.client_email}) has accepted their estimate for $${(est.total || 0).toLocaleString()}.\n\nAn invoice has been automatically created. Log in to the admin dashboard to manage it.`,
+    });
     fetch();
     alert('Invoice created!');
   };

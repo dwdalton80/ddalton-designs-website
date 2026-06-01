@@ -42,6 +42,13 @@ export default function ReferralForm() {
         referrer_name: formData.referrer_name,
       });
 
+      // Notify Derek
+      await base44.integrations.Core.SendEmail({
+        to: 'derek@ddaltondesigns.com',
+        subject: `🤝 New Referral: ${formData.referred_client_name} from ${formData.referrer_name}`,
+        body: `${formData.referrer_name} (${formData.referrer_email}) submitted a new referral.\n\nReferred Client: ${formData.referred_client_name} (${formData.referred_client_email})${formData.notes ? `\n\nNotes: ${formData.notes}` : ''}`,
+      });
+
       setSubmitted(true);
       setFormData({
         referrer_name: '',

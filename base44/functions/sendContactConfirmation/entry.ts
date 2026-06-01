@@ -109,6 +109,21 @@ Deno.serve(async (req) => {
       throw new Error(err.message || 'Failed to send email');
     }
 
+    // Notify Derek
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'DDalton Designs <derek@ddaltondesigns.com>',
+        to: 'derek@ddaltondesigns.com',
+        subject: `📬 New Contact Form: ${name} — ${projectTypeLabels[project_type] || project_type}`,
+        html: `<p><strong>${name}</strong> (${email}) submitted a contact form.</p><p><strong>Type:</strong> ${projectTypeLabels[project_type] || project_type}</p>${budget ? `<p><strong>Budget:</strong> ${budget}</p>` : ''}<p><strong>Message:</strong></p><blockquote>${message}</blockquote>`,
+      }),
+    });
+
     return Response.json({ success: true });
   } catch (error) {
     console.error('Error:', error);
