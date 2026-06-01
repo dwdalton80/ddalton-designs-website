@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Users, Plus, X, Edit2, Trash2 } from 'lucide-react';
+import { Users, Plus, X, Edit2, Trash2, Paperclip } from 'lucide-react';
+import ClientFilesPanel from '@/components/admin/ClientFilesPanel';
 
 export default function Clients() {
   const [clients, setClients] = useState([]);
@@ -8,6 +9,7 @@ export default function Clients() {
   const [modal, setModal] = useState(null); // null | 'add' | client object
   const [form, setForm] = useState({ name: '', email: '', phone: '', company: '', notes: '' });
   const [sendInvite, setSendInvite] = useState(false);
+  const [filesClient, setFilesClient] = useState(null);
 
   const fetch = () => {
     base44.entities.Client.list('-created_date', 100)
@@ -74,6 +76,7 @@ export default function Clients() {
                   {c.name[0].toUpperCase()}
                 </div>
                 <div className="flex gap-1">
+                  <button onClick={() => setFilesClient(c)} className="p-1.5 rounded-lg hover:bg-secondary transition-colors text-muted-foreground" title="View files"><Paperclip size={14} /></button>
                   <button onClick={() => openEdit(c)} className="p-1.5 rounded-lg hover:bg-secondary transition-colors"><Edit2 size={14} /></button>
                   <button onClick={() => del(c.id)} className="p-1.5 rounded-lg hover:bg-secondary transition-colors text-muted-foreground"><Trash2 size={14} /></button>
                 </div>
@@ -86,6 +89,9 @@ export default function Clients() {
           ))}
         </div>
       )}
+
+      {/* Files Panel */}
+      {filesClient && <ClientFilesPanel client={filesClient} onClose={() => setFilesClient(null)} />}
 
       {/* Modal */}
       {modal && (
