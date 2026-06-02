@@ -78,20 +78,23 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* All app routes — protected */}
+      {/* Public routes */}
+      <Route path="/" element={<Home />} />
+      <Route path="/portfolio" element={<Portfolio />} />
+      <Route path="/portfolio/:id" element={<PortfolioDetail />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/services" element={<Services />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/referrals" element={<Referrals />} />
+      <Route path="/client-referrals" element={<ClientReferrals />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+
+      {/* Protected: referral portal, client portal, admin */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/portfolio/:id" element={<PortfolioDetail />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/referrals" element={<Referrals />} />
         <Route path="/my-referrals" element={<MyReferrals />} />
-        <Route path="/client-referrals" element={<ClientReferrals />} />
         <Route path="/referral-tracker/:id" element={<ReferralTracker />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/portal" element={<ClientPortal />} />
 
         {/* Admin routes */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -108,9 +111,6 @@ const AuthenticatedApp = () => {
           <Route path="referrals" element={<AdminReferrals />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
         </Route>
-
-        {/* Client Portal */}
-        <Route path="/portal" element={<ClientPortal />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />
