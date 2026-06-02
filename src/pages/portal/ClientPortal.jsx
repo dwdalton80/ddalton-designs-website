@@ -88,15 +88,15 @@ export default function ClientPortal() {
 
       {/* Tabs */}
       <div className="bg-card border-b border-border">
-        <div className="max-w-5xl mx-auto px-6 flex gap-1 pt-2">
+        <div className="max-w-5xl mx-auto px-2 sm:px-6 flex pt-2 overflow-x-auto scrollbar-none">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setTab(id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-all -mb-px ${tab === id ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+              className={`flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-all -mb-px whitespace-nowrap flex-1 sm:flex-none justify-center ${tab === id ? 'border-accent text-accent' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
             >
-              <Icon size={15} />
-              {label}
+              <Icon size={18} className="sm:w-4 sm:h-4" />
+              <span className="leading-tight">{label}</span>
             </button>
           ))}
         </div>
