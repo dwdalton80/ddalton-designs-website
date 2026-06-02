@@ -8,6 +8,18 @@ import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 
+const FacebookIcon = () => (
+  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="#1877F2" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.791-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.884v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+  </svg>
+);
+
+const AppleIcon = () => (
+  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.39c1.4.07 2.38.74 3.2.8 1.2-.24 2.36-.93 3.64-.84 1.54.12 2.7.72 3.44 1.84-3.16 1.9-2.41 5.77.44 6.9-.51 1.37-1.19 2.71-2.72 4.19zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+  </svg>
+);
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,9 +40,9 @@ export default function Login() {
     }
   };
 
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
-  };
+  const handleGoogle = () => base44.auth.loginWithProvider("google", "/");
+  const handleFacebook = () => base44.auth.loginWithProvider("facebook", "/");
+  const handleApple = () => base44.auth.loginWithProvider("apple", "/");
 
   return (
     <AuthLayout
@@ -46,14 +58,20 @@ export default function Login() {
         </>
       }
     >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
-      </Button>
+      <div className="space-y-3 mb-6">
+        <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={handleGoogle}>
+          <GoogleIcon className="w-5 h-5 mr-2" />
+          Continue with Google
+        </Button>
+        <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={handleFacebook}>
+          <FacebookIcon />
+          Continue with Facebook
+        </Button>
+        <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={handleApple}>
+          <AppleIcon />
+          Continue with Apple
+        </Button>
+      </div>
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">

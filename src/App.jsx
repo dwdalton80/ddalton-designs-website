@@ -8,6 +8,13 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { Navigate } from 'react-router-dom';
+
+// Auth pages
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // Critical page — loaded eagerly
 import Home from './pages/Home';
@@ -52,13 +59,8 @@ const AuthenticatedApp = () => {
     );
   }
 
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    }
+  if (authError?.type === 'user_not_registered') {
+    return <UserNotRegisteredError />;
   }
 
   const PageLoader = () => (
@@ -70,38 +72,46 @@ const AuthenticatedApp = () => {
   return (
     <Suspense fallback={<PageLoader />}>
     <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<Home />} />
-      <Route path="/portfolio" element={<Portfolio />} />
-      <Route path="/portfolio/:id" element={<PortfolioDetail />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/services" element={<Services />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/referrals" element={<Referrals />} />
-      <Route path="/my-referrals" element={<ProtectedRoute><MyReferrals /></ProtectedRoute>} />
-      <Route path="/client-referrals" element={<ClientReferrals />} />
-      <Route path="/referral-tracker/:id" element={<ReferralTracker />} />
-      <Route path="/terms" element={<TermsOfService />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
+      {/* Auth routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* Admin routes */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
-        <Route path="requests" element={<ClientRequests />} />
-        <Route path="clients" element={<Clients />} />
-        <Route path="estimates" element={<Estimates />} />
-        <Route path="invoices" element={<Invoices />} />
-        <Route path="tasks" element={<Tasks />} />
-        <Route path="portfolio" element={<PortfolioManager />} />
-        <Route path="messages" element={<AdminPortalMessages />} />
-        <Route path="plans" element={<ProjectPlans />} />
-        <Route path="expenses" element={<Expenses />} />
-        <Route path="referrals" element={<AdminReferrals />} />
-        <Route path="testimonials" element={<AdminTestimonials />} />
+      {/* All app routes — protected */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/portfolio/:id" element={<PortfolioDetail />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/referrals" element={<Referrals />} />
+        <Route path="/my-referrals" element={<MyReferrals />} />
+        <Route path="/client-referrals" element={<ClientReferrals />} />
+        <Route path="/referral-tracker/:id" element={<ReferralTracker />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+
+        {/* Admin routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="requests" element={<ClientRequests />} />
+          <Route path="clients" element={<Clients />} />
+          <Route path="estimates" element={<Estimates />} />
+          <Route path="invoices" element={<Invoices />} />
+          <Route path="tasks" element={<Tasks />} />
+          <Route path="portfolio" element={<PortfolioManager />} />
+          <Route path="messages" element={<AdminPortalMessages />} />
+          <Route path="plans" element={<ProjectPlans />} />
+          <Route path="expenses" element={<Expenses />} />
+          <Route path="referrals" element={<AdminReferrals />} />
+          <Route path="testimonials" element={<AdminTestimonials />} />
+        </Route>
+
+        {/* Client Portal */}
+        <Route path="/portal" element={<ClientPortal />} />
       </Route>
-
-      {/* Client Portal */}
-      <Route path="/portal" element={<ClientPortal />} />
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>

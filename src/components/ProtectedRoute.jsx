@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
+import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
-import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 const DefaultFallback = () => (
@@ -9,16 +8,14 @@ const DefaultFallback = () => (
   </div>
 );
 
-export default function ProtectedRoute({ children, fallback = <DefaultFallback /> }) {
-  const { isAuthenticated, isLoadingAuth, authChecked, authError, checkUserAuth } = useAuth();
+export default function ProtectedRoute({
+  children,
+  fallback = <DefaultFallback />,
+  unauthenticatedElement,
+}) {
+  const { isAuthenticated, isLoadingAuth, isLoadingPublicSettings, authChecked, authError } = useAuth();
 
-  useEffect(() => {
-    if (!authChecked && !isLoadingAuth) {
-      checkUserAuth();
-    }
-  }, [authChecked, isLoadingAuth, checkUserAuth]);
-
-  if (isLoadingAuth || !authChecked) {
+  if (isLoadingPublicSettings || isLoadingAuth || !authChecked) {
     return fallback;
   }
 
@@ -27,9 +24,10 @@ export default function ProtectedRoute({ children, fallback = <DefaultFallback /
   }
 
   if (!isAuthenticated) {
-    base44.auth.redirectToLogin(window.location.href);
-    return fallback;
+    if (unauthenticatedElement) return unauthenticatedElement;
+    return <Navigate to="/login" replace />;
   }
 
-  return children;
+  // Support both layout route (Outlet) and wrapper (children) usage
+  return children ? children : <Outlet />;
 }
