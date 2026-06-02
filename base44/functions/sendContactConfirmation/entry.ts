@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 const projectTypeLabels = {
   website: 'Website Design',
@@ -7,7 +7,15 @@ const projectTypeLabels = {
   other: 'Other',
 };
 
-const emailHtml = (name, project_type, budget, message) => `<!DOCTYPE html>
+const emailHtml = (name, email, project_type, budget, message, file_name, file_url) => {
+  const year = new Date().getFullYear();
+  const typeLabel = projectTypeLabels[project_type] || project_type;
+  const fileSection = file_name && file_url
+    ? `<p><strong>Attached file:</strong> <a href="${file_url}" style="color:#FF4F00;">${file_name}</a></p>`
+    : '';
+  const budgetRow = budget ? `<tr><td>Budget</td><td>${budget}</td></tr>` : '';
+
+  return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -32,8 +40,11 @@ const emailHtml = (name, project_type, budget, message) => `<!DOCTYPE html>
     .steps li { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; font-size: 14px; color: #3a3a3a; border-bottom: 1px solid #F5F2EE; }
     .steps li:last-child { border-bottom: none; }
     .step-num { width: 22px; height: 22px; background: #FF4F00; color: #fff; border-radius: 50%; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-    .btn-wrap { text-align: center; margin: 28px 0 8px; }
+    .portal-box { background: #121212; border-radius: 12px; padding: 20px 24px; margin: 24px 0; text-align: center; }
+    .portal-box p { color: #F5F2EE; font-size: 14px; margin: 0 0 14px; }
+    .portal-box .hint { color: #888; font-size: 12px; margin: 10px 0 0; }
     .btn { display: inline-block; background-color: #FF4F00; color: #ffffff; text-decoration: none; padding: 13px 28px; border-radius: 50px; font-weight: 700; font-size: 15px; }
+    .btn-wrap { text-align: center; margin: 28px 0 8px; }
     .footer { background-color: #F5F2EE; padding: 20px 36px; text-align: center; border-top: 1px solid #e8e3dc; }
     .footer p { font-size: 12px; color: #888; margin: 4px 0; }
     .footer a { color: #888; text-decoration: none; }
@@ -50,14 +61,12 @@ const emailHtml = (name, project_type, budget, message) => `<!DOCTYPE html>
         <p>Thanks for reaching out — your project request has been received. I'll review the details and get back to you within <strong>48 hours</strong> with a personalized response.</p>
         <p>Here's a summary of what you submitted:</p>
         <table class="details-table">
-          <tr>
-            <td>Project Type</td>
-            <td>${projectTypeLabels[project_type] || project_type}</td>
-          </tr>
-          ${budget ? `<tr><td>Budget</td><td>${budget}</td></tr>` : ''}
+          <tr><td>Project Type</td><td>${typeLabel}</td></tr>
+          ${budgetRow}
         </table>
         <p><strong>Your message:</strong></p>
         <div class="message-box">${message}</div>
+        ${fileSection}
         <p>Here's what happens next:</p>
         <ul class="steps">
           <li><span class="step-num">1</span> I review your request and project details</li>
@@ -65,42 +74,51 @@ const emailHtml = (name, project_type, budget, message) => `<!DOCTYPE html>
           <li><span class="step-num">3</span> We hop on a quick call to align on scope & timeline</li>
           <li><span class="step-num">4</span> We get to work!</li>
         </ul>
-        <p>In the meantime, feel free to browse my portfolio or reach out directly if you have any questions.</p>
-        <div class="btn-wrap">
-          <a href="https://ddaltondesigns.com/portfolio" class="btn">View My Portfolio</a>
+        <div class="portal-box">
+          <p>I've created a <strong>Client Portal</strong> account for you. Track your invoices, project plans, and messages all in one place.</p>
+          <a href="https://ddaltondesigns.com/portal" class="btn">Access Your Client Portal →</a>
+          <p class="hint">Sign in with <strong>${email}</strong> — you'll be prompted to set your password on first login.</p>
         </div>
         <p>Talk soon!</p>
         <p>— Derek Dalton<br>DDalton Designs<br><a href="mailto:derek@ddaltondesigns.com" style="color:#FF4F00;">derek@ddaltondesigns.com</a></p>
       </div>
       <div class="footer">
-        <p>&copy; ${new Date().getFullYear()} DDalton Designs. All rights reserved.</p>
+        <p>&copy; ${year} DDalton Designs. All rights reserved.</p>
         <p><a href="https://ddaltondesigns.com/privacy">Privacy Policy</a> &nbsp;|&nbsp; <a href="https://ddaltondesigns.com/terms">Terms of Service</a></p>
       </div>
     </div>
   </div>
 </body>
 </html>`;
+};
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { name, email, project_type, budget, message } = await req.json();
+    const { name, email, project_type, budget, message, file_name, file_url } = await req.json();
 
     if (!email || !name) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Invite the user to create a portal account (silently ignore if already exists)
+    try {
+      await base44.asServiceRole.auth.inviteUser(email, 'user');
+    } catch (_) {
+      // User may already exist — that's fine
+    }
+
+    const resend_key = Deno.env.get('RESEND_API_KEY');
+
+    // Confirmation email to the client
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Authorization': `Bearer ${resend_key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: 'DDalton Designs <derek@ddaltondesigns.com>',
         to: email,
         subject: `Got your request, ${name}! I'll be in touch soon.`,
-        html: emailHtml(name, project_type, budget, message),
+        html: emailHtml(name, email, project_type, budget, message, file_name, file_url),
       }),
     });
 
@@ -110,17 +128,17 @@ Deno.serve(async (req) => {
     }
 
     // Notify Derek
+    const attachmentLine = file_name && file_url
+      ? `<p><strong>Attachment:</strong> <a href="${file_url}">${file_name}</a></p>`
+      : '';
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Authorization': `Bearer ${resend_key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: 'DDalton Designs <derek@ddaltondesigns.com>',
         to: 'derek@ddaltondesigns.com',
         subject: `📬 New Contact Form: ${name} — ${projectTypeLabels[project_type] || project_type}`,
-        html: `<p><strong>${name}</strong> (${email}) submitted a contact form.</p><p><strong>Type:</strong> ${projectTypeLabels[project_type] || project_type}</p>${budget ? `<p><strong>Budget:</strong> ${budget}</p>` : ''}<p><strong>Message:</strong></p><blockquote>${message}</blockquote>`,
+        html: `<p><strong>${name}</strong> (${email}) submitted a contact form.</p><p><strong>Type:</strong> ${projectTypeLabels[project_type] || project_type}</p>${budget ? `<p><strong>Budget:</strong> ${budget}</p>` : ''}<p><strong>Message:</strong></p><blockquote>${message}</blockquote>${attachmentLine}`,
       }),
     });
 

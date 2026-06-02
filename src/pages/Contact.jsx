@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState, useRef } from 'react';
-import { CheckCircle, Mail, Phone } from 'lucide-react';
+import { CheckCircle, Mail, Phone, Paperclip, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
@@ -29,7 +29,19 @@ const schema = z.object({
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [submittedName, setSubmittedName] = useState('');
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const submitTimeRef = useRef(Date.now());
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setAttachedFile({ name: file.name, url: file_url });
+    setUploading(false);
+  };
 
   const {
     register,
@@ -50,13 +62,15 @@ export default function Contact() {
     if (Date.now() - submitTimeRef.current < 3000) return;
 
     const { _honeypot, ...payload } = data;
-    await base44.entities.ClientRequest.create(payload);
+    await base44.entities.ClientRequest.create({ ...payload, description: attachedFile ? `Attachment: ${attachedFile.url}` : payload.description });
     await base44.functions.invoke('sendContactConfirmation', {
       name: data.name,
       email: data.email,
       project_type: data.project_type,
       budget: data.budget,
       message: data.message,
+      file_name: attachedFile?.name,
+      file_url: attachedFile?.url,
     });
     setSubmittedName(data.name);
     setSubmitted(true);
@@ -195,9 +209,33 @@ export default function Contact() {
                 {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message.message}</p>}
               </div>
 
+              {/* File attachment */}
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">Attachment (Optional)</label>
+                <input ref={fileInputRef} type="file" onChange={handleFileChange} className="hidden" />
+                {attachedFile ? (
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-background text-sm">
+                    <Paperclip size={14} className="text-accent flex-shrink-0" />
+                    <span className="flex-1 truncate">{attachedFile.name}</span>
+                    <button type="button" onClick={() => setAttachedFile(null)} className="text-muted-foreground hover:text-foreground">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="w-full px-4 py-3 rounded-xl border border-dashed border-border hover:border-accent text-sm text-muted-foreground hover:text-accent transition-all disabled:opacity-60"
+                  >
+                    {uploading ? 'Uploading...' : '+ Attach a file (mockup, logo, reference, etc.)'}
+                  </button>
+                )}
+              </div>
+
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || uploading}
                 className="w-full py-4 bg-accent text-white font-semibold rounded-xl hover:bg-red-600 transition-all text-sm disabled:opacity-60"
               >
                 {isSubmitting ? 'Sending...' : 'Send My Request'}
