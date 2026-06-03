@@ -38,23 +38,7 @@ export default function PortalEstimates({ user }) {
     setActing(est.id + status);
     try {
       if (status === 'accepted') {
-        // Update estimate status
-        await base44.entities.Estimate.update(est.id, { status: 'accepted' });
-        // Create invoice
-        await base44.entities.Invoice.create({
-          estimate_id: est.id,
-          client_id: est.client_id || '',
-          client_name: est.client_name,
-          client_email: est.client_email,
-          line_items: est.line_items,
-          subtotal: est.subtotal,
-          tax_rate: est.tax_rate,
-          discount: est.discount,
-          total: est.total,
-          status: 'unpaid',
-          paid_amount: 0,
-          notes: est.notes,
-        });
+        await base44.functions.invoke('handleEstimateAccept', { estimateId: est.id });
       } else {
         await base44.entities.Estimate.update(est.id, { status });
       }

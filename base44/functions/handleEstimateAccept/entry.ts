@@ -22,8 +22,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Find or create client record
     const existingClients = await base44.asServiceRole.entities.Client.filter({ email: est.client_email });
-    let clientId = est.client_id;
+    let clientId;
     if (existingClients.length === 0) {
       const newClient = await base44.asServiceRole.entities.Client.create({
         name: est.client_name,
@@ -34,8 +35,10 @@ Deno.serve(async (req) => {
       clientId = existingClients[0].id;
     }
 
+    // Update estimate
     await base44.asServiceRole.entities.Estimate.update(estimateId, { client_id: clientId, status: 'accepted' });
 
+    // Mark any matching requests as converted
     const matchingRequests = await base44.asServiceRole.entities.ClientRequest.filter({ email: est.client_email });
     for (const r of matchingRequests) {
       if (r.status !== 'converted') {
@@ -43,6 +46,7 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Create invoice
     await base44.asServiceRole.entities.Invoice.create({
       estimate_id: estimateId,
       client_id: clientId,
@@ -58,6 +62,7 @@ Deno.serve(async (req) => {
       notes: est.notes,
     });
 
+    // Send portal invite email
     try {
       await base44.functions.invoke('sendPortalInvite', {
         clientName: est.client_name,
