@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Plus, X, Trash2, Send, FileText, Eye, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, X, Trash2, Send, FileText, Eye, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -144,6 +144,13 @@ export default function Estimates() {
     }
   };
 
+  const deleteEstimate = async (est) => {
+    if (!confirm('Delete this estimate permanently?')) return;
+    await base44.entities.Estimate.delete(est.id);
+    setSelected(null);
+    fetch();
+  };
+
   const updateStatus = async (id, status) => {
     await base44.entities.Estimate.update(id, { status });
     fetch();
@@ -206,6 +213,10 @@ export default function Estimates() {
             </div>
             {selected.notes && <p className="text-xs text-muted-foreground mb-4">{selected.notes}</p>}
             <div className="flex flex-col gap-2">
+              <button onClick={() => deleteEstimate(selected)}
+                className="w-full py-2.5 border border-destructive/40 text-destructive rounded-xl text-sm font-medium hover:bg-destructive/10 transition-all flex items-center justify-center gap-2">
+                <Trash2 size={14} /> Delete Estimate
+              </button>
               {selected.status === 'draft' && (
                 <button onClick={() => sendEstimate(selected)} disabled={sending}
                   className="w-full py-2.5 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:opacity-60">
