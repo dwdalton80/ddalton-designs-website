@@ -27,11 +27,25 @@ Deno.serve(async (req) => {
       // User may already exist — that's fine
     }
 
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      to: est.client_email,
-      subject: `Your Estimate is Ready — DDalton Designs`,
-      body: `Hi ${est.client_name},\n\nGreat news — your estimate from DDalton Designs is ready to view!\n\nTo see your estimate, log in to your Client Portal using the link below:\n\n${portalUrl}\n\nYou'll receive a separate email with your login invitation shortly. Once logged in, you'll be able to view your estimate, invoices, project plans, and send me messages directly.\n\nIf you have any questions in the meantime, feel free to reply to this email.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
+    // Send email via Resend
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'DDalton Designs <derek@ddaltondesigns.com>',
+        to: [est.client_email],
+        subject: `Your Estimate is Ready — DDalton Designs`,
+        text: `Hi ${est.client_name},\n\nGreat news — your estimate from DDalton Designs is ready to view!\n\nTo see your estimate, log in to your Client Portal using the link below:\n\n${portalUrl}\n\nYou'll receive a separate email with your login invitation shortly. Once logged in, you'll be able to view your estimate, invoices, project plans, and send me messages directly.\n\nIf you have any questions in the meantime, feel free to reply to this email.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
+      }),
     });
+
+    if (!emailRes.ok) {
+      const errData = await emailRes.json();
+      throw new Error(errData.message || 'Failed to send email via Resend');
+    }
 
     await base44.asServiceRole.entities.Estimate.update(estimateId, {
       status: 'sent',
