@@ -34,7 +34,10 @@ export default function GenerateInvoiceModal({ onClose, onCreated }) {
     // Generate PDF
     let pdfUrl = null;
     try {
-      const pdfBlob = await generateInvoicePdf(selectedEstimate, dueDate, paymentTerms, notes);
+      const pdfBlob = await generateInvoicePdf(
+        { ...selectedEstimate, id: `INV-${Date.now().toString().slice(-6)}`, paid_amount: 0 },
+        dueDate, paymentTerms, notes, 'invoice'
+      );
       const { file_url } = await base44.integrations.Core.UploadFile({ file: pdfBlob });
       pdfUrl = file_url;
     } catch (e) {
