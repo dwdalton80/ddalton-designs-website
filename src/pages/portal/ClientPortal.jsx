@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { MessageSquare, FileText, Receipt, FileSignature, LogIn, LayoutDashboard, Upload } from 'lucide-react';
+
 import { useTheme } from '@/lib/ThemeContext';
 import PortalMessages from './PortalMessages';
 import PortalInvoices from './PortalInvoices';
 import PortalProjectPlans from './PortalProjectPlans';
 import PortalDashboard from './PortalDashboard';
 import PortalFiles from './PortalFiles';
+import PortalEstimates from './PortalEstimates';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'estimates', label: 'Estimates', icon: FileText },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
   { id: 'invoices', label: 'Invoices', icon: Receipt },
   { id: 'plans', label: 'Project Plans', icon: FileSignature },
@@ -105,6 +108,7 @@ export default function ClientPortal() {
       {/* Content */}
       <div className="max-w-5xl mx-auto px-6 py-8">
         {tab === 'dashboard' && <PortalDashboard user={user} onNavigate={setTab} />}
+        {tab === 'estimates' && <PortalEstimates user={user} />}
         {tab === 'messages' && <PortalMessages user={user} />}
         {tab === 'invoices' && <PortalInvoices user={user} />}
         {tab === 'plans' && <PortalProjectPlans user={user} />}

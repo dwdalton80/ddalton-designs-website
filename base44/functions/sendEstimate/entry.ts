@@ -18,6 +18,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Estimate not found' }, { status: 404 });
     }
 
+    const registerUrl = 'https://ddalton-designs.base44.app/register';
     const portalUrl = 'https://ddalton-designs.base44.app/portal';
 
     // Send estimate notification email via Resend (no invite yet — that comes on acceptance)
@@ -31,7 +32,7 @@ Deno.serve(async (req) => {
         from: 'DDalton Designs <derek@ddaltondesigns.com>',
         to: [est.client_email],
         subject: `Your Estimate is Ready — DDalton Designs`,
-        text: `Hi ${est.client_name},\n\nGreat news — your estimate from DDalton Designs is ready to view!\n\nDerek will be in touch shortly to walk you through the details. If you have any questions in the meantime, feel free to reply to this email.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
+        text: `Hi ${est.client_name},\n\nYour estimate from DDalton Designs is ready to view!\n\nTo see the full breakdown, create your free client portal account using the link below — it only takes a moment, and your estimate will be waiting for you as soon as you log in:\n\n${registerUrl}\n\nAlready have an account? View it here:\n${portalUrl}\n\nThrough your portal you can review the estimate details, ask questions, and accept when you're ready.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com\n(580) 916-0098`,
       }),
     });
 
