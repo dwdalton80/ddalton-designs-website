@@ -13,8 +13,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'clientEmail is required' }, { status: 400 });
     }
 
-    const portalUrl = 'https://ddalton-designs.base44.app/portal';
-    const registerUrl = 'https://ddalton-designs.base44.app/register';
+    const portalUrl = 'https://ddaltondesigns.com/portal';
+    const registerUrl = 'https://ddaltondesigns.com/register';
 
     // Invite the user to the app so they can set a password
     try {
