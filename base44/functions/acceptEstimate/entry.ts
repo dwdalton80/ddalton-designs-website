@@ -30,15 +30,16 @@ Deno.serve(async (req) => {
         email: est.client_email,
       });
       clientId = newClient.id;
-      await base44.asServiceRole.entities.Estimate.update(estimateId, { client_id: clientId });
     } else {
       clientId = existingClients[0].id;
     }
 
+    await base44.asServiceRole.entities.Estimate.update(estimateId, { client_id: clientId, status: 'accepted' });
+
     const matchingRequests = await base44.asServiceRole.entities.ClientRequest.filter({ email: est.client_email });
-    for (const reqRecord of matchingRequests) {
-      if (reqRecord.status !== 'converted') {
-        await base44.asServiceRole.entities.ClientRequest.update(reqRecord.id, { status: 'converted' });
+    for (const r of matchingRequests) {
+      if (r.status !== 'converted') {
+        await base44.asServiceRole.entities.ClientRequest.update(r.id, { status: 'converted' });
       }
     }
 
@@ -56,8 +57,6 @@ Deno.serve(async (req) => {
       paid_amount: 0,
       notes: est.notes,
     });
-
-    await base44.asServiceRole.entities.Estimate.update(estimateId, { status: 'accepted' });
 
     try {
       await base44.functions.invoke('sendPortalInvite', {
