@@ -37,7 +37,11 @@ export default function PortalEstimates({ user }) {
   const respond = async (est, status) => {
     setActing(est.id + status);
     try {
-      await base44.entities.Estimate.update(est.id, { status });
+      if (status === 'accepted') {
+        await base44.functions.invoke('acceptEstimate', { estimateId: est.id });
+      } else {
+        await base44.entities.Estimate.update(est.id, { status });
+      }
       setEstimates(prev => prev.map(e => e.id === est.id ? { ...e, status } : e));
       toast.success(status === 'accepted' ? 'Estimate accepted! Derek will be in touch shortly.' : 'Estimate declined.');
     } catch (err) {
