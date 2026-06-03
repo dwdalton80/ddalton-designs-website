@@ -18,8 +18,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Estimate not found' }, { status: 404 });
     }
 
-    const registerUrl = 'https://ddalton-designs.base44.app/register';
-    const portalUrl = 'https://ddalton-designs.base44.app/portal';
+    const registerUrl = 'https://ddaltondesigns.com/register';
+    const portalUrl = 'https://ddaltondesigns.com/portal';
 
     // Send estimate notification email via Resend (no invite yet — that comes on acceptance)
     const emailRes = await fetch('https://api.resend.com/emails', {
