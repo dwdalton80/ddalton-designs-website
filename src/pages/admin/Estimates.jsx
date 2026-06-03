@@ -33,8 +33,9 @@ export default function Estimates() {
     ]).then(([e, c, r]) => {
       setEstimates(e);
       setClients(c);
-      // Show requests that are new or read (not yet converted/archived)
       setRequests(r.filter(req => req.status === 'new' || req.status === 'read'));
+      // Keep selected in sync with refreshed data
+      setSelected(prev => prev ? (e.find(x => x.id === prev.id) || null) : null);
       setLoading(false);
     }).catch(() => setLoading(false));
   };
