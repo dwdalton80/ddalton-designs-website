@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Plus, X, Trash2, Send, FileText, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const STATUS_COLORS = {
   draft: 'bg-secondary text-muted-foreground',
@@ -71,70 +72,76 @@ export default function Estimates() {
 
   const sendEstimate = async (est) => {
     setSending(true);
-    const portalUrl = `${window.location.origin}/portal`;
-
-    // Invite the client to the app (so they can log in to the portal)
     try {
-      await base44.users.inviteUser(est.client_email, 'user');
-    } catch (err) {
-      // User may already exist — that's fine, continue
-    }
+      const portalUrl = `${window.location.origin}/portal`;
 
-    await base44.integrations.Core.SendEmail({
-      to: est.client_email,
-      subject: `Your Estimate is Ready — DDalton Designs`,
-      body: `Hi ${est.client_name},\n\nGreat news — your estimate from DDalton Designs is ready to view!\n\nTo see your estimate, log in to your Client Portal using the link below:\n\n${portalUrl}\n\nYou'll receive a separate email with your login invitation shortly. Once logged in, you'll be able to view your estimate, invoices, project plans, and send me messages directly.\n\nIf you have any questions in the meantime, feel free to reply to this email.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
-    });
-    await base44.entities.Estimate.update(est.id, { status: 'sent', sent_at: new Date().toISOString() });
-    setSending(false);
-    fetch();
-    if (selected?.id === est.id) setSelected({ ...est, status: 'sent' });
+      // Invite the client to the app (so they can log in to the portal)
+      try {
+        await base44.users.inviteUser(est.client_email, 'user');
+      } catch (err) {
+        // User may already exist — that's fine, continue
+      }
+
+      await base44.integrations.Core.SendEmail({
+        to: est.client_email,
+        subject: `Your Estimate is Ready — DDalton Designs`,
+        body: `Hi ${est.client_name},\n\nGreat news — your estimate from DDalton Designs is ready to view!\n\nTo see your estimate, log in to your Client Portal using the link below:\n\n${portalUrl}\n\nYou'll receive a separate email with your login invitation shortly. Once logged in, you'll be able to view your estimate, invoices, project plans, and send me messages directly.\n\nIf you have any questions in the meantime, feel free to reply to this email.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
+      });
+      await base44.entities.Estimate.update(est.id, { status: 'sent', sent_at: new Date().toISOString() });
+      fetch();
+      if (selected?.id === est.id) setSelected({ ...est, status: 'sent' });
+      toast.success(`Estimate sent to ${est.client_email}`);
+    } catch (err) {
+      console.error('Send estimate error:', err);
+      toast.error(`Failed to send: ${err?.message || 'Unknown error'}`);
+    } finally {
+      setSending(false);
+    }
   };
 
   const convertToInvoice = async (est) => {
-    // Auto-create client record if they don't already exist as a client
-    const existingClients = await base44.entities.Client.filter({ email: est.client_email });
-    if (existingClients.length === 0) {
-      const newClient = await base44.entities.Client.create({ name: est.client_name, email: est.client_email });
-      // Mark any matching request as converted
+    try {
+      // Auto-create client record if they don't already exist as a client
+      const existingClients = await base44.entities.Client.filter({ email: est.client_email });
+      let clientId = est.client_id;
+      if (existingClients.length === 0) {
+        const newClient = await base44.entities.Client.create({ name: est.client_name, email: est.client_email });
+        clientId = newClient.id;
+        await base44.entities.Estimate.update(est.id, { client_id: clientId });
+      }
+      // Mark any matching requests as converted
       const matchingRequests = await base44.entities.ClientRequest.filter({ email: est.client_email });
       for (const req of matchingRequests) {
         if (req.status !== 'converted') {
           await base44.entities.ClientRequest.update(req.id, { status: 'converted' });
         }
       }
-      await base44.entities.Estimate.update(est.id, { client_id: newClient.id });
-    } else {
-      // Still mark matching requests converted
-      const matchingRequests = await base44.entities.ClientRequest.filter({ email: est.client_email });
-      for (const req of matchingRequests) {
-        if (req.status !== 'converted') {
-          await base44.entities.ClientRequest.update(req.id, { status: 'converted' });
-        }
-      }
+      await base44.entities.Invoice.create({
+        estimate_id: est.id,
+        client_id: clientId,
+        client_name: est.client_name,
+        client_email: est.client_email,
+        line_items: est.line_items,
+        subtotal: est.subtotal,
+        tax_rate: est.tax_rate,
+        discount: est.discount,
+        total: est.total,
+        status: 'unpaid',
+        paid_amount: 0,
+        notes: est.notes,
+      });
+      await base44.entities.Estimate.update(est.id, { status: 'accepted' });
+      await base44.integrations.Core.SendEmail({
+        to: 'derek@ddaltondesigns.com',
+        subject: `✅ Estimate Accepted: ${est.client_name} — $${(est.total || 0).toLocaleString()}`,
+        body: `${est.client_name} (${est.client_email}) has accepted their estimate for $${(est.total || 0).toLocaleString()}.\n\nThey have been added as a client and an invoice has been automatically created. Log in to the admin dashboard to manage it.`,
+      });
+      fetch();
+      toast.success('Client added & invoice created!');
+    } catch (err) {
+      console.error('Convert to invoice error:', err);
+      toast.error(`Error: ${err?.message || 'Something went wrong'}`);
     }
-    await base44.entities.Invoice.create({
-      estimate_id: est.id,
-      client_id: est.client_id,
-      client_name: est.client_name,
-      client_email: est.client_email,
-      line_items: est.line_items,
-      subtotal: est.subtotal,
-      tax_rate: est.tax_rate,
-      discount: est.discount,
-      total: est.total,
-      status: 'unpaid',
-      paid_amount: 0,
-      notes: est.notes,
-    });
-    await base44.entities.Estimate.update(est.id, { status: 'accepted' });
-    await base44.integrations.Core.SendEmail({
-      to: 'derek@ddaltondesigns.com',
-      subject: `✅ Estimate Accepted: ${est.client_name} — $${(est.total || 0).toLocaleString()}`,
-      body: `${est.client_name} (${est.client_email}) has accepted their estimate for $${(est.total || 0).toLocaleString()}.\n\nThey have been added as a client and an invoice has been automatically created. Log in to the admin dashboard to manage it.`,
-    });
-    fetch();
-    alert('Client added & invoice created!');
   };
 
   const updateStatus = async (id, status) => {
