@@ -25,6 +25,7 @@ export default function Estimates() {
   const [selected, setSelected] = useState(null);
   const [sending, setSending] = useState(false);
   const [form, setForm] = useState({ ...emptyForm });
+  const [selectValue, setSelectValue] = useState('');
 
   const fetch = () => {
     Promise.all([
@@ -69,6 +70,7 @@ export default function Estimates() {
     }
     setShowForm(false);
     setForm({ ...emptyForm });
+    setSelectValue('');
     fetch();
   };
 
@@ -266,18 +268,18 @@ export default function Estimates() {
           <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-2xl my-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display font-bold text-xl">New Estimate</h2>
-              <button onClick={() => setShowForm(false)}><X size={18} /></button>
+              <button onClick={() => { setShowForm(false); setSelectValue(''); }}><X size={18} /></button>
             </div>
             <form onSubmit={save} className="space-y-5">
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Send To *</label>
                 <select
                   required
-                  value={form.source_id}
+                  value={selectValue}
                   onChange={e => {
                     const val = e.target.value;
+                    setSelectValue(val);
                     if (!val) { setForm({ ...form, source: 'client', source_id: '', client_id: '', client_name: '', client_email: '' }); return; }
-                    // Parse "type:id"
                     const [type, id] = val.split(':');
                     if (type === 'request') {
                       const req = requests.find(r => r.id === id);
@@ -363,7 +365,7 @@ export default function Estimates() {
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium">Cancel</button>
+                <button type="button" onClick={() => { setShowForm(false); setSelectValue(''); }} className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium">Cancel</button>
                 <button type="submit" className="flex-1 py-2.5 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-red-600 transition-all">Save Estimate</button>
               </div>
             </form>
