@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Inbox, Archive, X, Phone, Mail, MessageSquare, FileText } from 'lucide-react';
+import { Inbox, Archive, X, Phone, Mail, MessageSquare, FileText, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 const STATUS_COLORS = {
@@ -28,6 +28,13 @@ export default function ClientRequests() {
     await base44.entities.ClientRequest.update(id, { status });
     fetchRequests();
     if (selected?.id === id) setSelected({ ...selected, status });
+  };
+
+  const deleteRequest = async (id) => {
+    if (!confirm('Delete this request permanently?')) return;
+    await base44.entities.ClientRequest.delete(id);
+    setSelected(null);
+    fetchRequests();
   };
 
   const filtered = filter === 'all' ? requests : requests.filter(r => r.status === filter);
@@ -135,6 +142,12 @@ export default function ClientRequests() {
                   <Archive size={14} /> Archive
                 </button>
               )}
+              <button
+                onClick={() => deleteRequest(selected.id)}
+                className="w-full py-2.5 border border-destructive/40 text-destructive text-sm font-medium rounded-xl hover:bg-destructive/10 transition-all flex items-center justify-center gap-2"
+              >
+                <Trash2 size={14} /> Delete Request
+              </button>
             </div>
           </div>
         ) : (
