@@ -12,22 +12,30 @@ const STATUS_COLORS = {
 };
 
 const emptyItem = { description: '', quantity: 1, rate: 0, total: 0 };
+const emptyForm = { source: 'client', source_id: '', client_id: '', client_name: '', client_email: '', line_items: [{ ...emptyItem }], tax_rate: 0, discount: 0, notes: '', valid_until: '' };
 
 export default function Estimates() {
   const [estimates, setEstimates] = useState([]);
   const [clients, setClients] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selected, setSelected] = useState(null);
   const [sending, setSending] = useState(false);
-  const [form, setForm] = useState({ client_id: '', client_name: '', client_email: '', line_items: [{ ...emptyItem }], tax_rate: 0, discount: 0, notes: '', valid_until: '' });
+  const [form, setForm] = useState({ ...emptyForm });
 
   const fetch = () => {
     Promise.all([
       base44.entities.Estimate.list('-created_date', 100),
       base44.entities.Client.list('-created_date', 100),
-    ]).then(([e, c]) => { setEstimates(e); setClients(c); setLoading(false); })
-      .catch(() => setLoading(false));
+      base44.entities.ClientRequest.list('-created_date', 100),
+    ]).then(([e, c, r]) => {
+      setEstimates(e);
+      setClients(c);
+      // Show requests that are new or read (not yet converted/archived)
+      setRequests(r.filter(req => req.status === 'new' || req.status === 'read'));
+      setLoading(false);
+    }).catch(() => setLoading(false));
   };
   useEffect(() => { fetch(); }, []);
 
@@ -50,9 +58,14 @@ export default function Estimates() {
     e.preventDefault();
     const subtotal = calcSubtotal(form.line_items);
     const total = calcTotal(form.line_items, form.tax_rate, form.discount);
-    await base44.entities.Estimate.create({ ...form, subtotal, total });
+    const { source, source_id, ...estimateData } = form;
+    await base44.entities.Estimate.create({ ...estimateData, subtotal, total });
+    // If sourced from a request, mark it as read so we know an estimate was sent
+    if (source === 'request' && source_id) {
+      await base44.entities.ClientRequest.update(source_id, { status: 'read' });
+    }
     setShowForm(false);
-    setForm({ client_id: '', client_name: '', client_email: '', line_items: [{ ...emptyItem }], tax_rate: 0, discount: 0, notes: '', valid_until: '' });
+    setForm({ ...emptyForm });
     fetch();
   };
 
@@ -79,6 +92,27 @@ export default function Estimates() {
   };
 
   const convertToInvoice = async (est) => {
+    // Auto-create client record if they don't already exist as a client
+    const existingClients = await base44.entities.Client.filter({ email: est.client_email });
+    if (existingClients.length === 0) {
+      const newClient = await base44.entities.Client.create({ name: est.client_name, email: est.client_email });
+      // Mark any matching request as converted
+      const matchingRequests = await base44.entities.ClientRequest.filter({ email: est.client_email });
+      for (const req of matchingRequests) {
+        if (req.status !== 'converted') {
+          await base44.entities.ClientRequest.update(req.id, { status: 'converted' });
+        }
+      }
+      await base44.entities.Estimate.update(est.id, { client_id: newClient.id });
+    } else {
+      // Still mark matching requests converted
+      const matchingRequests = await base44.entities.ClientRequest.filter({ email: est.client_email });
+      for (const req of matchingRequests) {
+        if (req.status !== 'converted') {
+          await base44.entities.ClientRequest.update(req.id, { status: 'converted' });
+        }
+      }
+    }
     await base44.entities.Invoice.create({
       estimate_id: est.id,
       client_id: est.client_id,
@@ -97,10 +131,10 @@ export default function Estimates() {
     await base44.integrations.Core.SendEmail({
       to: 'derek@ddaltondesigns.com',
       subject: `✅ Estimate Accepted: ${est.client_name} — $${(est.total || 0).toLocaleString()}`,
-      body: `${est.client_name} (${est.client_email}) has accepted their estimate for $${(est.total || 0).toLocaleString()}.\n\nAn invoice has been automatically created. Log in to the admin dashboard to manage it.`,
+      body: `${est.client_name} (${est.client_email}) has accepted their estimate for $${(est.total || 0).toLocaleString()}.\n\nThey have been added as a client and an invoice has been automatically created. Log in to the admin dashboard to manage it.`,
     });
     fetch();
-    alert('Invoice created!');
+    alert('Client added & invoice created!');
   };
 
   const updateStatus = async (id, status) => {
@@ -202,21 +236,44 @@ export default function Estimates() {
             </div>
             <form onSubmit={save} className="space-y-5">
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Client *</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Send To *</label>
                 <select
                   required
-                  value={form.client_id}
+                  value={form.source_id}
                   onChange={e => {
-                    const client = clients.find(c => c.id === e.target.value);
-                    setForm({ ...form, client_id: client?.id || '', client_name: client?.name || '', client_email: client?.email || '' });
+                    const val = e.target.value;
+                    if (!val) { setForm({ ...form, source: 'client', source_id: '', client_id: '', client_name: '', client_email: '' }); return; }
+                    // Parse "type:id"
+                    const [type, id] = val.split(':');
+                    if (type === 'request') {
+                      const req = requests.find(r => r.id === id);
+                      setForm({ ...form, source: 'request', source_id: id, client_id: '', client_name: req?.name || '', client_email: req?.email || '' });
+                    } else {
+                      const client = clients.find(c => c.id === id);
+                      setForm({ ...form, source: 'client', source_id: id, client_id: id, client_name: client?.name || '', client_email: client?.email || '' });
+                    }
                   }}
                   className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm"
                 >
-                  <option value="">Select a client...</option>
-                  {clients.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} — {c.email}</option>
-                  ))}
+                  <option value="">Select recipient...</option>
+                  {requests.length > 0 && (
+                    <optgroup label="— Contact Requests (not yet clients)">
+                      {requests.map(r => (
+                        <option key={r.id} value={`request:${r.id}`}>{r.name} — {r.email} ({r.project_type || 'inquiry'})</option>
+                      ))}
+                    </optgroup>
+                  )}
+                  {clients.length > 0 && (
+                    <optgroup label="— Existing Clients">
+                      {clients.map(c => (
+                        <option key={c.id} value={`client:${c.id}`}>{c.name} — {c.email}</option>
+                      ))}
+                    </optgroup>
+                  )}
                 </select>
+                {form.source === 'request' && form.client_name && (
+                  <p className="text-xs text-accent mt-1.5">⚡ This person will be added as a client automatically when they accept the estimate.</p>
+                )}
               </div>
 
               <div>

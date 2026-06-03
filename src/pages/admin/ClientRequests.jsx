@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Inbox, Eye, Archive, UserPlus, X, Phone, Mail, MessageSquare } from 'lucide-react';
+import { Inbox, Archive, X, Phone, Mail, MessageSquare, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 
 const STATUS_COLORS = {
@@ -28,13 +28,6 @@ export default function ClientRequests() {
     await base44.entities.ClientRequest.update(id, { status });
     fetchRequests();
     if (selected?.id === id) setSelected({ ...selected, status });
-  };
-
-  const convertToClient = async (req) => {
-    await base44.entities.Client.create({ name: req.name, email: req.email, phone: req.phone });
-    await base44.entities.ClientRequest.update(req.id, { status: 'converted' });
-    fetchRequests();
-    if (selected?.id === req.id) setSelected({ ...selected, status: 'converted' });
   };
 
   const filtered = filter === 'all' ? requests : requests.filter(r => r.status === filter);
@@ -127,12 +120,12 @@ export default function ClientRequests() {
                 Reply by Email
               </a>
               {selected.status !== 'converted' && (
-                <button
-                  onClick={() => convertToClient(selected)}
+                <a
+                  href="/admin/estimates"
                   className="w-full py-2.5 bg-foreground text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-80 transition-all flex items-center justify-center gap-2"
                 >
-                  <UserPlus size={14} /> Convert to Client
-                </button>
+                  <FileText size={14} /> Create Estimate
+                </a>
               )}
               {selected.status !== 'archived' && (
                 <button
