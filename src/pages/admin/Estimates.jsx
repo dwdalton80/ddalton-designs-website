@@ -120,10 +120,10 @@ export default function Estimates() {
         notes: est.notes,
       });
       await base44.entities.Estimate.update(est.id, { status: 'accepted' });
-      await base44.integrations.Core.SendEmail({
-        to: 'derek@ddaltondesigns.com',
-        subject: `✅ Estimate Accepted: ${est.client_name} — $${(est.total || 0).toLocaleString()}`,
-        body: `${est.client_name} (${est.client_email}) has accepted their estimate for $${(est.total || 0).toLocaleString()}.\n\nThey have been added as a client and an invoice has been automatically created. Log in to the admin dashboard to manage it.`,
+      // Invite client to portal — send welcome email via backend function
+      await base44.functions.invoke('sendPortalInvite', {
+        clientName: est.client_name,
+        clientEmail: est.client_email,
       });
       fetch();
       toast.success('Client added & invoice created!');

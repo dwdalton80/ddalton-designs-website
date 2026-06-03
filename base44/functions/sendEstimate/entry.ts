@@ -20,14 +20,7 @@ Deno.serve(async (req) => {
 
     const portalUrl = 'https://ddalton-designs.base44.app/portal';
 
-    // Invite the client so they can log into the portal
-    try {
-      await base44.users.inviteUser(est.client_email, 'user');
-    } catch (_) {
-      // User may already exist — that's fine
-    }
-
-    // Send email via Resend
+    // Send estimate notification email via Resend (no invite yet — that comes on acceptance)
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -38,7 +31,7 @@ Deno.serve(async (req) => {
         from: 'DDalton Designs <derek@ddaltondesigns.com>',
         to: [est.client_email],
         subject: `Your Estimate is Ready — DDalton Designs`,
-        text: `Hi ${est.client_name},\n\nGreat news — your estimate from DDalton Designs is ready to view!\n\nTo see your estimate, log in to your Client Portal using the link below:\n\n${portalUrl}\n\nYou'll receive a separate email with your login invitation shortly. Once logged in, you'll be able to view your estimate, invoices, project plans, and send me messages directly.\n\nIf you have any questions in the meantime, feel free to reply to this email.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
+        text: `Hi ${est.client_name},\n\nGreat news — your estimate from DDalton Designs is ready to view!\n\nDerek will be in touch shortly to walk you through the details. If you have any questions in the meantime, feel free to reply to this email.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
       }),
     });
 
