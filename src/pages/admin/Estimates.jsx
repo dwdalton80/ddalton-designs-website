@@ -92,12 +92,11 @@ export default function Estimates() {
         body: `Hi ${est.client_name},\n\nGreat news — your estimate from DDalton Designs is ready to view!\n\nTo see your estimate, log in to your Client Portal using the link below:\n\n${portalUrl}\n\nYou'll receive a separate email with your login invitation shortly. Once logged in, you'll be able to view your estimate, invoices, project plans, and send me messages directly.\n\nIf you have any questions in the meantime, feel free to reply to this email.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
       });
       await base44.entities.Estimate.update(est.id, { status: 'sent', sent_at: new Date().toISOString() });
-      fetch();
-      if (selected?.id === est.id) setSelected({ ...est, status: 'sent' });
       toast.success(`Estimate sent to ${est.client_email}`);
+      fetch();
     } catch (err) {
       console.error('Send estimate error:', err);
-      toast.error(`Failed to send: ${err?.message || 'Unknown error'}`);
+      toast.error(`Failed to send: ${err?.message || err?.detail || 'Unknown error'}`);
     } finally {
       setSending(false);
     }
