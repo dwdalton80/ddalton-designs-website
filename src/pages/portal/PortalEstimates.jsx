@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { FileText, ChevronDown, ChevronUp, CheckCircle, XCircle, Download } from 'lucide-react';
 import { format } from 'date-fns';
+import { generateEstimatePdf } from '@/lib/invoicePdf';
+import { toast } from 'sonner';
 
 const STATUS_COLORS = {
   draft:    'bg-secondary text-muted-foreground',
@@ -15,6 +17,7 @@ export default function PortalEstimates({ user }) {
   const [estimates, setEstimates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
+  const [acting, setActing] = useState(null);
 
   useEffect(() => {
     base44.entities.Estimate.filter({ client_email: user.email }, '-created_date', 50)
@@ -22,7 +25,6 @@ export default function PortalEstimates({ user }) {
       .catch(() => setLoading(false));
   }, [user.email]);
 
-  // Mark as viewed when opened
   const toggle = async (est) => {
     if (expanded === est.id) { setExpanded(null); return; }
     setExpanded(est.id);
@@ -30,6 +32,29 @@ export default function PortalEstimates({ user }) {
       await base44.entities.Estimate.update(est.id, { status: 'viewed' });
       setEstimates(prev => prev.map(e => e.id === est.id ? { ...e, status: 'viewed' } : e));
     }
+  };
+
+  const respond = async (est, status) => {
+    setActing(est.id + status);
+    try {
+      await base44.entities.Estimate.update(est.id, { status });
+      setEstimates(prev => prev.map(e => e.id === est.id ? { ...e, status } : e));
+      toast.success(status === 'accepted' ? 'Estimate accepted! Derek will be in touch shortly.' : 'Estimate declined.');
+    } catch (err) {
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setActing(null);
+    }
+  };
+
+  const downloadPdf = async (est) => {
+    const blob = await generateEstimatePdf(est, est.valid_until, est.notes);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `estimate-${est.client_name.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   if (loading) return (
@@ -51,6 +76,7 @@ export default function PortalEstimates({ user }) {
       <h2 className="font-display font-black text-2xl mb-6">Your Estimates</h2>
       {estimates.map(est => {
         const isOpen = expanded === est.id;
+        const canRespond = ['sent', 'viewed'].includes(est.status);
         return (
           <div key={est.id} className="bg-card border border-border rounded-2xl overflow-hidden">
             <button
@@ -123,6 +149,48 @@ export default function PortalEstimates({ user }) {
                 {est.notes && (
                   <p className="text-sm text-muted-foreground italic">{est.notes}</p>
                 )}
+
+                {/* Actions */}
+                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                  <button
+                    onClick={() => downloadPdf(est)}
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-xl text-sm font-medium hover:border-foreground transition-all"
+                  >
+                    <Download size={14} /> Download PDF
+                  </button>
+
+                  {canRespond && (
+                    <>
+                      <button
+                        onClick={() => respond(est, 'accepted')}
+                        disabled={!!acting}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 transition-all disabled:opacity-60"
+                      >
+                        <CheckCircle size={14} />
+                        {acting === est.id + 'accepted' ? 'Accepting...' : 'Accept Estimate'}
+                      </button>
+                      <button
+                        onClick={() => respond(est, 'declined')}
+                        disabled={!!acting}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-xl text-sm font-medium text-muted-foreground hover:border-destructive hover:text-destructive transition-all disabled:opacity-60"
+                      >
+                        <XCircle size={14} />
+                        {acting === est.id + 'declined' ? 'Declining...' : 'Decline'}
+                      </button>
+                    </>
+                  )}
+
+                  {est.status === 'accepted' && (
+                    <div className="flex items-center gap-2 text-green-600 text-sm font-semibold px-4 py-2.5 bg-green-50 rounded-xl">
+                      <CheckCircle size={14} /> Estimate Accepted — Derek will be in touch!
+                    </div>
+                  )}
+                  {est.status === 'declined' && (
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm px-4 py-2.5 bg-secondary rounded-xl">
+                      <XCircle size={14} /> Estimate Declined
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
