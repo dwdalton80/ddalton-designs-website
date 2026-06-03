@@ -18,12 +18,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Estimate not found' }, { status: 404 });
     }
 
-    // Verify the caller is the client for this estimate
     if (est.client_email !== user.email && user.role !== 'admin') {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Auto-create client record if not already a client
     const existingClients = await base44.asServiceRole.entities.Client.filter({ email: est.client_email });
     let clientId = est.client_id;
     if (existingClients.length === 0) {
@@ -37,7 +35,6 @@ Deno.serve(async (req) => {
       clientId = existingClients[0].id;
     }
 
-    // Mark matching contact requests as converted
     const matchingRequests = await base44.asServiceRole.entities.ClientRequest.filter({ email: est.client_email });
     for (const reqRecord of matchingRequests) {
       if (reqRecord.status !== 'converted') {
@@ -45,7 +42,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Create the invoice
     await base44.asServiceRole.entities.Invoice.create({
       estimate_id: estimateId,
       client_id: clientId,
@@ -61,14 +57,14 @@ Deno.serve(async (req) => {
       notes: est.notes,
     });
 
-    // Mark estimate as accepted
     await base44.asServiceRole.entities.Estimate.update(estimateId, { status: 'accepted' });
 
-    // Send portal invite / welcome email
-    await base44.functions.invoke('sendPortalInvite', {
-      clientName: est.client_name,
-      clientEmail: est.client_email,
-    });
+    try {
+      await base44.functions.invoke('sendPortalInvite', {
+        clientName: est.client_name,
+        clientEmail: est.client_email,
+      });
+    } catch (_) {}
 
     return Response.json({ success: true });
   } catch (error) {
