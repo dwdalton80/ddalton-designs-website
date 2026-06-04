@@ -49,14 +49,7 @@ export default function Login() {
       icon={LogIn}
       title="Welcome back"
       subtitle="Log in to your account"
-      footer={
-        <>
-          Don't have an account?{" "}
-          <Link to="/register" className="text-primary font-medium hover:underline">
-            Create one
-          </Link>
-        </>
-      }
+      footer={null}
     >
       <div className="space-y-3 mb-6">
         <Button variant="outline" className="w-full h-12 text-sm font-medium" onClick={handleGoogle}>
