@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Receipt, X, Send, CheckCircle, DollarSign, Plus } from 'lucide-react';
+import { Receipt, X, Send, CheckCircle, DollarSign, Plus, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 import GenerateInvoiceModal from '@/components/admin/invoices/GenerateInvoiceModal';
 import ManualInvoiceModal from '@/components/admin/invoices/ManualInvoiceModal';
@@ -36,6 +37,14 @@ export default function Invoices() {
     });
     setSending(false);
     alert('Invoice sent!');
+  };
+
+  const deleteInvoice = async (inv) => {
+    if (!confirm('Delete this invoice permanently?')) return;
+    await base44.entities.Invoice.delete(inv.id);
+    setSelected(null);
+    fetch();
+    toast.success('Invoice deleted.');
   };
 
   const markPaid = async (inv) => {
@@ -146,6 +155,10 @@ export default function Invoices() {
                   <CheckCircle size={14} /> Mark as Paid
                 </button>
               )}
+              <button onClick={() => deleteInvoice(selected)}
+                className="w-full py-2.5 border border-destructive/40 text-destructive rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-destructive/10 transition-all">
+                <Trash2 size={14} /> Delete Invoice
+              </button>
             </div>
           </div>
         ) : (
