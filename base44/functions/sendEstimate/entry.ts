@@ -44,6 +44,7 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.Estimate.update(estimateId, {
       status: 'sent',
       sent_at: new Date().toISOString(),
+      client_email: est.client_email.toLowerCase(),
     });
 
     return Response.json({ success: true });

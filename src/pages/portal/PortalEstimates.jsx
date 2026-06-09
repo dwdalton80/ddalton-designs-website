@@ -20,7 +20,7 @@ export default function PortalEstimates({ user }) {
   const [acting, setActing] = useState(null);
 
   useEffect(() => {
-    base44.entities.Estimate.filter({ client_email: user.email }, '-created_date', 50)
+    base44.entities.Estimate.filter({ client_email: user.email.toLowerCase() }, '-created_date', 50)
       .then(data => { setEstimates(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [user.email]);

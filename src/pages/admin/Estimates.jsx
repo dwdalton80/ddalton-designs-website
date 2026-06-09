@@ -268,10 +268,10 @@ export default function Estimates() {
                     const [type, id] = val.split(':');
                     if (type === 'request') {
                       const req = requests.find(r => r.id === id);
-                      setForm({ ...form, source: 'request', source_id: id, client_id: '', client_name: req?.name || '', client_email: req?.email || '' });
+                      setForm({ ...form, source: 'request', source_id: id, client_id: '', client_name: req?.name || '', client_email: (req?.email || '').toLowerCase() });
                     } else {
                       const client = clients.find(c => c.id === id);
-                      setForm({ ...form, source: 'client', source_id: id, client_id: id, client_name: client?.name || '', client_email: client?.email || '' });
+                      setForm({ ...form, source: 'client', source_id: id, client_id: id, client_name: client?.name || '', client_email: (client?.email || '').toLowerCase() });
                     }
                   }}
                   className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm"
