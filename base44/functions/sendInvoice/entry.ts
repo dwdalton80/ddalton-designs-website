@@ -53,6 +53,11 @@ Deno.serve(async (req) => {
       throw new Error(errData.message || 'Failed to send invoice email via Resend');
     }
 
+    await base44.asServiceRole.entities.Invoice.update(invoiceId, {
+      status: 'sent',
+      sent_at: new Date().toISOString(),
+    });
+
     return Response.json({ success: true });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

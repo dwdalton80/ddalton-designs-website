@@ -8,6 +8,7 @@ import ManualInvoiceModal from '@/components/admin/invoices/ManualInvoiceModal';
 
 const STATUS_COLORS = {
   unpaid: 'bg-red-500/15 text-red-500',
+  sent: 'bg-blue-500/15 text-blue-500',
   partial: 'bg-yellow-500/15 text-yellow-500',
   paid: 'bg-green-500/15 text-green-500',
 };
@@ -33,6 +34,8 @@ export default function Invoices() {
     try {
       await base44.functions.invoke('sendInvoice', { invoiceId: inv.id });
       toast.success(`Invoice sent to ${inv.client_email}`);
+      fetch();
+      setSelected({ ...inv, status: 'sent' });
     } catch (err) {
       toast.error(`Failed to send: ${err?.response?.data?.error || err?.message || 'Unknown error'}`);
     } finally {

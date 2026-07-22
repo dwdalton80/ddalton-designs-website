@@ -52,10 +52,15 @@
       "type": "string",
       "enum": [
         "unpaid",
+        "sent",
         "partial",
         "paid"
       ],
       "default": "unpaid"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
     },
     "paid_amount": {
       "type": "number",
