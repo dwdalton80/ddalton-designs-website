@@ -151,7 +151,7 @@ export default function Invoices() {
             <div className="flex flex-col gap-2">
               <button onClick={() => sendInvoice(selected)} disabled={sending}
                 className="w-full py-2.5 bg-accent text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-red-600 transition-all disabled:opacity-60">
-                <Send size={14} /> {sending ? 'Sending...' : 'Send Invoice'}
+                <Send size={14} /> {sending ? 'Sending...' : selected.status === 'sent' ? 'Resend Invoice' : 'Send Invoice'}
               </button>
               {selected.status !== 'paid' && (
                 <button onClick={() => markPaid(selected)}
