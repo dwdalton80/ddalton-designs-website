@@ -30,13 +30,14 @@ export default function Invoices() {
 
   const sendInvoice = async (inv) => {
     setSending(true);
-    await base44.integrations.Core.SendEmail({
-      to: inv.client_email,
-      subject: `Invoice from DDalton Designs`,
-      body: `Hi ${inv.client_name},\n\nPlease find your invoice below:\n\n${inv.line_items?.map(i => `• ${i.description}: ${i.quantity} × $${i.rate} = $${i.total}`).join('\n')}\n\nSubtotal: $${inv.subtotal}\n${inv.tax_rate ? `Tax (${inv.tax_rate}%): $${((inv.subtotal || 0) * inv.tax_rate / 100).toFixed(2)}\n` : ''}${inv.discount ? `Discount: -$${inv.discount}\n` : ''}Total Due: $${inv.total}\n\n${inv.due_date ? `Due Date: ${inv.due_date}\n\n` : ''}Please send payment via your preferred method and reply to this email with any questions.\n\nBest,\nDerek Dalton\nDDalton Designs`,
-    });
-    setSending(false);
-    alert('Invoice sent!');
+    try {
+      await base44.functions.invoke('sendInvoice', { invoiceId: inv.id });
+      toast.success(`Invoice sent to ${inv.client_email}`);
+    } catch (err) {
+      toast.error(`Failed to send: ${err?.response?.data?.error || err?.message || 'Unknown error'}`);
+    } finally {
+      setSending(false);
+    }
   };
 
   const deleteInvoice = async (inv) => {
