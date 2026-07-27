@@ -4,8 +4,19 @@ import { base44 } from '@/api/base44Client';
 
 const emptyLine = () => ({ description: '', quantity: 1, rate: 0, total: 0 });
 
-export default function ManualInvoiceModal({ onClose, onCreated }) {
-  const [form, setForm] = useState({
+export default function ManualInvoiceModal({ onClose, onCreated, invoice }) {
+  const [form, setForm] = useState(() => invoice ? {
+    client_name: invoice.client_name || '',
+    client_email: invoice.client_email || '',
+    line_items: (invoice.line_items && invoice.line_items.length ? invoice.line_items : [emptyLine()]),
+    tax_rate: invoice.tax_rate || 0,
+    discount: invoice.discount || 0,
+    due_date: invoice.due_date || '',
+    payment_terms: invoice.payment_terms || '',
+    notes: invoice.notes || '',
+    status: invoice.status || 'unpaid',
+    paid_amount: invoice.paid_amount || 0,
+  } : {
     client_name: '',
     client_email: '',
     line_items: [emptyLine()],
@@ -38,14 +49,20 @@ export default function ManualInvoiceModal({ onClose, onCreated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    await base44.entities.Invoice.create({
+    const payload = {
       ...form,
+      client_email: form.client_email.toLowerCase(),
       subtotal: parseFloat(subtotal.toFixed(2)),
       total: parseFloat(total.toFixed(2)),
       tax_rate: parseFloat(form.tax_rate) || 0,
       discount: parseFloat(form.discount) || 0,
       paid_amount: form.status === 'paid' ? parseFloat(total.toFixed(2)) : parseFloat(form.paid_amount) || 0,
-    });
+    };
+    if (invoice) {
+      await base44.entities.Invoice.update(invoice.id, payload);
+    } else {
+      await base44.entities.Invoice.create(payload);
+    }
     setSaving(false);
     onCreated();
   };
@@ -54,7 +71,7 @@ export default function ManualInvoiceModal({ onClose, onCreated }) {
     <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center p-4 overflow-y-auto">
       <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-2xl my-8">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display font-bold text-xl">Manual Invoice</h2>
+          <h2 className="font-display font-bold text-xl">{invoice ? 'Edit Invoice' : 'Manual Invoice'}</h2>
           <button onClick={onClose}><X size={18} /></button>
         </div>
 

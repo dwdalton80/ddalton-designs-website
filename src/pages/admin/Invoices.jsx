@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Receipt, X, Send, CheckCircle, DollarSign, Plus, Trash2 } from 'lucide-react';
+import { Receipt, X, Send, CheckCircle, DollarSign, Plus, Trash2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import GenerateInvoiceModal from '@/components/admin/invoices/GenerateInvoiceModal';
 import ManualInvoiceModal from '@/components/admin/invoices/ManualInvoiceModal';
+import RecordPaymentModal from '@/components/admin/invoices/RecordPaymentModal';
 
 const STATUS_COLORS = {
   unpaid: 'bg-red-500/15 text-red-500',
@@ -21,6 +22,8 @@ export default function Invoices() {
   const [filter, setFilter] = useState('all');
   const [showGenerate, setShowGenerate] = useState(false);
   const [showManual, setShowManual] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState(null);
+  const [showPayment, setShowPayment] = useState(false);
 
   const fetch = () => {
     base44.entities.Invoice.list('-created_date', 100)
@@ -154,11 +157,21 @@ export default function Invoices() {
                 <Send size={14} /> {sending ? 'Sending...' : selected.status === 'sent' ? 'Resend Invoice' : 'Send Invoice'}
               </button>
               {selected.status !== 'paid' && (
-                <button onClick={() => markPaid(selected)}
-                  className="w-full py-2.5 bg-green-600 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2">
-                  <CheckCircle size={14} /> Mark as Paid
+                <button onClick={() => setShowPayment(true)}
+                  className="w-full py-2.5 bg-green-600 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-green-700 transition-all">
+                  <DollarSign size={14} /> Record Payment
                 </button>
               )}
+              {selected.status !== 'paid' && (
+                <button onClick={() => markPaid(selected)}
+                  className="w-full py-2.5 border border-green-600/40 text-green-700 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-green-50 transition-all">
+                  <CheckCircle size={14} /> Mark Fully Paid
+                </button>
+              )}
+              <button onClick={() => setEditingInvoice(selected)}
+                className="w-full py-2.5 border border-border rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:border-foreground transition-all">
+                <Pencil size={14} /> Edit Invoice
+              </button>
               <button onClick={() => deleteInvoice(selected)}
                 className="w-full py-2.5 border border-destructive/40 text-destructive rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-destructive/10 transition-all">
                 <Trash2 size={14} /> Delete Invoice
@@ -176,6 +189,30 @@ export default function Invoices() {
       <ManualInvoiceModal
         onClose={() => setShowManual(false)}
         onCreated={() => { setShowManual(false); fetch(); }}
+      />
+    )}
+    {editingInvoice && (
+      <ManualInvoiceModal
+        invoice={editingInvoice}
+        onClose={() => setEditingInvoice(null)}
+        onCreated={() => {
+          const id = editingInvoice.id;
+          setEditingInvoice(null);
+          fetch();
+          base44.entities.Invoice.get(id).then(updated => setSelected(updated));
+        }}
+      />
+    )}
+    {showPayment && selected && (
+      <RecordPaymentModal
+        invoice={selected}
+        onClose={() => setShowPayment(false)}
+        onRecorded={() => {
+          const id = selected.id;
+          setShowPayment(false);
+          fetch();
+          base44.entities.Invoice.get(id).then(updated => setSelected(updated));
+        }}
       />
     )}
     {showGenerate && (
