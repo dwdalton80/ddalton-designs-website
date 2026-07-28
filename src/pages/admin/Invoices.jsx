@@ -61,7 +61,7 @@ export default function Invoices() {
   };
 
   const filtered = filter === 'all' ? invoices : invoices.filter(i => i.status === filter);
-  const totalRevenue = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + (i.total || 0), 0);
+  const totalRevenue = invoices.reduce((s, i) => s + (i.paid_amount || (i.status === 'paid' ? i.total : 0) || 0), 0);
   const outstanding = invoices.filter(i => i.status !== 'paid').reduce((s, i) => s + ((i.total || 0) - (i.paid_amount || 0)), 0);
 
   return (

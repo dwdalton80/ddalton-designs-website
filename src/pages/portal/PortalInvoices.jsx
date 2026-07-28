@@ -22,8 +22,8 @@ export default function PortalInvoices({ user }) {
   if (loading) return <div className="flex justify-center py-16"><div className="w-7 h-7 border-4 border-border border-t-accent rounded-full animate-spin" /></div>;
 
   const total = invoices.reduce((s, i) => s + (i.total || 0), 0);
-  const paid = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + (i.total || 0), 0);
-  const outstanding = total - paid;
+  const paid = invoices.reduce((s, i) => s + (i.paid_amount || (i.status === 'paid' ? i.total : 0) || 0), 0);
+  const outstanding = Math.max(total - paid, 0);
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
@@ -114,6 +114,12 @@ export default function PortalInvoices({ user }) {
                       <span className="text-muted-foreground">Subtotal: <strong className="text-foreground">${(inv.subtotal || 0).toLocaleString()}</strong></span>
                       <span className="text-muted-foreground">Total: <strong className="text-foreground text-base">${(inv.total || 0).toLocaleString()}</strong></span>
                     </div>
+                    {inv.paid_amount > 0 && inv.status !== 'paid' && (
+                      <div className="flex justify-end mt-2 gap-6 text-sm">
+                        <span className="text-green-600">Paid: <strong>${(inv.paid_amount || 0).toLocaleString()}</strong></span>
+                        <span className="text-accent font-semibold">Balance Due: ${((inv.total || 0) - (inv.paid_amount || 0)).toLocaleString()}</span>
+                      </div>
+                    )}
                     {inv.notes && <p className="text-xs text-muted-foreground mt-3 italic">{inv.notes}</p>}
                   </div>
                 )}
