@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Plus, X, Trash2, Star, Upload, Image } from 'lucide-react';
 import ReactQuill from 'react-quill';
 
-const CATEGORIES = ['website', 'logo', 'marketing'];
+const CATEGORIES = ['website', 'logo', 'marketing', 'app development'];
 
 export default function PortfolioManager() {
   const [items, setItems] = useState([]);

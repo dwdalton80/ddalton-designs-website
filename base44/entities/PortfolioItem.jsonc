@@ -10,7 +10,8 @@
       "enum": [
         "website",
         "logo",
-        "marketing"
+        "marketing",
+        "app development"
       ]
     },
     "cover_image": {

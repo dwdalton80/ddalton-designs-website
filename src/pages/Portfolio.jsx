@@ -6,7 +6,7 @@ import { base44 } from '@/api/base44Client';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
-const FILTERS = ['all', 'website', 'logo', 'marketing'];
+const FILTERS = ['all', 'website', 'logo', 'marketing', 'app development'];
 
 export default function Portfolio() {
   const [items, setItems] = useState([]);
