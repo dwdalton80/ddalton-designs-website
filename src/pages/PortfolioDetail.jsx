@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 
 export default function PortfolioDetail() {
   const { id } = useParams();
@@ -80,7 +81,7 @@ export default function PortfolioDetail() {
               <h2 className="font-display font-bold text-2xl mb-4">About This Project</h2>
               <div
                 className="ql-description text-muted-foreground leading-relaxed text-lg"
-                dangerouslySetInnerHTML={{ __html: item.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.description) }}
               />
             </div>
           )}
