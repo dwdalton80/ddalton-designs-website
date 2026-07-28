@@ -153,20 +153,24 @@ export async function generateInvoicePdf(invoice, dueDate, paymentTerms, notes, 
 
   // Rows
   const descMaxWidth = cols.qty - cols.desc - 16;
+  const lineH = 13;
   (invoice.line_items || []).forEach((item, idx) => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9.5);
     const descLines = doc.splitTextToSize(String(item.description || ''), descMaxWidth);
-    const lineH = 13;
-    const rowH = Math.max(22, descLines.length * lineH + 8);
-    doc.setFillColor(idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 250);
+    const rowH = Math.max(26, descLines.length * lineH + 12);
+    const bg = idx % 2 === 0 ? 255 : 249;
+    doc.setFillColor(bg, bg, bg);
     doc.rect(margin, y, W - margin * 2, rowH, 'F');
 
     doc.setTextColor(...DARK);
+    // Description: top-aligned with 10pt padding from row top
     doc.text(descLines, cols.desc, y + 14);
-    doc.text(String(item.quantity || ''), cols.qty, y + 14, { align: 'center' });
-    doc.text(`$${(item.rate || 0).toLocaleString()}`, cols.rate, y + 14, { align: 'right' });
-    doc.text(`$${(item.total || 0).toLocaleString()}`, cols.total, y + 14, { align: 'right' });
+    // QTY/RATE/AMOUNT: vertically centered in the row
+    const midY = y + rowH / 2 + 3.5;
+    doc.text(String(item.quantity || ''), cols.qty, midY, { align: 'center' });
+    doc.text(`$${(item.rate || 0).toLocaleString()}`, cols.rate, midY, { align: 'right' });
+    doc.text(`$${(item.total || 0).toLocaleString()}`, cols.total, midY, { align: 'right' });
     y += rowH;
   });
 
