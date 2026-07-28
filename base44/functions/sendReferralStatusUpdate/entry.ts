@@ -21,7 +21,16 @@ const statusConfig = {
   },
 };
 
-const emailHtml = (referrer_name, referred_client_name, status) => {
+const escapeHtml = (str) => String(str == null ? '' : str)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const emailHtml = (raw_referrer, raw_referred, status) => {
+  const referrer_name = escapeHtml(raw_referrer);
+  const referred_client_name = escapeHtml(raw_referred);
   const cfg = statusConfig[status] || { emoji: '📋', label: 'Updated', color: '#FF4F00', message: 'Your referral status has been updated.' };
   return `<!DOCTYPE html>
 <html>

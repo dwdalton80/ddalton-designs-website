@@ -116,8 +116,23 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { name, email, project_type, budget, message, file_name, file_url } = await req.json();
 
-    if (!email || !name) {
+    if (!email || !name || !message) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Validate email format to prevent abuse as an open relay
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email) || email.length > 254) {
+      return Response.json({ error: 'Invalid email' }, { status: 400 });
+    }
+    if (typeof name !== 'string' || name.trim().length < 2 || name.length > 100) {
+      return Response.json({ error: 'Invalid name' }, { status: 400 });
+    }
+    if (typeof message !== 'string' || message.trim().length < 5 || message.length > 5000) {
+      return Response.json({ error: 'Invalid message' }, { status: 400 });
+    }
+    if (project_type && !['website', 'logo', 'marketing', 'other'].includes(project_type)) {
+      return Response.json({ error: 'Invalid project type' }, { status: 400 });
     }
 
     // Invite the user to create a portal account (silently ignore if already exists)
