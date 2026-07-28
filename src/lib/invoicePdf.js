@@ -152,15 +152,18 @@ export async function generateInvoicePdf(invoice, dueDate, paymentTerms, notes, 
   y += 22;
 
   // Rows
+  const descMaxWidth = cols.qty - cols.desc - 16;
   (invoice.line_items || []).forEach((item, idx) => {
-    const rowH = 22;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    const descLines = doc.splitTextToSize(String(item.description || ''), descMaxWidth);
+    const lineH = 13;
+    const rowH = Math.max(22, descLines.length * lineH + 8);
     doc.setFillColor(idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 250);
     doc.rect(margin, y, W - margin * 2, rowH, 'F');
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9.5);
     doc.setTextColor(...DARK);
-    doc.text(item.description || '', cols.desc, y + 14, { maxWidth: 255 });
+    doc.text(descLines, cols.desc, y + 14);
     doc.text(String(item.quantity || ''), cols.qty, y + 14, { align: 'center' });
     doc.text(`$${(item.rate || 0).toLocaleString()}`, cols.rate, y + 14, { align: 'right' });
     doc.text(`$${(item.total || 0).toLocaleString()}`, cols.total, y + 14, { align: 'right' });

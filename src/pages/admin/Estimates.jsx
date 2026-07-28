@@ -231,9 +231,9 @@ export default function Estimates() {
             <div className="text-xs text-muted-foreground mb-4">{selected.client_email}</div>
             <div className="space-y-1 mb-4">
               {selected.line_items?.map((item, i) => (
-                <div key={i} className="flex justify-between text-sm py-1 border-b border-border last:border-0">
-                  <span className="text-muted-foreground flex-1 truncate">{item.description}</span>
-                  <span className="font-medium ml-2">${item.total}</span>
+                <div key={i} className="flex justify-between items-start text-sm py-1 border-b border-border last:border-0">
+                  <span className="text-muted-foreground flex-1 pr-2 break-words whitespace-normal">{item.description}</span>
+                  <span className="font-medium ml-2 flex-shrink-0">${item.total}</span>
                 </div>
               ))}
             </div>

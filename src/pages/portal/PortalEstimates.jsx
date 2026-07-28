@@ -117,10 +117,12 @@ export default function PortalEstimates({ user }) {
                   <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Line Items</div>
                   <div className="space-y-1">
                     {est.line_items?.map((item, i) => (
-                      <div key={i} className="flex justify-between text-sm py-2 border-b border-border last:border-0">
-                        <span className="text-foreground flex-1 pr-4">{item.description}</span>
-                        <span className="text-muted-foreground text-xs mr-4">{item.quantity} × ${(item.rate || 0).toLocaleString()}</span>
-                        <span className="font-semibold">${(item.total || 0).toLocaleString()}</span>
+                      <div key={i} className="flex justify-between items-start text-sm py-2 border-b border-border last:border-0">
+                        <span className="text-foreground flex-1 pr-4 break-words">{item.description}</span>
+                        <div className="flex items-baseline gap-4 flex-shrink-0 whitespace-nowrap">
+                          <span className="text-muted-foreground text-xs">{item.quantity} × ${(item.rate || 0).toLocaleString()}</span>
+                          <span className="font-semibold">${(item.total || 0).toLocaleString()}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
