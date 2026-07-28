@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Plus, X, Trash2, Send, FileText, Eye, CheckCircle, XCircle, AlertTriangle, Download } from 'lucide-react';
+import { Plus, X, Trash2, Send, FileText, Eye, CheckCircle, XCircle, AlertTriangle, Download, Pencil } from 'lucide-react';
 import { generateEstimatePdf } from '@/lib/invoicePdf';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -26,6 +26,7 @@ export default function Estimates() {
   const [sending, setSending] = useState(false);
   const [form, setForm] = useState({ ...emptyForm });
   const [selectValue, setSelectValue] = useState('');
+  const [editingEstimate, setEditingEstimate] = useState(null);
 
   const fetch = () => {
     Promise.all([
@@ -58,11 +59,41 @@ export default function Estimates() {
     setForm({ ...form, line_items: items });
   };
 
+  const openEdit = (est) => {
+    setEditingEstimate(est);
+    setSelectValue('');
+    setForm({
+      source: 'client',
+      source_id: '',
+      client_id: est.client_id || '',
+      client_name: est.client_name || '',
+      client_email: (est.client_email || '').toLowerCase(),
+      line_items: est.line_items?.length ? est.line_items : [{ ...emptyItem }],
+      tax_rate: est.tax_rate || 0,
+      discount: est.discount || 0,
+      notes: est.notes || '',
+      valid_until: est.valid_until || '',
+    });
+    setShowForm(true);
+  };
+
   const save = async (e) => {
     e.preventDefault();
     const subtotal = calcSubtotal(form.line_items);
     const total = calcTotal(form.line_items, form.tax_rate, form.discount);
     const { source, source_id, ...estimateData } = form;
+    if (editingEstimate) {
+      await base44.entities.Estimate.update(editingEstimate.id, { ...estimateData, subtotal, total });
+      const updated = { ...editingEstimate, ...estimateData, subtotal, total };
+      setEditingEstimate(null);
+      setForm({ ...emptyForm });
+      setSelectValue('');
+      setShowForm(false);
+      fetch();
+      setSelected(updated);
+      toast.success('Estimate updated.');
+      return;
+    }
     await base44.entities.Estimate.create({ ...estimateData, subtotal, total });
     // If sourced from a request, mark it as read so we know an estimate was sent
     if (source === 'request' && source_id) {
@@ -165,7 +196,7 @@ export default function Estimates() {
           <h1 className="font-display font-black text-3xl">Estimates</h1>
           <p className="text-muted-foreground mt-1">{estimates.filter(e => e.status === 'draft').length} drafts</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition-all">
+        <button onClick={() => { setEditingEstimate(null); setForm({ ...emptyForm }); setSelectValue(''); setShowForm(true); }} className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:bg-red-600 transition-all">
           <Plus size={16} /> New Estimate
         </button>
       </div>
@@ -214,6 +245,10 @@ export default function Estimates() {
             </div>
             {selected.notes && <p className="text-xs text-muted-foreground mb-4">{selected.notes}</p>}
             <div className="flex flex-col gap-2">
+              <button onClick={() => openEdit(selected)}
+                className="w-full py-2.5 border border-border rounded-xl text-sm font-medium hover:border-foreground transition-all flex items-center justify-center gap-2">
+                <Pencil size={14} /> Edit Estimate
+              </button>
               <button onClick={() => downloadPdf(selected)}
                 className="w-full py-2.5 border border-border rounded-xl text-sm font-medium hover:border-foreground transition-all flex items-center justify-center gap-2">
                 <Download size={14} /> Download PDF
@@ -254,12 +289,18 @@ export default function Estimates() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center p-4 overflow-y-auto">
           <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-2xl my-8">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display font-bold text-xl">New Estimate</h2>
-              <button onClick={() => { setShowForm(false); setSelectValue(''); }}><X size={18} /></button>
+              <h2 className="font-display font-bold text-xl">{editingEstimate ? 'Edit Estimate' : 'New Estimate'}</h2>
+              <button onClick={() => { setShowForm(false); setSelectValue(''); setEditingEstimate(null); }}><X size={18} /></button>
             </div>
             <form onSubmit={save} className="space-y-5">
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Send To *</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">{editingEstimate ? 'Client' : 'Send To *'}</label>
+                {editingEstimate ? (
+                  <div className="px-3 py-2.5 rounded-xl border border-border bg-secondary text-sm">
+                    <div className="font-medium">{form.client_name}</div>
+                    <div className="text-xs text-muted-foreground">{form.client_email}</div>
+                  </div>
+                ) : (
                 <select
                   required
                   value={selectValue}
@@ -294,7 +335,8 @@ export default function Estimates() {
                     </optgroup>
                   )}
                 </select>
-                {form.source === 'request' && form.client_name && (
+                )}
+                {!editingEstimate && form.source === 'request' && form.client_name && (
                   <p className="text-xs text-accent mt-1.5">⚡ This person will be added as a client automatically when they accept the estimate.</p>
                 )}
               </div>
@@ -352,8 +394,8 @@ export default function Estimates() {
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={() => { setShowForm(false); setSelectValue(''); }} className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium">Cancel</button>
-                <button type="submit" className="flex-1 py-2.5 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-red-600 transition-all">Save Estimate</button>
+                <button type="button" onClick={() => { setShowForm(false); setSelectValue(''); setEditingEstimate(null); }} className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium">Cancel</button>
+                <button type="submit" className="flex-1 py-2.5 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-red-600 transition-all">{editingEstimate ? 'Update Estimate' : 'Save Estimate'}</button>
               </div>
             </form>
           </div>
