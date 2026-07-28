@@ -7,13 +7,32 @@ const projectTypeLabels = {
   other: 'Other',
 };
 
+const escapeHtml = (str) => String(str == null ? '' : str)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const escapeUrl = (str) => {
+  const s = String(str == null ? '' : str);
+  // Reject anything that could break out of the href attribute
+  if (/[<>"'`]/.test(s)) return '';
+  try { return new URL(s).href; } catch (_) { return ''; }
+};
+
 const emailHtml = (name, email, project_type, budget, message, file_name, file_url) => {
   const year = new Date().getFullYear();
-  const typeLabel = projectTypeLabels[project_type] || project_type;
+  const sName = escapeHtml(name);
+  const sEmail = escapeHtml(email);
+  const sTypeLabel = escapeHtml(projectTypeLabels[project_type] || project_type);
+  const sMessage = escapeHtml(message);
+  const sFileName = escapeHtml(file_name);
+  const sFileUrl = escapeUrl(file_url);
   const fileSection = file_name && file_url
-    ? `<p><strong>Attached file:</strong> <a href="${file_url}" style="color:#FF4F00;">${file_name}</a></p>`
+    ? `<p><strong>Attached file:</strong> <a href="${sFileUrl}" style="color:#FF4F00;">${sFileName}</a></p>`
     : '';
-  const budgetRow = budget ? `<tr><td>Budget</td><td>${budget}</td></tr>` : '';
+  const budgetRow = budget ? `<tr><td>Budget</td><td>${escapeHtml(budget)}</td></tr>` : '';
 
   return `<!DOCTYPE html>
 <html>
@@ -57,15 +76,15 @@ const emailHtml = (name, email, project_type, budget, message, file_name, file_u
         <h1>DD<span>alton</span> Designs</h1>
       </div>
       <div class="body">
-        <h2>Got it, ${name}!</h2>
+        <h2>Got it, ${sName}!</h2>
         <p>Thanks for reaching out — your project request has been received. I'll review the details and get back to you within <strong>48 hours</strong> with a personalized response.</p>
         <p>Here's a summary of what you submitted:</p>
         <table class="details-table">
-          <tr><td>Project Type</td><td>${typeLabel}</td></tr>
+          <tr><td>Project Type</td><td>${sTypeLabel}</td></tr>
           ${budgetRow}
         </table>
         <p><strong>Your message:</strong></p>
-        <div class="message-box">${message}</div>
+        <div class="message-box">${sMessage}</div>
         ${fileSection}
         <p>Here's what happens next:</p>
         <ul class="steps">
@@ -77,7 +96,7 @@ const emailHtml = (name, email, project_type, budget, message, file_name, file_u
         <div class="portal-box">
           <p>I've created a <strong>Client Portal</strong> account for you. Track your invoices, project plans, and messages all in one place.</p>
           <a href="https://ddaltondesigns.com/portal" class="btn">Access Your Client Portal →</a>
-          <p class="hint">Sign in with <strong>${email}</strong> — you'll be prompted to set your password on first login.</p>
+          <p class="hint">Sign in with <strong>${sEmail}</strong> — you'll be prompted to set your password on first login.</p>
         </div>
         <p>Talk soon!</p>
         <p>— Derek Dalton<br>DDalton Designs<br><a href="mailto:derek@ddaltondesigns.com" style="color:#FF4F00;">derek@ddaltondesigns.com</a></p>
@@ -128,8 +147,15 @@ Deno.serve(async (req) => {
     }
 
     // Notify Derek
+    const sName = escapeHtml(name);
+    const sEmail = escapeHtml(email);
+    const sType = escapeHtml(projectTypeLabels[project_type] || project_type);
+    const sBudget = escapeHtml(budget);
+    const sMessage = escapeHtml(message);
+    const sFileName = escapeHtml(file_name);
+    const sFileUrl = escapeUrl(file_url);
     const attachmentLine = file_name && file_url
-      ? `<p><strong>Attachment:</strong> <a href="${file_url}">${file_name}</a></p>`
+      ? `<p><strong>Attachment:</strong> <a href="${sFileUrl}">${sFileName}</a></p>`
       : '';
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -138,7 +164,7 @@ Deno.serve(async (req) => {
         from: 'DDalton Designs <derek@ddaltondesigns.com>',
         to: 'derek@ddaltondesigns.com',
         subject: `📬 New Contact Form: ${name} — ${projectTypeLabels[project_type] || project_type}`,
-        html: `<p><strong>${name}</strong> (${email}) submitted a contact form.</p><p><strong>Type:</strong> ${projectTypeLabels[project_type] || project_type}</p>${budget ? `<p><strong>Budget:</strong> ${budget}</p>` : ''}<p><strong>Message:</strong></p><blockquote>${message}</blockquote>${attachmentLine}`,
+        html: `<p><strong>${sName}</strong> (${sEmail}) submitted a contact form.</p><p><strong>Type:</strong> ${sType}</p>${budget ? `<p><strong>Budget:</strong> ${sBudget}</p>` : ''}<p><strong>Message:</strong></p><blockquote>${sMessage}</blockquote>${attachmentLine}`,
       }),
     });
 
