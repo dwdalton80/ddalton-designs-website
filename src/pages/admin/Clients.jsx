@@ -26,12 +26,7 @@ export default function Clients() {
     if (modal === 'add') {
       await base44.entities.Client.create(form);
       if (sendInvite) {
-        try { await base44.users.inviteUser(form.email, 'user'); } catch {}
-        await base44.integrations.Core.SendEmail({
-          to: form.email,
-          subject: `You're invited to the DDalton Designs Client Portal`,
-          body: `Hi ${form.name},\n\nYou've been invited to the DDalton Designs Client Portal, where you can view your invoices, project plans, estimates, and send messages directly.\n\nAccess your portal here:\n${window.location.origin}/portal\n\nYou'll receive a separate login email shortly. If you already have an account, just sign in with your email.\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com`,
-        });
+        await base44.functions.invoke('sendPortalInvite', { clientName: form.name, clientEmail: form.email });
       }
     } else {
       await base44.entities.Client.update(modal.id, form);

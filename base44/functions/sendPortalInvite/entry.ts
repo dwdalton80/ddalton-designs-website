@@ -8,7 +8,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { clientName, clientEmail } = await req.json();
+    const { clientName, clientEmail: rawEmail } = await req.json();
+    const clientEmail = (rawEmail || '').toLowerCase();
     if (!clientEmail) {
       return Response.json({ error: 'clientEmail is required' }, { status: 400 });
     }

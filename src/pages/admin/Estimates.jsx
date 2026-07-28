@@ -97,6 +97,8 @@ export default function Estimates() {
         const newClient = await base44.entities.Client.create({ name: est.client_name, email: est.client_email });
         clientId = newClient.id;
         await base44.entities.Estimate.update(est.id, { client_id: clientId });
+      } else {
+        clientId = existingClients[0].id;
       }
       // Mark any matching requests as converted
       const matchingRequests = await base44.entities.ClientRequest.filter({ email: est.client_email });
