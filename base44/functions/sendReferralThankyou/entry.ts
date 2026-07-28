@@ -84,6 +84,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Only the referrer (owner) or an admin may send the thank-you email
+    if (user.role !== 'admin' && user.email.toLowerCase() !== referrer_email.toLowerCase()) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const trackingUrl = `https://ddaltondesigns.com/referral-tracker/${referral_id}`;
 
     const res = await fetch('https://api.resend.com/emails', {
