@@ -1,6 +1,16 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-const emailHtml = (referred_client_name, referrer_name) => `<!DOCTYPE html>
+const escapeHtml = (str) => String(str == null ? '' : str)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const emailHtml = (referred_client_name, referrer_name) => {
+  const sReferred = escapeHtml(referred_client_name);
+  const sReferrer = escapeHtml(referrer_name);
+  return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -37,8 +47,8 @@ const emailHtml = (referred_client_name, referrer_name) => `<!DOCTYPE html>
       </div>
       <div class="body">
         <h2>You've Been Referred!</h2>
-        <p>Hi ${referred_client_name},</p>
-        <p><strong>${referrer_name}</strong> thought you might benefit from working with me — I'm Derek Dalton, a designer specializing in bold, intentional work for businesses that want to stand out.</p>
+        <p>Hi ${sReferred},</p>
+        <p><strong>${sReferrer}</strong> thought you might benefit from working with me — I'm Derek Dalton, a designer specializing in bold, intentional work for businesses that want to stand out.</p>
         <p>Here's what I do:</p>
         <ul class="services">
           <li><span class="dot"></span> <strong>Web Design</strong> — Modern, responsive websites that convert</li>
@@ -61,6 +71,7 @@ const emailHtml = (referred_client_name, referrer_name) => `<!DOCTYPE html>
   </div>
 </body>
 </html>`;
+};
 
 Deno.serve(async (req) => {
   try {
