@@ -76,6 +76,10 @@ const emailHtml = (referred_client_name, referrer_name) => {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const { referred_client_name, referred_client_email, referrer_name } = await req.json();
 
     if (!referred_client_email) {
