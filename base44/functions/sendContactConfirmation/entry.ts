@@ -18,7 +18,11 @@ const escapeUrl = (str) => {
   const s = String(str == null ? '' : str);
   // Reject anything that could break out of the href attribute
   if (/[<>"'`]/.test(s)) return '';
-  try { return new URL(s).href; } catch (_) { return ''; }
+  try {
+    const parsed = new URL(s);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
+    return parsed.href;
+  } catch (_) { return ''; }
 };
 
 const emailHtml = (name, email, project_type, budget, message, file_name, file_url) => {
