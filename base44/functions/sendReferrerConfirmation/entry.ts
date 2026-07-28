@@ -80,6 +80,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing referrer_email' }, { status: 400 });
     }
 
+    // Only the referrer (owner) or an admin may send the confirmation email
+    if (user.role !== 'admin' && user.email.toLowerCase() !== referrer_email.toLowerCase()) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
