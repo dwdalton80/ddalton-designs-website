@@ -1,6 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-const emailHtml = (referrer_name, trackingUrl) => `<!DOCTYPE html>
+const escapeHtml = (str) => String(str == null ? '' : str)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const emailHtml = (raw_name, trackingUrl) => {
+  const referrer_name = escapeHtml(raw_name);
+  return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -60,10 +69,15 @@ const emailHtml = (referrer_name, trackingUrl) => `<!DOCTYPE html>
   </div>
 </body>
 </html>`;
+};
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const { referral_id, referrer_email, referrer_name } = await req.json();
 
     if (!referral_id || !referrer_email) {
