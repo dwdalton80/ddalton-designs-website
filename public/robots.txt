@@ -1,9 +1,4 @@
 User-agent: *
-Disallow: /admin
-Disallow: /admin/
-Disallow: /portal
-Disallow: /portal/
-Disallow: /my-referrals
-Disallow: /referral-tracker/
-
 Allow: /
+
+Sitemap: https://ddaltondesigns.com/sitemap.xml
