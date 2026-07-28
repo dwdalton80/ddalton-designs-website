@@ -62,7 +62,7 @@ export default function Invoices() {
 
   const filtered = filter === 'all' ? invoices : invoices.filter(i => i.status === filter);
   const totalRevenue = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + (i.total || 0), 0);
-  const outstanding = invoices.filter(i => i.status !== 'paid').reduce((s, i) => s + (i.total || 0), 0);
+  const outstanding = invoices.filter(i => i.status !== 'paid').reduce((s, i) => s + ((i.total || 0) - (i.paid_amount || 0)), 0);
 
   return (
     <>
@@ -118,6 +118,9 @@ export default function Invoices() {
                   <div>
                     <div className="font-semibold text-sm">{inv.client_name}</div>
                     <div className="text-xs text-muted-foreground">{inv.due_date ? `Due ${format(new Date(inv.due_date), 'MMM d, yyyy')}` : format(new Date(inv.created_date), 'MMM d, yyyy')}</div>
+                    {inv.paid_amount > 0 && inv.status !== 'paid' && (
+                      <div className="text-xs text-green-600 font-medium mt-0.5">Paid ${(inv.paid_amount || 0).toLocaleString()} · Bal ${((inv.total || 0) - (inv.paid_amount || 0)).toLocaleString()}</div>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="font-display font-bold">${(inv.total || 0).toLocaleString()}</span>
@@ -150,6 +153,7 @@ export default function Invoices() {
               {selected.discount > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span>-${selected.discount}</span></div>}
               <div className="flex justify-between font-bold border-t border-border pt-1"><span>Total</span><span>${selected.total}</span></div>
               {selected.paid_amount > 0 && <div className="flex justify-between text-green-600"><span>Paid</span><span>${selected.paid_amount}</span></div>}
+              {selected.status !== 'paid' && selected.paid_amount > 0 && <div className="flex justify-between font-bold border-t border-border pt-1"><span>Balance Due</span><span className="text-accent">${((selected.total || 0) - (selected.paid_amount || 0)).toLocaleString()}</span></div>}
             </div>
             <div className="flex flex-col gap-2">
               <button onClick={() => sendInvoice(selected)} disabled={sending}
