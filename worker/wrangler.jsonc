@@ -1,0 +1,28 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ddalton-designs-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-01-01",
+  "observability": { "enabled": true },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ddalton-designs",
+      // Filled in by `wrangler d1 create ddalton-designs`.
+      "database_id": "fbf9070e-ada1-463f-9a81-5cd6d04c11ab"
+    }
+  ],
+
+  "r2_buckets": [
+    { "binding": "ASSETS", "bucket_name": "ddalton-designs-assets" },
+    { "binding": "PRIVATE_FILES", "bucket_name": "ddalton-designs-private" }
+  ],
+
+  "vars": {
+    // Set once Zero Trust is configured; see docs/WORKERS-PORT.md.
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  }
+  // RESEND_API_KEY is a secret: wrangler secret put RESEND_API_KEY
+}

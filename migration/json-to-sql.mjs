@@ -6,6 +6,11 @@
  *
  * Load order respects foreign keys (client -> estimate -> invoice).
  * Re-runnable: every statement is INSERT OR REPLACE.
+ *
+ * No BEGIN/COMMIT: D1 rejects explicit SQL transactions ("please use the
+ * state.storage.transaction() APIs instead") and wraps file execution itself.
+ * Plain sqlite3 is happy either way, so omitting them keeps one file that
+ * loads into both.
  */
 
 import { readFileSync } from 'node:fs';
@@ -54,7 +59,7 @@ function lit(val, { json = false, bool = false } = {}) {
 const col = (c) => (c === 'order' ? '"order"' : c);
 
 let total = 0;
-const out = ['PRAGMA foreign_keys = ON;', 'BEGIN TRANSACTION;', ''];
+const out = ['PRAGMA foreign_keys = ON;', ''];
 
 for (const entity of ORDER) {
   const rows = data?.[entity];
@@ -84,6 +89,5 @@ for (const entity of ORDER) {
   out.push('');
 }
 
-out.push('COMMIT;');
 process.stdout.write(out.join('\n') + '\n');
 console.error(`${total} rows across ${ORDER.length} tables`);
