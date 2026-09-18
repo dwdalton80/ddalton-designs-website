@@ -8,4 +8,6 @@ interface Env {
   ACCESS_TEAM_DOMAIN: string;
   /** Access application audience (AUD) tag. */
   ACCESS_AUD: string;
+  /** Turnstile secret for the public contact form. Unset = check skipped. */
+  TURNSTILE_SECRET_KEY?: string;
 }

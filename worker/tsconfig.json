@@ -6,6 +6,9 @@
     "moduleResolution": "bundler",
     "types": ["@cloudflare/workers-types"],
     "strict": true,
+    // Index lookups on Record<> return T|undefined, which is what actually
+    // happens at runtime — without this, a missing route reads as always-defined.
+    "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "noEmit": true
   },

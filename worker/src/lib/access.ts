@@ -65,7 +65,7 @@ export async function authenticate(request: Request, env: Env): Promise<AccessId
   const parts = token.split('.');
   if (parts.length !== 3) return null;
 
-  const [rawHeader, rawPayload, rawSignature] = parts;
+  const [rawHeader, rawPayload, rawSignature] = parts as [string, string, string];
 
   let payload: Record<string, unknown>;
   try {
