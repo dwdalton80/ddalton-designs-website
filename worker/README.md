@@ -101,3 +101,46 @@ authenticated routes, both of which need the secrets above.
   form used to create it through the SDK; that path went away with the SDK, and
   without this submissions would email through but never appear in the admin
   list.
+
+
+## Open issue: Access is not enforcing yet
+
+As of 2026-09-18 the Access application exists and is configured correctly, but
+`https://ddaltondesigns.com/admin` still returns 200 from the Base44 origin
+(`x-render-origin-server: uvicorn`) with no redirect to the Access login.
+
+**This has not exposed anything.** Verified directly: anonymous reads of the
+protected Base44 entities (Client, Invoice, Expense, Estimate) return 0 records,
+and only PortfolioItem and Testimonial — public by design — return data. The
+admin SPA shell loads for anyone, as it always did, but carries no data without
+a session. The security posture is exactly what it was before Access existed.
+
+### Ruled out
+
+- **Not a proxy problem.** `cf-ray` and `server: cloudflare` are on the
+  response, so traffic reaches the Cloudflare edge.
+- **Not a pending zone.** The zone showed "pending" when the application was
+  first created but is now Active, and the app was re-saved afterwards.
+- **Not path matching.** Destinations are both `ddaltondesigns.com/admin` and
+  `ddaltondesigns.com/admin/*`; both persist after save. `/admin`, `/admin/`
+  and `/admin/invoices` all return 200.
+- **Not a missing policy.** "Admin access" (Allow) is attached, listing two
+  email addresses.
+- **Not a stale browser session.** Plain `curl` with no cookies, and with a
+  browser user agent, both get 200.
+- **Not propagation alone.** Still unenforced ~30 minutes after creation and
+  ~5 minutes after re-saving.
+
+### Next thing to check
+
+The application's "Login methods" tab has *Accept all available identity
+providers* enabled but an empty provider list. If the Zero Trust organisation
+has no login method configured at team level, there may be nothing for Access
+to authenticate against. Check **Settings → Authentication** in Zero Trust and
+add **One-time PIN** if no provider is listed — that is the default for the free
+plan and needs no external IdP.
+
+If that is not it, Cloudflare support is the next step. This must be resolved
+before cutover: deploying the Worker while Access is not enforcing leaves the
+admin UI unusable (the Worker's own JWT check returns 403 with no token) rather
+than insecure.
