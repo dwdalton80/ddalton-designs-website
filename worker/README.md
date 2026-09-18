@@ -43,6 +43,13 @@ and this stays true.** If you ever add a second Access application or widen the
 policy, revisit this: `lib/access.ts` verifies the `aud` claim precisely so a
 token minted for a different app is rejected.
 
+> **Always deploy with `npm run deploy` from this directory**, never a bare
+> `npx wrangler deploy`. The repo root has its own `wrangler.json` for the
+> static site, and wrangler's config discovery picks that one up instead of
+> this directory's `wrangler.jsonc` — a bare `wrangler deploy` here silently
+> builds the *website* (0.31 KiB, no bindings) rather than the API. The npm
+> scripts pass `--config wrangler.jsonc` explicitly to prevent that.
+
 ## Setup
 
 ```bash
