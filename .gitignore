@@ -39,3 +39,4 @@ migration/base44-export.rewritten.json
 migration/assets/
 worker/node_modules/
 worker/.wrangler/
+.wrangler/

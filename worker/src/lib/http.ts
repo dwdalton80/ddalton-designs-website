@@ -6,6 +6,7 @@ export const json = (data: unknown, status = 200): Response =>
 export const badRequest = (message: string): Response => json({ error: message }, 400);
 export const forbidden = (): Response => json({ error: 'Forbidden' }, 403);
 export const notFound = (what: string): Response => json({ error: `${what} not found` }, 404);
+export const methodNotAllowed = (): Response => json({ error: 'Method not allowed' }, 405);
 
 /** Money formatting shared by the estimate, invoice and plan emails. */
 export const money = (n: unknown): string => Number(n ?? 0).toFixed(2);

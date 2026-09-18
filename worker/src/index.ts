@@ -18,6 +18,9 @@ import { createTask, updateTask, deleteTask } from './routes/tasks';
 import { sendEstimate, sendInvoice } from './routes/billing';
 import { sendProjectPlan } from './routes/plans';
 import { sendContactConfirmation } from './routes/contact';
+import { handleEntity } from './routes/entities';
+import { getSpec, isPublicRead } from './lib/entities';
+import { uploadFile, getPrivateFile } from './routes/files';
 import {
   sendLeadQualification,
   sendReferrerConfirmation,
@@ -51,9 +54,64 @@ export default {
     const url = new URL(request.url);
 
     if (!url.pathname.startsWith('/api/')) return json({ error: 'Not found' }, 404);
+
+    const path = url.pathname.slice('/api/'.length);
+
+    // --- private file download: GET /api/files/<key> ------------------------
+    if (path.startsWith('files/') && request.method === 'GET') {
+      if (!(await authenticate(request, env))) return forbidden();
+      return getPrivateFile(decodeURIComponent(path.slice('files/'.length)), env);
+    }
+
     if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
-    const name = url.pathname.slice('/api/'.length);
+    // --- file upload: POST /api/files/upload --------------------------------
+    if (path === 'files/upload') {
+      if (!(await authenticate(request, env))) return forbidden();
+      try {
+        return await uploadFile(request, env);
+      } catch (err) {
+        console.error('files/upload failed:', err);
+        return json({ error: err instanceof Error ? err.message : 'Upload failed' }, 500);
+      }
+    }
+
+    // --- entity CRUD: POST /api/entities/<Entity>/<op> ----------------------
+    if (path.startsWith('entities/')) {
+      const [entityName, op] = path.slice('entities/'.length).split('/');
+      if (!entityName || !op) return json({ error: 'Not found' }, 404);
+
+      // The public marketing pages read PortfolioItem and Testimonial, which
+      // were public-read under the original RLS. Everything else — and every
+      // write — requires Access.
+      const spec = getSpec(entityName);
+      const openToPublic = spec !== null && isPublicRead(spec, op);
+
+      let actorId = 'public';
+      if (!openToPublic) {
+        const identity = await authenticate(request, env);
+        if (!identity) return forbidden();
+        actorId = identity.sub || identity.email;
+      }
+
+      try {
+        return await handleEntity(entityName, op, request, env, actorId);
+      } catch (err) {
+        console.error(`entities/${entityName}/${op} failed:`, err);
+        return json({ error: err instanceof Error ? err.message : 'Unexpected error' }, 500);
+      }
+    }
+
+    // --- identity: POST /api/me --------------------------------------------
+    if (path === 'me') {
+      const identity = await authenticate(request, env);
+      if (!identity) return forbidden();
+      // Shaped like the Base44 user object the admin UI expects. Role is
+      // constant because Access admits only admins — see the note above.
+      return json({ email: identity.email, id: identity.sub, role: 'admin' });
+    }
+
+    const name = path;
 
     const publicHandler = PUBLIC_ROUTES[name];
     const handler = publicHandler ?? ADMIN_ROUTES[name];

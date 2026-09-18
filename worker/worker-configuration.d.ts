@@ -10,4 +10,10 @@ interface Env {
   ACCESS_AUD: string;
   /** Turnstile secret for the public contact form. Unset = check skipped. */
   TURNSTILE_SECRET_KEY?: string;
+  /** Public R2 bucket (portfolio + site images). */
+  ASSETS: R2Bucket;
+  /** Private R2 bucket (client files). No public domain. */
+  PRIVATE_FILES: R2Bucket;
+  /** e.g. "https://assets.ddaltondesigns.com" */
+  ASSETS_BASE_URL: string;
 }

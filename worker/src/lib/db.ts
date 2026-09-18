@@ -59,6 +59,11 @@ function encodeValue(table: string, col: string, value: unknown): unknown {
   return value;
 }
 
+/** Decodes a set of rows read straight from D1 (list/filter paths). */
+export function decodeRows<T extends Record<string, unknown>>(table: string, rows: T[]): T[] {
+  return rows.map((r) => decodeRow(table, r) as T);
+}
+
 export async function get<T extends Record<string, unknown>>(
   db: D1Database,
   table: string,

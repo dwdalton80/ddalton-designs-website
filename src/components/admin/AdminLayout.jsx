@@ -53,7 +53,7 @@ export default function AdminLayout() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#111] text-white flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:flex`}>
         <div className="px-6 py-6 border-b border-white/10">
           <Link to="/" className="flex items-center gap-2">
-            <img src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/0fe3541a3_Untitleddesign.png" alt="DDalton Designs" className="h-8 w-auto" />
+            <img src="https://assets.ddaltondesigns.com/site/0fe3541a3_Untitleddesign.png" alt="DDalton Designs" className="h-8 w-auto" />
             <div>
               <div className="font-display font-black text-base leading-none">DD<span style={{ color: '#FF4F00' }}>alton</span> Designs</div>
               <div className="text-xs text-white/40 font-body mt-0.5">Admin Panel</div>
@@ -99,7 +99,7 @@ export default function AdminLayout() {
           <button onClick={() => setSidebarOpen(true)}>
             <Menu size={22} />
           </button>
-          <img src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/0fe3541a3_Untitleddesign.png" alt="DDalton Designs" className="h-7 w-auto" />
+          <img src="https://assets.ddaltondesigns.com/site/0fe3541a3_Untitleddesign.png" alt="DDalton Designs" className="h-7 w-auto" />
         </header>
         <main className="flex-1 p-6 md:p-8 overflow-auto">
           <Outlet />

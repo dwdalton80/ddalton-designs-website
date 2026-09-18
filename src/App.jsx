@@ -4,17 +4,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider } from '@/lib/ThemeContext';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import { Navigate } from 'react-router-dom';
-
-// Auth pages
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
 
 // Critical page — loaded eagerly
 import Home from './pages/Home';
@@ -30,7 +20,12 @@ const ClientReferrals = lazy(() => import('./pages/ClientReferrals'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
-// Admin layout + pages — code split
+// Admin layout + pages — code split.
+// These are gated by Cloudflare Access at the edge, not in the app: an
+// unauthenticated visitor is stopped by Access's login page and never loads
+// this bundle. There is deliberately no ProtectedRoute wrapper any more —
+// client-side gating was only ever UX, and the real boundary now sits in front
+// of the origin.
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const ClientRequests = lazy(() => import('./pages/admin/ClientRequests'));
@@ -44,36 +39,15 @@ const Expenses = lazy(() => import('./pages/admin/Expenses'));
 const AdminReferrals = lazy(() => import('./pages/admin/Referrals'));
 const AdminTestimonials = lazy(() => import('./pages/admin/Testimonials'));
 
-const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+const PageLoader = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-background">
+    <div className="w-8 h-8 border-4 border-border border-t-accent rounded-full animate-spin"></div>
+  </div>
+);
 
-  if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-4 border-border border-t-accent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (authError?.type === 'user_not_registered') {
-    return <UserNotRegisteredError />;
-  }
-
-  const PageLoader = () => (
-    <div className="fixed inset-0 flex items-center justify-center bg-background">
-      <div className="w-8 h-8 border-4 border-border border-t-accent rounded-full animate-spin"></div>
-    </div>
-  );
-
-  return (
-    <Suspense fallback={<PageLoader />}>
+const AppRoutes = () => (
+  <Suspense fallback={<PageLoader />}>
     <Routes>
-      {/* Auth routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-
       {/* Public routes */}
       <Route path="/" element={<Home />} />
       <Route path="/portfolio" element={<Portfolio />} />
@@ -86,41 +60,35 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
 
-      {/* Protected: referral portal, client portal, admin */}
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        {/* Admin routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="requests" element={<ClientRequests />} />
-          <Route path="clients" element={<Clients />} />
-          <Route path="estimates" element={<Estimates />} />
-          <Route path="invoices" element={<Invoices />} />
-          <Route path="tasks" element={<Tasks />} />
-          <Route path="portfolio" element={<PortfolioManager />} />
-          <Route path="plans" element={<ProjectPlans />} />
-          <Route path="expenses" element={<Expenses />} />
-          <Route path="referrals" element={<AdminReferrals />} />
-          <Route path="testimonials" element={<AdminTestimonials />} />
-        </Route>
+      {/* Admin — behind Cloudflare Access */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="requests" element={<ClientRequests />} />
+        <Route path="clients" element={<Clients />} />
+        <Route path="estimates" element={<Estimates />} />
+        <Route path="invoices" element={<Invoices />} />
+        <Route path="tasks" element={<Tasks />} />
+        <Route path="portfolio" element={<PortfolioManager />} />
+        <Route path="plans" element={<ProjectPlans />} />
+        <Route path="expenses" element={<Expenses />} />
+        <Route path="referrals" element={<AdminReferrals />} />
+        <Route path="testimonials" element={<AdminTestimonials />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
-    </Suspense>
-  );
-};
+  </Suspense>
+);
 
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router>
-            <AuthenticatedApp />
-          </Router>
-          <Toaster />
-        </QueryClientProvider>
-      </AuthProvider>
+      <QueryClientProvider client={queryClientInstance}>
+        <Router>
+          <AppRoutes />
+        </Router>
+        <Toaster />
+      </QueryClientProvider>
     </ThemeProvider>
   );
 }

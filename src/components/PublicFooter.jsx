@@ -35,7 +35,7 @@ export default function PublicFooter() {
         </div>
         <div className="flex items-center justify-center md:justify-end">
           <img
-            src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/0fe3541a3_Untitleddesign.png"
+            src="https://assets.ddaltondesigns.com/site/0fe3541a3_Untitleddesign.png"
             alt="DDalton Designs Logo"
             className="h-32 w-auto opacity-80"
           />

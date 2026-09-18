@@ -5,6 +5,13 @@
   "compatibility_date": "2026-01-01",
   "observability": { "enabled": true },
 
+  // Must share the site's origin: the admin UI calls /api/* with
+  // credentials: "same-origin", and the Cloudflare Access cookie is scoped to
+  // ddaltondesigns.com. A workers.dev subdomain would not receive it.
+  "routes": [
+    { "pattern": "ddaltondesigns.com/api/*", "zone_name": "ddaltondesigns.com" }
+  ],
+
   "d1_databases": [
     {
       "binding": "DB",
@@ -22,7 +29,8 @@
   "vars": {
     // Set once Zero Trust is configured; see docs/WORKERS-PORT.md.
     "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": ""
+    "ACCESS_AUD": "",
+    "ASSETS_BASE_URL": "https://assets.ddaltondesigns.com"
   }
   // RESEND_API_KEY is a secret: wrangler secret put RESEND_API_KEY
 }

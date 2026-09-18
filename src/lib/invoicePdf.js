@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 
-const LOGO_URL = 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/0fe3541a3_Untitleddesign.png';
+const LOGO_URL = 'https://assets.ddaltondesigns.com/site/0fe3541a3_Untitleddesign.png';
 const ORANGE = [255, 79, 0];   // #FF4F00
 const DARK   = [17, 17, 17];   // #111
 const GRAY   = [120, 120, 120];

@@ -94,7 +94,7 @@ export default function Home() {
             >
               <div className="aspect-[4/5] rounded-2xl overflow-hidden" style={{ background: '#F2EDE4' }}>
                 <img
-                  src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/e0c91c156_6F5A8F1E-6CBA-471E-B410-138262ACBD75.png"
+                  src="https://assets.ddaltondesigns.com/site/e0c91c156_6F5A8F1E-6CBA-471E-B410-138262ACBD75.png"
                   alt="Web Design Development"
                   className="w-full h-full object-contain"
                   fetchpriority="high"
