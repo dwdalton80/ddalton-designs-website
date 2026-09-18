@@ -70,7 +70,6 @@ base44/
   entities/              # JSON schemas + RLS rules for each data type
   functions/             # Backend functions (Deno, entry.ts) — external API calls
   workflows/             # Automated trigger→action workflows (.jsonc)
-  connectors/            # OAuth connector configs (instagram, linkedin, facebook_pages)
 public/                  # Static assets, robots.txt
 ```
 
@@ -89,7 +88,9 @@ Routes are defined in `src/App.jsx`. Access is enforced two ways:
 `/` (Home), `/portfolio`, `/portfolio/:id`, `/about`, `/services`, `/contact`, `/referrals`, `/client-referrals`, `/terms`, `/privacy`
 
 ### Auth routes
-`/login`, `/register` *(registration is disabled — see §9)*, `/forgot-password`, `/reset-password`
+`/login`, `/forgot-password`, `/reset-password`
+
+> There is **no `/register` route** and no `Register.jsx`. Public registration was removed — auth is email/password only, admin-only. Do not re-add public registration without the owner's OK.
 
 ### Protected routes (login required — admin only)
 - `/admin/*` — admin back-office (admin role only)
@@ -112,7 +113,7 @@ All entity schemas live in `base44/entities/`. Every record has built-in `id`, `
 | **Estimate** | Price estimates (emailed to clients) | Admin + the matched client (by email) | Admin; client can accept/decline* |
 | **Invoice** | Invoices (emailed to clients) | Admin + matched client | Admin only |
 | **ProjectPlan** | Scope/timeline plans (emailed; signed by email reply) | Admin + matched client | Admin; client can sign* |
-| **PortfolioItem** | Portfolio projects (auto-posted to socials) | Public (everyone) | Admin only |
+| **PortfolioItem** | Portfolio projects shown on the public site | Public (everyone) | Admin only |
 | **Testimonial** | Client reviews shown on home page | Public | Admin only |
 | **ClientFile** | Files sent by clients via the contact form | Admin + matched client | Admin + matched client (create) |
 | **Referral** | Referral + payout tracking (email-based updates) | Admin + the referrer (by email) | Anyone (create); admin (update) |
@@ -122,7 +123,7 @@ All entity schemas live in `base44/entities/`. Every record has built-in `id`, `
 
 > *Estimate/plan "client write" RLS rules remain on the entity for safety, but the online accept/sign UI has been removed. Acceptance and signing now happen by email reply, and the admin updates the status manually.
 
-> **PortalMessage** entity still exists in the schema but is no longer used (two-way messaging was removed). Leave it dormant or remove it in a future cleanup.
+> **PortalMessage was dropped** — two-way messaging was removed and the entity is no longer in the schema.
 
 ### Critical data conventions
 - **Emails are normalized to lowercase** everywhere (frontend + backend functions) for case-insensitive RLS matching. Always lowercase client/referrer emails on input.
@@ -145,11 +146,9 @@ Deno TypeScript handlers for anything that needs server-side logic or external A
 | `sendReferrerConfirmation` | Sends referral confirmation email to the referrer (admin or referrer only) |
 | `sendReferralThankyou` | Sends thank-you email to referrer |
 | `sendReferralStatusUpdate` | Admin-only: sends referral status update email |
-| `postPortfolioToInstagram` | Posts a portfolio item to Instagram Business |
-| `postPortfolioToLinkedin` | Posts a portfolio item to the DDalton Designs LinkedIn company page |
 | `createTask` / `updateTask` / `deleteTask` | Task CRUD wrappers |
 
-> **Removed:** `handleEstimateAccept` (online acceptance) and `sendPortalInvite` (portal invites) — no longer needed in the no-login model.
+> **Removed:** `handleEstimateAccept` (online acceptance), `sendPortalInvite` (portal invites), `postPortfolioToInstagram`, and `postPortfolioToLinkedin` (social auto-posting) — no longer needed.
 
 ### Email-only delivery flow
 - The admin clicks **Send** on an estimate/invoice → the frontend generates the PDF client-side (`src/lib/invoicePdf.js`), uploads it via `UploadPublicFile`, and passes the `pdf_url` to the backend function, which emails the client a download link plus the full line-item breakdown.
@@ -172,37 +171,27 @@ Deno TypeScript handlers for anything that needs server-side logic or external A
 
 Workflows live in `base44/workflows/*.jsonc`. They trigger on entity events.
 
-| Workflow | Trigger | Action |
-|---|---|---|
-| Auto-publish portfolio to Instagram | `PortfolioItem` created (with cover image) | Calls `postPortfolioToInstagram` |
-| Auto-publish portfolio to LinkedIn | `PortfolioItem` created (with cover image) | Calls `postPortfolioToLinkedin` |
-
-> **Facebook:** The Facebook Pages connector is authorized, and a `postPortfolioToFacebook` function is intended for auto-posting to the DDalton Designs Facebook Page. Verify it exists and that its matching workflow is active before relying on it.
+> **No active workflows.** The two social auto-publish workflows (Instagram, LinkedIn) were archived when the social connectors were removed. There are currently no trigger-driven automations in the app.
 
 ---
 
 ## 9. Auth & user management
 
 - The platform owns auth (tokens, sessions, email verification, password reset). **Do not implement auth backend logic.**
-- Auth pages exist at `src/pages/Login.jsx`, `Register.jsx`, `ForgotPassword.jsx`, `ResetPassword.jsx` — all four routes are registered in `App.jsx`.
+- Auth pages exist at `src/pages/Login.jsx`, `ForgotPassword.jsx`, `ResetPassword.jsx` — these three routes are registered in `App.jsx`. **There is no `Register.jsx` and no `/register` route.**
 - **Auth is admin-only in practice.** Public registration is disabled and there is no client portal. Only the studio owner logs in (to reach `/admin`).
+- Login is **email/password only** — social login providers (Google, Facebook, Apple) were removed.
 - Roles: `admin` (studio owner) and `user`. The `user` role is effectively unused now since clients don't have accounts.
 - User records can't be created/imported directly — users join via invite (`base44.users.inviteUser`). You generally won't need to invite anyone except additional admins.
 - The public nav no longer links to login/register or a client portal. The footer keeps a discreet "Admin" link so the owner can reach the dashboard.
 
 ---
 
-## 10. Social media integrations
+## 10. Integrations
 
-Three OAuth connectors are authorized (dashboard → Integrations):
+> **No OAuth connectors are authorized.** The Instagram Business, LinkedIn, and Facebook Pages connectors and their auto-publish workflows were removed — the studio no longer auto-posts portfolio items to social media. Portfolio items are published on the public site only.
 
-- **Instagram Business** — auto-posts portfolio items.
-- **LinkedIn** — auto-posts to the **DDalton Designs company page only** (page-name filtering enforced in `postPortfolioToLinkedin`).
-- **Facebook Pages** — posts to the **DDalton Designs Facebook Page only** (page-name filtering in the Facebook posting function).
-
-**Hard rule:** automated posting is restricted to the "DDalton Designs" business accounts/pages. Do not change the page-name filter logic — it prevents posting to personal or wrong accounts.
-
-Before editing any connector-backed function, load its usage guide via `get_connectors_info(["<integration_type>"])` — the guides have provider-specific API details.
+If social auto-posting is needed again, re-authorize the relevant connector(s) in the dashboard → Integrations, recreate the `postPortfolioTo*` backend function(s), and add an entity-create workflow. Load the connector's usage guide via `get_connectors_info(["<integration_type>"])` before writing connector-backed code.
 
 ---
 
@@ -233,7 +222,7 @@ Before editing any connector-backed function, load its usage guide via `get_conn
 
 ## 13. Common tasks
 
-**Add a portfolio item:** Admin → Portfolio → New. Fill title, category (`website` | `logo` | `marketing` | `app development`), cover image, description, images. On save, it auto-posts to Instagram + LinkedIn (if workflows active).
+**Add a portfolio item:** Admin → Portfolio → New. Fill title, category (`website` | `logo` | `marketing` | `app development`), cover image, description, images. It appears on the public portfolio only (no social auto-posting).
 
 **Estimate → Invoice flow (email-only):** Admin → Estimates → create estimate → click **Send** (emails PDF + details to client) → client replies by email to accept → admin clicks **Mark Accepted & Invoice** (creates invoice + client record) → admin sends the invoice (emails PDF) → client pays by email/external method and replies → admin records payment / marks paid. No online acceptance or payment.
 
@@ -259,7 +248,6 @@ Before editing any connector-backed function, load its usage guide via `get_conn
 | Edit an email template | `base44/functions/send*/entry.ts` |
 | Fix estimate/invoice email + PDF | `base44/functions/sendEstimate` & `sendInvoice` + `src/lib/invoicePdf.js` + admin pages |
 | Fix project plan email | `base44/functions/sendProjectPlan/entry.ts` + `src/pages/admin/ProjectPlans.jsx` |
-| Fix social auto-posting | `base44/functions/postPortfolioTo*.ts` + `base44/workflows/*.jsonc` |
 | Fix the admin dashboard | `src/pages/admin/*` + `src/components/admin/*` |
 | Fix PDF generation | `src/lib/invoicePdf.js` |
 | Sanitize rich text | `src/lib/sanitizeHtml.js` |
@@ -270,8 +258,8 @@ Before editing any connector-backed function, load its usage guide via `get_conn
 
 - **RLS is the security boundary.** A missing or loose rule exposes data to any logged-in user; a too-tight rule locks users out of their own records. Load the RLS guide before editing any `rls` block.
 - **Emails must be lowercase** or RLS email matching silently fails.
-- **There is no client portal.** Don't re-add one or re-enable public registration without the owner's OK.
-- **Social posting is page-name-locked** to "DDalton Designs" — don't remove that filter.
+- **There is no client portal and no public registration.** Don't re-add either without the owner's OK.
+- **Login is email/password only.** Social login providers were removed; don't re-add them.
 - **GitHub sync backs up code only**, not database records.
 - **Don't recreate auth pages** — they exist and are functional; edit in place only on request.
 - **PDF email flow** generates the PDF in the browser, uploads it to public storage, and emails a link — if the upload fails, the email still sends with the full details in the body (no PDF link).
