@@ -131,16 +131,28 @@ a session. The security posture is exactly what it was before Access existed.
 - **Not propagation alone.** Still unenforced ~30 minutes after creation and
   ~5 minutes after re-saving.
 
-### Next thing to check
+- **Not a missing identity provider.** Integrations → Identity providers lists
+  "Cloudflare" (one-time PIN), which is the free-plan default. The app's empty
+  provider list just means "accept all available", which is correct.
+- **Not a stale application.** The app was first created while the zone was
+  pending, so it was deleted and recreated from scratch against the now-active
+  zone, reusing the same policy. Behaviour is unchanged.
+- **Access has never evaluated a request.** Access authentication logs show
+  Allowed 0 / Blocked 0 over 12 hours with no entries — the application exists
+  in configuration but is not being applied at the edge.
 
-The application's "Login methods" tab has *Accept all available identity
-providers* enabled but an empty provider list. If the Zero Trust organisation
-has no login method configured at team level, there may be nothing for Access
-to authenticate against. Check **Settings → Authentication** in Zero Trust and
-add **One-time PIN** if no provider is listed — that is the default for the free
-plan and needs no external IdP.
+### Next step: Cloudflare support
 
-If that is not it, Cloudflare support is the next step. This must be resolved
+Everything configurable has been checked and the behaviour is inconsistent with
+the configuration, so this looks like something on Cloudflare's side rather
+than a setting that was missed. Worth quoting in the ticket: the application is
+self-hosted with destinations `ddaltondesigns.com/admin` and
+`ddaltondesigns.com/admin/*`, an attached Allow policy, a valid IdP, a proxied
+apex record on an Active zone — and requests to those paths return 200 straight
+from the origin (`x-render-origin-server: uvicorn`) with no Access redirect and
+no entry in the Access logs.
+
+This must be resolved
 before cutover: deploying the Worker while Access is not enforcing leaves the
 admin UI unusable (the Worker's own JWT check returns 403 with no token) rather
 than insecure.
