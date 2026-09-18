@@ -30,3 +30,8 @@ dist-ssr
 .env
 .vite
 base44/.app.jsonc
+
+# Base44 data export — contains client PII, invoices and financial records.
+# Never commit these.
+migration/base44-export.json
+migration/data.sql
