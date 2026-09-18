@@ -1,8 +1,14 @@
 # DNS cutover: GoDaddy → Cloudflare (`ddaltondesigns.com`)
 
+> **STATUS: DONE — nameservers cut over 2026-09-18 and verified.** The domain
+> now resolves via `gannon.ns.cloudflare.com` / `rosalie.ns.cloudflare.com`.
+> All mail records verified resolving through Cloudflare (see §Verification
+> results). The website is unchanged — still served by Base44 via the apex A
+> record and `www` CNAME, both still returning HTTP 200 from `216.24.57.1`.
+
 **Captured 2026-09-18** by querying GoDaddy's authoritative nameservers
-(`ns25/ns26.domaincontrol.com`) directly. This is the pre-move record — if
-anything is missing after the cutover, compare against this.
+(`ns25/ns26.domaincontrol.com`) directly, before the move. If anything is ever
+missing, compare against this.
 
 Registrar: **GoDaddy** · Expires: **2027-04-10** · Nameservers: `ns25`/`ns26.domaincontrol.com`
 
@@ -108,3 +114,50 @@ domain. These are its normal registrar locks and do not block a nameserver
 change made from within the GoDaddy dashboard — they block transfers to another
 registrar. This cutover moves **DNS hosting only**; the domain stays registered
 at GoDaddy, so there is nothing to unlock.
+
+
+---
+
+## Verification results (2026-09-18, post-cutover)
+
+Nameservers confirmed at the registry (whois) and via both `1.1.1.1` and
+`8.8.8.8`. Every record below was resolved through Cloudflare *after* the move:
+
+| Check | Result |
+|---|---|
+| MX | `mx01` + `mx02.mail.icloud.com` (10) |
+| SPF (apex) | `v=spf1 include:icloud.com ~all` |
+| Apple verification | `apple-domain=QXvsFRDjjPYpH8PZ` |
+| iCloud DKIM | CNAME → `sig1.dkim.ddaltondesigns.com.at.icloudmailadmin.com` |
+| DMARC | `v=DMARC1; p=quarantine; ...` |
+| Resend MX (`send`) | `feedback-smtp.us-east-1.amazonses.com` |
+| Resend DKIM | present |
+| Website | apex + `www` → HTTP 200 from `216.24.57.1` (Base44) |
+
+The full SPF chain resolves end to end:
+
+```
+ddaltondesigns.com            → include:icloud.com → redirect=_spf.icloud.com
+send.ddaltondesigns.com       → include:dc-fd741b8612._spfm.send.ddaltondesigns.com
+dc-fd741b8612._spfm.send...   → include:amazonses.com → ip4 blocks
+```
+
+### Two defects found and fixed during the cutover
+
+1. **Cloudflare's scan imported the iCloud DKIM CNAME as Proxied.** A proxied
+   DKIM record resolves to Cloudflare IPs instead of returning the key, so DKIM
+   verification fails and mail degrades toward spam folders. Set to DNS-only.
+2. **Cloudflare's scan missed `dc-fd741b8612._spfm.send`** — the second hop of
+   Resend's SPF chain. `send` points at it, so without it the `include:`
+   dead-ends and the app's invoice/estimate email fails SPF. Added manually.
+
+Both were caught by diffing GoDaddy's 16 records against Cloudflare's imported
+12. **Always do that diff** — the scan is not authoritative. Excluding the 2 NS
+and 1 SOA that Cloudflare manages itself, the correct count is 13.
+
+### Still outstanding
+
+- Send a real test email to an `@ddaltondesigns.com` address from an outside
+  account. DNS resolving is not proof of delivery.
+- The `_domainconnect` CNAME is GoDaddy-specific and can now be deleted.
+- Apex A and `www` still point at Base44 — repoint to the Worker when ready.
