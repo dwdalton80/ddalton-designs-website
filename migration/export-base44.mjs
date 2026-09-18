@@ -31,22 +31,32 @@ const ENTITIES = [
 // Max page size is 5,000; 1,000 keeps each response small and predictable.
 const PAGE = 1000;
 
-// Prefer the service role so nothing is hidden by row-level security.
-// Falls back to the caller's own access if service role isn't available here.
-function accessor(name) {
-  const svc = base44.asServiceRole?.entities?.[name];
-  if (svc) return { api: svc, mode: 'serviceRole' };
-  return { api: base44.entities[name], mode: 'user' };
+// Prefer the service role so nothing is hidden by row-level security, but fall
+// back to the caller's own access when no service token is available.
+// NOTE: `base44.asServiceRole.entities[name]` returns a proxy that only throws
+// when you actually call it, so the fallback has to wrap the call, not the lookup.
+async function listPage(name, skip, preferServiceRole) {
+  if (preferServiceRole) {
+    try {
+      return { rows: await base44.asServiceRole.entities[name].list('created_date', PAGE, skip), mode: 'serviceRole' };
+    } catch {
+      // fall through to user access
+    }
+  }
+  return { rows: await base44.entities[name].list('created_date', PAGE, skip), mode: 'user' };
 }
 
 async function dumpEntity(name) {
-  const { api, mode } = accessor(name);
   const rows = [];
   let skip = 0;
+  let mode = 'user';
+  let useServiceRole = true;
 
   while (true) {
-    // list(sort, limit, skip)
-    const page = await api.list('created_date', PAGE, skip);
+    const res = await listPage(name, skip, useServiceRole);
+    mode = res.mode;
+    if (res.mode === 'user') useServiceRole = false; // don't retry per page
+    const page = res.rows;
     if (!Array.isArray(page)) break;
     rows.push(...page);
     if (page.length < PAGE) break;
