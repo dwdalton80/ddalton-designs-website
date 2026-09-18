@@ -32,7 +32,7 @@
     // ACCESS_AUD is that application's Audience tag; lib/access.ts verifies it
     // so a token minted for any other app on this team is rejected.
     "ACCESS_TEAM_DOMAIN": "ddaltondesigns.cloudflareaccess.com",
-    "ACCESS_AUD": "6f4f9b6888f9046d467df12bae1e0603ed436cb8d9e0a1464f66d10720f32d65",
+    "ACCESS_AUD": "4dd7e3daafcb7e90a3e2c53666288cd0202bd9951eecc190003171ba24a32dc3",
     "ASSETS_BASE_URL": "https://assets.ddaltondesigns.com"
   }
   // RESEND_API_KEY is a secret: wrangler secret put RESEND_API_KEY
