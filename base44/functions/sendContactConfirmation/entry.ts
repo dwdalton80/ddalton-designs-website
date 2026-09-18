@@ -97,11 +97,6 @@ const emailHtml = (name, email, project_type, budget, message, file_name, file_u
           <li><span class="step-num">3</span> We hop on a quick call to align on scope & timeline</li>
           <li><span class="step-num">4</span> We get to work!</li>
         </ul>
-        <div class="portal-box">
-          <p>I've created a <strong>Client Portal</strong> account for you. Track your invoices, project plans, and messages all in one place.</p>
-          <a href="https://ddaltondesigns.com/portal" class="btn">Access Your Client Portal →</a>
-          <p class="hint">Sign in with <strong>${sEmail}</strong> — you'll be prompted to set your password on first login.</p>
-        </div>
         <p>Talk soon!</p>
         <p>— Derek Dalton<br>DDalton Designs<br><a href="mailto:derek@ddaltondesigns.com" style="color:#FF4F00;">derek@ddaltondesigns.com</a></p>
       </div>
@@ -137,13 +132,6 @@ Deno.serve(async (req) => {
     }
     if (project_type && !['website', 'logo', 'marketing', 'other'].includes(project_type)) {
       return Response.json({ error: 'Invalid project type' }, { status: 400 });
-    }
-
-    // Invite the user to create a portal account (silently ignore if already exists)
-    try {
-      await base44.asServiceRole.auth.inviteUser(email, 'user');
-    } catch (_) {
-      // User may already exist — that's fine
     }
 
     const resend_key = Deno.env.get('RESEND_API_KEY');

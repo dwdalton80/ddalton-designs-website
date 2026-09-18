@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Receipt, X, Send, CheckCircle, DollarSign, Plus, Trash2, Pencil } from 'lucide-react';
+import { Receipt, X, Send, CheckCircle, DollarSign, Plus, Trash2, Pencil, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { generateInvoicePdf } from '@/lib/invoicePdf';
 import GenerateInvoiceModal from '@/components/admin/invoices/GenerateInvoiceModal';
 import ManualInvoiceModal from '@/components/admin/invoices/ManualInvoiceModal';
 import RecordPaymentModal from '@/components/admin/invoices/RecordPaymentModal';
@@ -35,7 +36,14 @@ export default function Invoices() {
   const sendInvoice = async (inv) => {
     setSending(true);
     try {
-      await base44.functions.invoke('sendInvoice', { invoiceId: inv.id });
+      const blob = await generateInvoicePdf(inv, inv.due_date, inv.payment_terms, inv.notes);
+      let pdf_url;
+      try {
+        const file = new File([blob], `invoice-${inv.id}.pdf`, { type: 'application/pdf' });
+        const res = await base44.integrations.Core.UploadPublicFile({ file });
+        pdf_url = res?.file_url;
+      } catch (e) { console.warn('PDF upload failed, sending without link', e); }
+      await base44.functions.invoke('sendInvoice', { invoiceId: inv.id, pdf_url });
       toast.success(`Invoice sent to ${inv.client_email}`);
       fetch();
       setSelected({ ...inv, status: 'sent' });
@@ -58,6 +66,16 @@ export default function Invoices() {
     await base44.entities.Invoice.update(inv.id, { status: 'paid', paid_amount: inv.total });
     fetch();
     setSelected({ ...inv, status: 'paid', paid_amount: inv.total });
+  };
+
+  const downloadPdf = async (inv) => {
+    const blob = await generateInvoicePdf(inv, inv.due_date, inv.payment_terms, inv.notes);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoice-${inv.client_name.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const filtered = filter === 'all' ? invoices : invoices.filter(i => i.status === filter);
@@ -159,6 +177,10 @@ export default function Invoices() {
               <button onClick={() => sendInvoice(selected)} disabled={sending}
                 className="w-full py-2.5 bg-accent text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-red-600 transition-all disabled:opacity-60">
                 <Send size={14} /> {sending ? 'Sending...' : selected.status === 'sent' ? 'Resend Invoice' : 'Send Invoice'}
+              </button>
+              <button onClick={() => downloadPdf(selected)}
+                className="w-full py-2.5 border border-border rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:border-foreground transition-all">
+                <Download size={14} /> Download PDF
               </button>
               {selected.status !== 'paid' && (
                 <button onClick={() => setShowPayment(true)}

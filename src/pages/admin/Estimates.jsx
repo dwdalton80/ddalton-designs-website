@@ -108,7 +108,14 @@ export default function Estimates() {
   const sendEstimate = async (est) => {
     setSending(true);
     try {
-      await base44.functions.invoke('sendEstimate', { estimateId: est.id });
+      const blob = await generateEstimatePdf(est, est.valid_until, est.notes);
+      let pdf_url;
+      try {
+        const file = new File([blob], `estimate-${est.id}.pdf`, { type: 'application/pdf' });
+        const res = await base44.integrations.Core.UploadPublicFile({ file });
+        pdf_url = res?.file_url;
+      } catch (e) { console.warn('PDF upload failed, sending without link', e); }
+      await base44.functions.invoke('sendEstimate', { estimateId: est.id, pdf_url });
       toast.success(`Estimate sent to ${est.client_email}`);
       fetch();
     } catch (err) {
@@ -153,11 +160,6 @@ export default function Estimates() {
         notes: est.notes,
       });
       await base44.entities.Estimate.update(est.id, { status: 'accepted' });
-      // Invite client to portal — send welcome email via backend function
-      await base44.functions.invoke('sendPortalInvite', {
-        clientName: est.client_name,
-        clientEmail: est.client_email,
-      });
       fetch();
       toast.success('Client added & invoice created!');
     } catch (err) {
@@ -337,7 +339,7 @@ export default function Estimates() {
                 </select>
                 )}
                 {!editingEstimate && form.source === 'request' && form.client_name && (
-                  <p className="text-xs text-accent mt-1.5">⚡ This person will be added as a client automatically when they accept the estimate.</p>
+                  <p className="text-xs text-accent mt-1.5">⚡ This person will be added as a client when you mark the estimate accepted.</p>
                 )}
               </div>
 

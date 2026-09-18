@@ -51,9 +51,7 @@ const emailHtml = (raw_referrer, raw_referred) => {
         </div>
         <p>I'll be reaching out to ${referred_client_name} shortly to discuss their design needs. I'll keep you in the loop every step of the way.</p>
         <p>Remember — when they become a paying client, you'll earn a <strong>$100 referral bonus</strong> within 30 days of their first payment.</p>
-        <div class="btn-wrap">
-          <a href="https://ddaltondesigns.com/my-referrals" class="btn">Track Your Referrals</a>
-        </div>
+        <p>I'll keep you in the loop with email updates as things progress.</p>
         <p>Thanks again for spreading the word!</p>
         <p>— Derek Dalton<br>DDalton Designs</p>
       </div>

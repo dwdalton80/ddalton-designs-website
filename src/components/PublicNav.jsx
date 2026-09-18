@@ -1,15 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useTheme } from '@/lib/ThemeContext';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
 export default function PublicNav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -28,12 +21,6 @@ export default function PublicNav() {
     { href: '/services', label: 'Services' },
     { href: '/about', label: 'About' },
     { href: '/contact', label: 'Contact' },
-    { href: '/portal', label: 'Client Portal' },
-  ];
-
-  const referralLinks = [
-    { href: '/referrals', label: 'Make a Referral' },
-    { href: '/my-referrals', label: 'My Referrals' },
   ];
 
   return (
@@ -58,22 +45,12 @@ export default function PublicNav() {
             </Link>
           ))}
           
-          {/* Referrals Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className={`text-sm font-medium tracking-wide transition-colors hover:text-accent flex items-center gap-1 ${['/referrals', '/my-referrals'].includes(location.pathname) ? 'text-accent' : 'text-foreground/70'}`}>
-                Refer & Earn
-                <ChevronDown size={14} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {referralLinks.map(l => (
-                <DropdownMenuItem key={l.href} asChild>
-                  <Link to={l.href}>{l.label}</Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Link
+            to="/referrals"
+            className={`text-sm font-medium tracking-wide transition-colors hover:text-accent ${location.pathname === '/referrals' ? 'text-accent' : 'text-foreground/70'}`}
+          >
+            Refer & Earn
+          </Link>
 
           <Link
             to="/contact"
@@ -101,14 +78,9 @@ export default function PublicNav() {
               {l.label}
             </Link>
           ))}
-          <div className="border-t border-border pt-4">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Refer & Earn</div>
-            {referralLinks.map(l => (
-              <Link key={l.href} to={l.href} className="text-base font-medium block mb-2" onClick={() => setMenuOpen(false)}>
-                {l.label}
-              </Link>
-            ))}
-          </div>
+          <Link to="/referrals" className="text-base font-medium block mb-2" onClick={() => setMenuOpen(false)}>
+            Refer & Earn
+          </Link>
           <Link
             to="/contact"
             className="inline-block px-5 py-2.5 text-sm font-semibold rounded-full bg-foreground text-primary-foreground w-fit"

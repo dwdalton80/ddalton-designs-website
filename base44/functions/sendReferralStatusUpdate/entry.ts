@@ -72,10 +72,6 @@ const emailHtml = (raw_referrer, raw_referred, status) => {
         <div class="highlight-box">
           <p>${cfg.message}</p>
         </div>
-        <p>You can always check your referral history and status on your dashboard.</p>
-        <div class="btn-wrap">
-          <a href="https://ddaltondesigns.com/my-referrals" class="btn">View My Referrals</a>
-        </div>
         <p>Thanks for your continued support!</p>
         <p>— Derek Dalton<br>DDalton Designs</p>
       </div>

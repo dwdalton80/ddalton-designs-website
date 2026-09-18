@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Plus, FileSignature, Trash2, Send, X, PlusCircle, MinusCircle } from 'lucide-react';
+import { Plus, FileSignature, Trash2, Send, X, PlusCircle, MinusCircle, CheckCircle, XCircle } from 'lucide-react';
 
 const statusColors = {
   draft: 'bg-secondary text-muted-foreground',
@@ -71,7 +71,21 @@ export default function ProjectPlans() {
   };
 
   const sendPlan = async (plan) => {
-    await base44.entities.ProjectPlan.update(plan.id, { status: 'sent', sent_at: new Date().toISOString() });
+    try {
+      await base44.functions.invoke('sendProjectPlan', { planId: plan.id });
+      await loadAll();
+    } catch (err) {
+      console.error('Send plan error:', err);
+    }
+  };
+
+  const markSigned = async (plan) => {
+    await base44.entities.ProjectPlan.update(plan.id, { status: 'signed', signed_at: new Date().toISOString() });
+    await loadAll();
+  };
+
+  const markDeclined = async (plan) => {
+    await base44.entities.ProjectPlan.update(plan.id, { status: 'declined' });
     await loadAll();
   };
 
@@ -85,7 +99,7 @@ export default function ProjectPlans() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-display font-black text-3xl">Project Plans</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Create and send eSign-ready project plans to clients.</p>
+          <p className="text-muted-foreground mt-1 text-sm">Create plans, email them to clients, and mark signed when they confirm by email.</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
@@ -102,7 +116,7 @@ export default function ProjectPlans() {
         <div className="bg-card border border-border rounded-2xl p-16 text-center text-muted-foreground">
           <FileSignature size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-semibold mb-1">No project plans yet</p>
-          <p className="text-sm">Create a plan and send it to a client for eSigning.</p>
+          <p className="text-sm">Create a plan and email it to a client. They sign by replying — then mark it signed.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -130,6 +144,24 @@ export default function ProjectPlans() {
                       <Send size={12} />
                       Send
                     </button>
+                  )}
+                  {['sent', 'viewed'].includes(plan.status) && (
+                    <>
+                      <button
+                        onClick={() => markSigned(plan)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-semibold hover:bg-green-700 transition-all"
+                      >
+                        <CheckCircle size={12} />
+                        Mark Signed
+                      </button>
+                      <button
+                        onClick={() => markDeclined(plan)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-lg text-xs font-semibold hover:bg-secondary transition-all"
+                      >
+                        <XCircle size={12} />
+                        Decline
+                      </button>
+                    </>
                   )}
                   <button
                     onClick={() => deletePlan(plan.id)}

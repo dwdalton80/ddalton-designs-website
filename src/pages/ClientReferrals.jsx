@@ -151,7 +151,7 @@ export default function ClientReferrals() {
                   <Gift size={32} className="text-green-600" />
                 </div>
                 <h2 className="font-display font-bold text-2xl mb-2">Referral Submitted!</h2>
-                <p className="text-muted-foreground mb-8">Thanks for referring {formData.referred_client_name}. Derek will reach out to them within 48 hours. You can track the referral status in your dashboard.</p>
+                <p className="text-muted-foreground mb-8">Thanks for referring {formData.referred_client_name}. Derek will reach out to them within 48 hours. You'll get email updates as the status changes.</p>
                 <button
                   onClick={() => setSubmitted(false)}
                   className="px-6 py-2 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] transition-all inline-block"
@@ -240,14 +240,8 @@ export default function ClientReferrals() {
               </ol>
             </div>
             <div className="bg-secondary/50 rounded-xl p-6">
-              <h3 className="font-semibold text-lg mb-2">Track Your Referrals</h3>
-              <p className="text-sm text-muted-foreground mb-4">Head to your Client Portal dashboard to see the status of all your referrals and when payouts are made.</p>
-              <a
-                href="/portal"
-                className="text-accent font-semibold text-sm hover:underline"
-              >
-                Go to Portal →
-              </a>
+              <h3 className="font-semibold text-lg mb-2">Stay Updated</h3>
+              <p className="text-sm text-muted-foreground">You'll get an email update each time your referral's status changes — no login needed.</p>
             </div>
           </div>
         </div>

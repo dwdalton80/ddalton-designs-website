@@ -26,9 +26,7 @@ const About = lazy(() => import('./pages/About'));
 const Services = lazy(() => import('./pages/Services'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Referrals = lazy(() => import('./pages/Referrals'));
-const MyReferrals = lazy(() => import('./pages/MyReferrals'));
 const ClientReferrals = lazy(() => import('./pages/ClientReferrals'));
-const ReferralTracker = lazy(() => import('./pages/ReferralTracker'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
@@ -41,12 +39,10 @@ const Estimates = lazy(() => import('./pages/admin/Estimates'));
 const Invoices = lazy(() => import('./pages/admin/Invoices'));
 const Tasks = lazy(() => import('./pages/admin/Tasks'));
 const PortfolioManager = lazy(() => import('./pages/admin/PortfolioManager'));
-const AdminPortalMessages = lazy(() => import('./pages/admin/PortalMessages'));
 const ProjectPlans = lazy(() => import('./pages/admin/ProjectPlans'));
 const Expenses = lazy(() => import('./pages/admin/Expenses'));
 const AdminReferrals = lazy(() => import('./pages/admin/Referrals'));
 const AdminTestimonials = lazy(() => import('./pages/admin/Testimonials'));
-const ClientPortal = lazy(() => import('./pages/portal/ClientPortal'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -92,10 +88,6 @@ const AuthenticatedApp = () => {
 
       {/* Protected: referral portal, client portal, admin */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route path="/my-referrals" element={<MyReferrals />} />
-        <Route path="/referral-tracker/:id" element={<ReferralTracker />} />
-        <Route path="/portal" element={<ClientPortal />} />
-
         {/* Admin routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
@@ -105,7 +97,6 @@ const AuthenticatedApp = () => {
           <Route path="invoices" element={<Invoices />} />
           <Route path="tasks" element={<Tasks />} />
           <Route path="portfolio" element={<PortfolioManager />} />
-          <Route path="messages" element={<AdminPortalMessages />} />
           <Route path="plans" element={<ProjectPlans />} />
           <Route path="expenses" element={<Expenses />} />
           <Route path="referrals" element={<AdminReferrals />} />

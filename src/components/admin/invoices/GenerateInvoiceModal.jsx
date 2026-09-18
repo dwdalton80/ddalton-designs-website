@@ -38,7 +38,8 @@ export default function GenerateInvoiceModal({ onClose, onCreated }) {
         { ...selectedEstimate, id: `INV-${Date.now().toString().slice(-6)}`, paid_amount: 0 },
         dueDate, paymentTerms, notes, 'invoice'
       );
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: pdfBlob });
+      const file = new File([pdfBlob], `invoice-${Date.now()}.toString().slice(-6)}.pdf`, { type: 'application/pdf' });
+      const { file_url } = await base44.integrations.Core.UploadPublicFile({ file });
       pdfUrl = file_url;
     } catch (e) {
       console.error('PDF generation failed', e);
@@ -65,24 +66,12 @@ export default function GenerateInvoiceModal({ onClose, onCreated }) {
     // Mark estimate as accepted (invoice generated)
     await base44.entities.Estimate.update(selectedEstimate.id, { status: 'accepted' });
 
-    // Post portal notification to client
-    const portalBody = `Hi ${selectedEstimate.client_name},\n\nYour invoice of $${selectedEstimate.total?.toLocaleString()} has been created and is now available in your portal.\n\n**Payment Terms:** ${paymentTerms}\n**Due Date:** ${dueDate}\n${notes ? `\n**Notes:** ${notes}\n` : ''}${pdfUrl ? `\n[Download Invoice PDF](${pdfUrl})` : ''}\n\nPlease log in to your portal to view the full invoice details.`;
-
-    await base44.entities.PortalMessage.create({
-      client_email: selectedEstimate.client_email,
-      client_name: selectedEstimate.client_name,
-      subject: `Invoice Ready — $${selectedEstimate.total?.toLocaleString()} Due`,
-      body: portalBody,
-      from_admin: true,
-      read: false,
-    });
-
-    // Send email notification
-    await base44.integrations.Core.SendEmail({
-      to: selectedEstimate.client_email,
-      subject: `Invoice Ready — DDalton Designs`,
-      body: `Hi ${selectedEstimate.client_name},\n\nYour invoice of $${selectedEstimate.total?.toLocaleString()} is ready.\n\nPayment Terms: ${paymentTerms}\nDue Date: ${dueDate}\n${notes ? `Notes: ${notes}\n` : ''}${pdfUrl ? `\nDownload Invoice PDF: ${pdfUrl}\n` : ''}\nLog in to your portal to view the full details:\n${window.location.origin}/portal\n\nBest,\nDerek Dalton\nDDalton Designs`,
-    });
+    // Email the invoice to the client
+    try {
+      await base44.functions.invoke('sendInvoice', { invoiceId: invoice.id, pdf_url: pdfUrl });
+    } catch (e) {
+      console.warn('Failed to send invoice email', e);
+    }
 
     setSaving(false);
     onCreated(invoice);

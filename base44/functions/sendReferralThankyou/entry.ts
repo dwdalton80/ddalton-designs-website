@@ -7,7 +7,7 @@ const escapeHtml = (str) => String(str == null ? '' : str)
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#39;');
 
-const emailHtml = (raw_name, trackingUrl) => {
+const emailHtml = (raw_name) => {
   const referrer_name = escapeHtml(raw_name);
   return `<!DOCTYPE html>
 <html>
@@ -54,11 +54,8 @@ const emailHtml = (raw_name, trackingUrl) => {
           <div class="amount">$100</div>
           <div class="label">Referral bonus — paid within 30 days of their first payment</div>
         </div>
-        <p>You can track the status of this referral in real-time using your personal tracking link:</p>
-        <div class="btn-wrap">
-          <a href="${trackingUrl}" class="btn">Track Your Referral</a>
-        </div>
-        <p>Thanks again — I'll keep you posted!</p>
+        <p>I'll keep you posted on the progress — you'll get an email update each time the status changes.</p>
+        <p>Thanks again — I'm grateful for your support!</p>
         <p>— Derek Dalton<br>DDalton Designs</p>
       </div>
       <div class="footer">
@@ -89,8 +86,6 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const trackingUrl = `https://ddaltondesigns.com/referral-tracker/${referral_id}`;
-
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -101,7 +96,7 @@ Deno.serve(async (req) => {
         from: 'DDalton Designs <derek@ddaltondesigns.com>',
         to: referrer_email,
         subject: 'Thank you for your referral!',
-        html: emailHtml(referrer_name, trackingUrl),
+        html: emailHtml(referrer_name),
       }),
     });
 

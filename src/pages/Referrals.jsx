@@ -71,7 +71,7 @@ export default function Referrals() {
     {
       icon: Zap,
       title: 'Fast Payouts',
-      description: 'Get paid within 30 days of project kickoff. You can track everything in your dashboard.'
+      description: 'Get paid within 30 days of project kickoff. You\'ll get email updates at every step.'
     },
     {
       icon: Users,
@@ -158,20 +158,6 @@ export default function Referrals() {
           <div className="bg-card border border-border rounded-2xl p-8 md:p-10">
             <ReferralForm />
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-6 bg-foreground text-primary-foreground">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display font-black text-4xl md:text-5xl mb-6">Track Your Referrals</h2>
-          <p className="text-lg mb-8 text-white/80">Once you submit a referral, you can log into the admin dashboard to track the status and see when payments are made.</p>
-          <Link
-            to="/my-referrals"
-            className="inline-block px-8 py-4 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] transition-all"
-          >
-            View Referral Dashboard
-          </Link>
         </div>
       </section>
 

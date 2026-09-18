@@ -8,7 +8,6 @@ export default function Clients() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null); // null | 'add' | client object
   const [form, setForm] = useState({ name: '', email: '', phone: '', company: '', notes: '' });
-  const [sendInvite, setSendInvite] = useState(false);
   const [filesClient, setFilesClient] = useState(null);
 
   const fetch = () => {
@@ -18,16 +17,13 @@ export default function Clients() {
   };
   useEffect(() => { fetch(); }, []);
 
-  const openAdd = () => { setForm({ name: '', email: '', phone: '', company: '', notes: '' }); setSendInvite(false); setModal('add'); };
+  const openAdd = () => { setForm({ name: '', email: '', phone: '', company: '', notes: '' }); setModal('add'); };
   const openEdit = (c) => { setForm({ name: c.name, email: c.email, phone: c.phone || '', company: c.company || '', notes: c.notes || '' }); setModal(c); };
 
   const save = async (e) => {
     e.preventDefault();
     if (modal === 'add') {
       await base44.entities.Client.create(form);
-      if (sendInvite) {
-        await base44.functions.invoke('sendPortalInvite', { clientName: form.name, clientEmail: form.email });
-      }
     } else {
       await base44.entities.Client.update(modal.id, form);
     }
@@ -112,13 +108,6 @@ export default function Clients() {
                   </div>
                 )
               ))}
-              {modal === 'add' && (
-                <label className="flex items-center gap-3 cursor-pointer pt-1">
-                  <input type="checkbox" checked={sendInvite} onChange={e => setSendInvite(e.target.checked)}
-                    className="w-4 h-4 rounded border-border accent-accent" />
-                  <span className="text-sm text-muted-foreground">Send portal invite email</span>
-                </label>
-              )}
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setModal(null)} className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium">Cancel</button>
                 <button type="submit" className="flex-1 py-2.5 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-red-600 transition-all">Save</button>

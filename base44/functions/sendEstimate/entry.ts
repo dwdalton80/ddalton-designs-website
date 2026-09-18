@@ -8,7 +8,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { estimateId } = await req.json();
+    const { estimateId, pdf_url } = await req.json();
     if (!estimateId) {
       return Response.json({ error: 'estimateId is required' }, { status: 400 });
     }
@@ -18,10 +18,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Estimate not found' }, { status: 404 });
     }
 
-    const registerUrl = 'https://ddaltondesigns.com/register';
-    const portalUrl = 'https://ddaltondesigns.com/portal';
+    const lineItems = (est.line_items || [])
+      .map(i => `• ${i.description}: ${i.quantity} × $${i.rate} = $${i.total}`)
+      .join('\n');
+    const taxLine = est.tax_rate ? `Tax (${est.tax_rate}%): $${((est.subtotal || 0) * est.tax_rate / 100).toFixed(2)}\n` : '';
+    const discountLine = est.discount ? `Discount: -$${est.discount}\n` : '';
+    const validLine = est.valid_until ? `Valid Until: ${est.valid_until}\n\n` : '';
+    const pdfLine = pdf_url ? `\nDownload your estimate PDF here:\n${pdf_url}\n\n` : '';
 
-    // Send estimate notification email via Resend (no invite yet — that comes on acceptance)
     const emailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -30,9 +34,9 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: 'DDalton Designs <derek@ddaltondesigns.com>',
-        to: [est.client_email],
+        to: [est.client_email.toLowerCase()],
         subject: `Your Estimate is Ready — DDalton Designs`,
-        text: `Hi ${est.client_name},\n\nYour estimate from DDalton Designs is ready to view!\n\nTo see the full breakdown, create your free client portal account using the link below — it only takes a moment, and your estimate will be waiting for you as soon as you log in:\n\n${registerUrl}\n\nAlready have an account? View it here:\n${portalUrl}\n\nThrough your portal you can review the estimate details, ask questions, and accept when you're ready.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com\n(580) 916-0098`,
+        text: `Hi ${est.client_name},\n\nYour estimate from DDalton Designs is ready! Here's the breakdown:\n\n${lineItems}\n\nSubtotal: $${est.subtotal}\n${taxLine}${discountLine}Total: $${est.total}\n\n${validLine}${pdfLine}To accept or decline, just reply to this email and let me know.\n\nLooking forward to working with you!\n\nBest,\nDerek Dalton\nDDalton Designs\nderek@ddaltondesigns.com\n(580) 916-0098`,
       }),
     });
 
