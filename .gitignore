@@ -35,3 +35,5 @@ base44/.app.jsonc
 # Never commit these.
 migration/base44-export.json
 migration/data.sql
+migration/base44-export.rewritten.json
+migration/assets/
