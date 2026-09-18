@@ -141,16 +141,29 @@ a session. The security posture is exactly what it was before Access existed.
   Allowed 0 / Blocked 0 over 12 hours with no entries — the application exists
   in configuration but is not being applied at the edge.
 
+### Ruled out definitively: this is not a path-matching problem
+
+Added a third, temporary destination covering the entire hostname with no path
+restriction (`ddaltondesigns.com`, blank path — matches every path). Polled the
+site root for 90 seconds; still 200, still no Access involvement. Removed that
+destination immediately afterward, confirmed only `admin` and `admin/*` remain.
+
+This eliminates the last plausible configuration explanation. If Access were
+enforcing at all, protecting the whole hostname would have gated the homepage
+too. It didn't. The application is not being applied at the edge, full stop —
+not for a specific path, not for any path.
+
 ### Next step: Cloudflare support
 
 Everything configurable has been checked and the behaviour is inconsistent with
-the configuration, so this looks like something on Cloudflare's side rather
-than a setting that was missed. Worth quoting in the ticket: the application is
-self-hosted with destinations `ddaltondesigns.com/admin` and
-`ddaltondesigns.com/admin/*`, an attached Allow policy, a valid IdP, a proxied
-apex record on an Active zone — and requests to those paths return 200 straight
-from the origin (`x-render-origin-server: uvicorn`) with no Access redirect and
-no entry in the Access logs.
+the configuration, so this is almost certainly something on Cloudflare's side —
+most likely the zone's Access feature never finished provisioning, despite the
+zone itself showing Active for DNS purposes. Worth quoting in the ticket: a
+self-hosted Access application with an Allow policy and a valid IdP, on a
+proxied, Active free-plan zone, does not intercept requests to *any* path on
+that hostname — confirmed by temporarily protecting the entire domain — and
+Access authentication logs show zero events (not zero-and-blocked, zero
+period) since the application was created.
 
 This must be resolved
 before cutover: deploying the Worker while Access is not enforcing leaves the
