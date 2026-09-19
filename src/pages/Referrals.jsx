@@ -5,8 +5,8 @@ import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import ReferralForm from '@/components/ReferralForm';
 
-const OG_IMAGE = 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/2cbe21348_generated_image.png';
-const DEFAULT_OG_IMAGE = 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/8ef3c98e6_IMG_3935.png';
+const OG_IMAGE = 'https://ddaltondesigns.com/og-image.png';
+const DEFAULT_OG_IMAGE = 'https://ddaltondesigns.com/og-image.png';
 
 function setMeta(property, content) {
   const el = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
