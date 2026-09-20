@@ -16,7 +16,6 @@ const About = lazy(() => import('./pages/About'));
 const Services = lazy(() => import('./pages/Services'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Referrals = lazy(() => import('./pages/Referrals'));
-const ClientReferrals = lazy(() => import('./pages/ClientReferrals'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
@@ -56,7 +55,6 @@ const AppRoutes = () => (
       <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/referrals" element={<Referrals />} />
-      <Route path="/client-referrals" element={<ClientReferrals />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
 
