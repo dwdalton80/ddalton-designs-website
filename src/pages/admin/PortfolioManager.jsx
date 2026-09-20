@@ -30,7 +30,7 @@ export default function PortfolioManager() {
     const file = e.target.files[0];
     if (!file) return;
     setUploadingCover(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await base44.integrations.Core.UploadPublicFile({ file });
     setForm(f => ({ ...f, cover_image: file_url }));
     setUploadingCover(false);
   };
@@ -39,7 +39,7 @@ export default function PortfolioManager() {
     const file = e.target.files[0];
     if (!file) return;
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await base44.integrations.Core.UploadPublicFile({ file });
     setForm(f => ({ ...f, images: [...f.images, file_url] }));
     setUploading(false);
   };

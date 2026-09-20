@@ -1,0 +1,19 @@
+/** Bindings available to the Worker. Kept hand-written and small. */
+interface Env {
+  /** D1 database holding the migrated Base44 entities. */
+  DB: D1Database;
+  /** Resend API key — set with `wrangler secret put RESEND_API_KEY`. */
+  RESEND_API_KEY: string;
+  /** e.g. "ddaltondesigns.cloudflareaccess.com" */
+  ACCESS_TEAM_DOMAIN: string;
+  /** Access application audience (AUD) tag. */
+  ACCESS_AUD: string;
+  /** Turnstile secret for the public contact form. Unset = check skipped. */
+  TURNSTILE_SECRET_KEY?: string;
+  /** Public R2 bucket (portfolio + site images). */
+  ASSETS: R2Bucket;
+  /** Private R2 bucket (client files). No public domain. */
+  PRIVATE_FILES: R2Bucket;
+  /** e.g. "https://assets.ddaltondesigns.com" */
+  ASSETS_BASE_URL: string;
+}

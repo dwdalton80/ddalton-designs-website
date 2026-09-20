@@ -42,7 +42,7 @@ export default function About() {
             </div>
             <div className="relative">
               <div className="aspect-[3/4] rounded-2xl overflow-hidden">
-                <img src="https://media.base44.com/images/public/6a0deceee5167bf94f46086f/88f0a22e3_49345F4C-4170-410D-8153-D285540B7FB8.PNG"
+                <img src="https://assets.ddaltondesigns.com/site/88f0a22e3_49345F4C-4170-410D-8153-D285540B7FB8.PNG"
 
                 alt="Derek Dalton"
                 className="w-full h-full object-cover" />

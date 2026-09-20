@@ -62,13 +62,13 @@ export default function PortfolioDetail() {
           {item.images?.length > 0 && (
             <div className="space-y-4 mb-12">
               {item.images.map((img, i) => (
-                <div key={i} className={`rounded-2xl overflow-hidden ${i === 0 ? 'aspect-[16/9]' : 'aspect-[16/10]'}`}>
+                <div key={i} className="rounded-2xl overflow-hidden bg-muted">
                   <img
                     src={img}
                     alt={`${item.title} ${i + 1}`}
                     loading={i === 0 ? 'eager' : 'lazy'}
                     decoding="async"
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto max-h-[80vh] object-contain mx-auto"
                   />
                 </div>
               ))}

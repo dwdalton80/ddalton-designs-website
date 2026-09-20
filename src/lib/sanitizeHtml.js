@@ -84,6 +84,10 @@ export function sanitizeHtml(input) {
     }
   };
 
-  walk(body);
+  // Sanitize body's children rather than body itself — walk() would otherwise
+  // treat <body> as a disallowed tag and unwrap/remove it, emptying the tree.
+  Array.from(body.childNodes).forEach((child) => {
+    if (child.nodeType === Node.ELEMENT_NODE) walk(child);
+  });
   return body.innerHTML;
 }

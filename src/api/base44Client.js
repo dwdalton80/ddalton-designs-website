@@ -1,14 +1,13 @@
-import { createClient } from '@base44/sdk';
-import { appParams } from '@/lib/app-params';
+/**
+ * Compatibility shim.
+ *
+ * The app imports `base44` from here in ~38 places. Rather than touch all of
+ * them, this module now re-exports the Worker-backed client, so those call
+ * sites keep working unchanged while the SDK underneath is gone.
+ *
+ * New code should import from '@/api/client' directly; this file exists so the
+ * migration is a data-layer swap rather than a 38-file rewrite.
+ */
 
-const { appId, token, functionsVersion, appBaseUrl } = appParams;
-
-//Create a client with authentication required
-export const base44 = createClient({
-  appId,
-  token,
-  functionsVersion,
-  serverUrl: '',
-  requiresAuth: false,
-  appBaseUrl
-});
+export { base44, ApiError } from './client';
+export { default } from './client';

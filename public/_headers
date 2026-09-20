@@ -1,0 +1,16 @@
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com 'sha256-VPntFmRQNDUc/gOxMsiUU/LLtgvBJXUMuBOs3bgSQvE='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://assets.ddaltondesigns.com https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://assets.ddaltondesigns.com https://www.google-analytics.com https://region1.google-analytics.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+
+# Notes on the CSP above:
+#  - googletagmanager + google-analytics: the site runs GA4 (G-QYG47D09V7),
+#    declared in index.html. Dropping these silently kills analytics.
+#  - The sha256 hash covers the inline gtag init block in index.html. If that
+#    snippet is edited the hash must be regenerated, or the script is blocked —
+#    the browser console prints the expected hash when it refuses.
+#  - challenges.cloudflare.com: Turnstile on the contact form.
+#  - assets.ddaltondesigns.com: the R2 bucket serving portfolio and site images.

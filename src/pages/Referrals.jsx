@@ -5,8 +5,8 @@ import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import ReferralForm from '@/components/ReferralForm';
 
-const OG_IMAGE = 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/2cbe21348_generated_image.png';
-const DEFAULT_OG_IMAGE = 'https://media.base44.com/images/public/6a0deceee5167bf94f46086f/8ef3c98e6_IMG_3935.png';
+const OG_IMAGE = 'https://assets.ddaltondesigns.com/site/2cbe21348_generated_image.png';
+const DEFAULT_OG_IMAGE = 'https://assets.ddaltondesigns.com/site/8ef3c98e6_IMG_3935.png';
 
 function setMeta(property, content) {
   const el = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
@@ -16,12 +16,12 @@ function setMeta(property, content) {
 export default function Referrals() {
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = 'Refer & Earn $100 | DDalton Designs';
-    setMeta('og:title', 'Refer & Earn $100 | DDalton Designs');
-    setMeta('og:description', 'Refer a friend to DDalton Designs and earn $100 when they become a client. No cap on referrals.');
+    document.title = 'Refer & Earn up to $100 | DDalton Designs';
+    setMeta('og:title', 'Refer & Earn up to $100 | DDalton Designs');
+    setMeta('og:description', 'Refer a friend to DDalton Designs and earn up to $100 when they become a client. No cap on referrals.');
     setMeta('og:image', OG_IMAGE);
-    setMeta('twitter:title', 'Refer & Earn $100 | DDalton Designs');
-    setMeta('twitter:description', 'Refer a friend to DDalton Designs and earn $100 when they become a client. No cap on referrals.');
+    setMeta('twitter:title', 'Refer & Earn up to $100 | DDalton Designs');
+    setMeta('twitter:description', 'Refer a friend to DDalton Designs and earn up to $100 when they become a client. No cap on referrals.');
     setMeta('twitter:image', OG_IMAGE);
     return () => {
       document.title = prevTitle;
@@ -53,20 +53,20 @@ export default function Referrals() {
     {
       number: '4',
       title: 'You Get Paid',
-      description: 'Once the project kicks off, you receive your $100 referral bonus. Payment is made within 30 days.'
+      description: 'Once the project kicks off, you receive your referral bonus of up to $100. Payment is made within 30 days.'
     }
   ];
 
   const benefits = [
     {
       icon: Gift,
-      title: '$100 Per Referral',
+      title: 'Up to $100 Per Referral',
       description: 'Get paid for every successful referral that becomes a paid project.'
     },
     {
       icon: TrendingUp,
       title: 'Unlimited Earning',
-      description: 'No caps on referrals. Refer as many clients as you want and earn $100 for each one.'
+      description: 'No caps on referrals. Refer as many clients as you want and earn up to $100 for each one.'
     },
     {
       icon: Zap,
@@ -91,10 +91,10 @@ export default function Referrals() {
             <span className="text-sm font-semibold text-accent">Earn Money, Help Friends</span>
           </div>
           <h1 className="font-display font-black text-6xl md:text-7xl mb-6">
-            Earn <span className="text-accent">$100</span> Per Referral
+            Earn up to <span className="text-accent">$100</span> Per Referral
           </h1>
           <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-            Know someone who needs stunning design work? Refer them and earn $100 when they become a client. It's that simple.
+            Know someone who needs stunning design work? Refer them and earn up to $100 when they become a client. It's that simple.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="#form" className="px-8 py-4 bg-accent text-white font-semibold rounded-xl hover:bg-[#CC3F00] transition-all">

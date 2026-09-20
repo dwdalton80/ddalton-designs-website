@@ -85,7 +85,7 @@ Routes are defined in `src/App.jsx`. Access is enforced two ways:
 - **Server-side:** **Row-Level Security (RLS)** on each entity in `base44/entities/*.jsonc`. This is the real security boundary — frontend gating is just UX. **Always check RLS when changing data access.**
 
 ### Public routes (no login)
-`/` (Home), `/portfolio`, `/portfolio/:id`, `/about`, `/services`, `/contact`, `/referrals`, `/client-referrals`, `/terms`, `/privacy`
+`/` (Home), `/portfolio`, `/portfolio/:id`, `/about`, `/services`, `/contact`, `/referrals`, `/terms`, `/privacy`
 
 ### Auth routes
 `/login`, `/forgot-password`, `/reset-password`
