@@ -11,18 +11,16 @@
 
 import { sendEmail, escapeHtml } from '../lib/email';
 import { emailShell } from '../lib/template';
+import * as db from '../lib/db';
 import { json, badRequest } from '../lib/http';
 
 const SIGNOFF = '<p>— Derek Dalton<br>DDalton Designs</p>';
 
-/** Introduction email sent to a referred prospect. */
-export async function sendLeadQualification(req: Request, env: Env): Promise<Response> {
-  const { referred_client_name, referred_client_email, referrer_name } = (await req.json()) as Record<
-    string,
-    string | undefined
-  >;
-  if (!referred_client_email) return badRequest('Missing referred_client_email');
-
+/**
+ * Bodies are built separately from the handlers so the public submitReferral
+ * route can send the same emails without going through the admin-only routes.
+ */
+function leadQualificationEmail(referred_client_name?: string, referrer_name?: string) {
   const body = `<h2>You've Been Referred!</h2>
         <p>Hi ${escapeHtml(referred_client_name)},</p>
         <p><strong>${escapeHtml(referrer_name)}</strong> thought you might benefit from working with me — I'm Derek Dalton, a designer specializing in bold, intentional work for businesses that want to stand out.</p>
@@ -40,13 +38,48 @@ export async function sendLeadQualification(req: Request, env: Env): Promise<Res
         <p>Looking forward to connecting!</p>
         <p>— Derek Dalton<br>DDalton Designs<br><a href="mailto:derek@ddaltondesigns.com" style="color:#FF4F00;">derek@ddaltondesigns.com</a></p>`;
 
-  await sendEmail(env, {
-    to: referred_client_email,
+  return {
     subject: `${referrer_name} thought you'd love DDalton Designs`,
     html: emailShell({ title: 'DDalton Designs - Introduction', body }),
+  };
+}
+
+/** Introduction email sent to a referred prospect. */
+export async function sendLeadQualification(req: Request, env: Env): Promise<Response> {
+  const { referred_client_name, referred_client_email, referrer_name } = (await req.json()) as Record<
+    string,
+    string | undefined
+  >;
+  if (!referred_client_email) return badRequest('Missing referred_client_email');
+
+  await sendEmail(env, {
+    to: referred_client_email,
+    ...leadQualificationEmail(referred_client_name, referrer_name),
   });
 
   return json({ success: true });
+}
+
+/** Confirms to the referrer that their referral was received. */
+function referrerConfirmationEmail(referrer_name?: string, referred_client_name?: string) {
+  const sReferred = escapeHtml(referred_client_name);
+
+  const body = `<h2>Referral Received!</h2>
+        <p>Hi ${escapeHtml(referrer_name)},</p>
+        <p>Thank you for thinking of me! Your referral has been successfully submitted. I truly appreciate your support.</p>
+        <div class="highlight-box">
+          <p>📋 You referred: ${sReferred}</p>
+        </div>
+        <p>I'll be reaching out to ${sReferred} shortly to discuss their design needs. I'll keep you in the loop every step of the way.</p>
+        <p>Remember — when they become a paying client, you'll earn a referral bonus of <strong>up to $100</strong> within 30 days of their first payment.</p>
+        <p>I'll keep you in the loop with email updates as things progress.</p>
+        <p>Thanks again for spreading the word!</p>
+        ${SIGNOFF}`;
+
+  return {
+    subject: `Your referral for ${referred_client_name} has been received!`,
+    html: emailShell({ title: 'Referral Received - DDalton Designs', body }),
+  };
 }
 
 /** Confirms to the referrer that their referral was received. */
@@ -57,24 +90,9 @@ export async function sendReferrerConfirmation(req: Request, env: Env): Promise<
   >;
   if (!referrer_email) return badRequest('Missing referrer_email');
 
-  const sReferred = escapeHtml(referred_client_name);
-
-  const body = `<h2>Referral Received!</h2>
-        <p>Hi ${escapeHtml(referrer_name)},</p>
-        <p>Thank you for thinking of me! Your referral has been successfully submitted. I truly appreciate your support.</p>
-        <div class="highlight-box">
-          <p>📋 You referred: ${sReferred}</p>
-        </div>
-        <p>I'll be reaching out to ${sReferred} shortly to discuss their design needs. I'll keep you in the loop every step of the way.</p>
-        <p>Remember — when they become a paying client, you'll earn a <strong>$100 referral bonus</strong> within 30 days of their first payment.</p>
-        <p>I'll keep you in the loop with email updates as things progress.</p>
-        <p>Thanks again for spreading the word!</p>
-        ${SIGNOFF}`;
-
   await sendEmail(env, {
     to: referrer_email,
-    subject: `Your referral for ${referred_client_name} has been received!`,
-    html: emailShell({ title: 'Referral Received - DDalton Designs', body }),
+    ...referrerConfirmationEmail(referrer_name, referred_client_name),
   });
 
   return json({ success: true });
@@ -92,7 +110,7 @@ export async function sendReferralThankyou(req: Request, env: Env): Promise<Resp
         <p>I just received your referral and I'm so grateful for your support. Word-of-mouth referrals are the most powerful way my business grows, and I don't take that lightly.</p>
         <p>I'll be reaching out to your referred client shortly. In the meantime, here's your reward reminder:</p>
         <div class="bonus-box">
-          <div class="amount">$100</div>
+          <div class="amount">Up to $100</div>
           <div class="label">Referral bonus — paid within 30 days of their first payment</div>
         </div>
         <p>I'll keep you posted on the progress — you'll get an email update each time the status changes.</p>
@@ -120,7 +138,7 @@ const STATUS_CONFIG: Record<string, { emoji: string; label: string; color: strin
     label: 'Converted to Client!',
     color: '#16a34a',
     message:
-      'Amazing news! Your referral has converted into a paying client. Your <strong>$100 referral bonus</strong> will be processed within 30 days. Thank you so much!',
+      'Amazing news! Your referral has converted into a paying client. Your referral bonus of <strong>up to $100</strong> will be processed within 30 days. Thank you so much!',
   },
   rejected: {
     emoji: '📋',
@@ -167,6 +185,78 @@ export async function sendReferralStatusUpdate(req: Request, env: Env): Promise<
       extraCss: `
     .status-badge { display: inline-block; background-color: ${cfg.color}; color: #ffffff; padding: 8px 18px; border-radius: 50px; font-size: 14px; font-weight: 700; margin: 8px 0 4px; }`,
     }),
+  });
+
+  return json({ success: true });
+}
+
+/**
+ * Public referral submission — the referral form's only endpoint.
+ *
+ * Reachable by anyone who can load /referrals, so it validates like the contact
+ * form does. It deliberately replaces the four separate calls the form used to
+ * make (Referral.create + two email routes + a notify), which would have meant
+ * exposing entity writes and two arbitrary-recipient email routes to the
+ * public. Everything happens here instead, behind one validated entry point.
+ */
+export async function submitReferral(req: Request, env: Env): Promise<Response> {
+  const payload = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!payload) return badRequest('Expected a JSON body');
+
+  const { referrer_name, referrer_email, referred_client_name, referred_client_email, notes } = payload;
+
+  const isEmail = (v: unknown) =>
+    typeof v === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && v.length <= 254;
+  const isName = (v: unknown) =>
+    typeof v === 'string' && v.trim().length >= 2 && v.length <= 100;
+
+  if (!isName(referrer_name)) return badRequest('Invalid referrer name');
+  if (!isEmail(referrer_email)) return badRequest('Invalid referrer email');
+  if (!isName(referred_client_name)) return badRequest('Invalid referred client name');
+  if (!isEmail(referred_client_email)) return badRequest('Invalid referred client email');
+  if (notes != null && (typeof notes !== 'string' || notes.length > 5000)) {
+    return badRequest('Invalid notes');
+  }
+
+  const referrerName = String(referrer_name).trim();
+  const referrerEmail = String(referrer_email).toLowerCase();
+  const referredName = String(referred_client_name).trim();
+  const referredEmail = String(referred_client_email).toLowerCase();
+
+  // The record is written before the emails: a referral that is saved but whose
+  // email failed is recoverable from the dashboard, the reverse is not.
+  await db.create(env.DB, 'referral', {
+    referrer_name: referrerName,
+    referrer_email: referrerEmail,
+    referred_client_name: referredName,
+    referred_client_email: referredEmail,
+    notes: notes ? String(notes).trim() : null,
+    status: 'pending',
+    payout_status: 'unpaid',
+    referral_date: new Date().toISOString(),
+  });
+
+  await sendEmail(env, {
+    to: referrerEmail,
+    ...referrerConfirmationEmail(referrerName, referredName),
+  });
+
+  await sendEmail(env, {
+    to: referredEmail,
+    ...leadQualificationEmail(referredName, referrerName),
+  });
+
+  const sReferrer = escapeHtml(referrerName);
+  const sReferrerEmail = escapeHtml(referrerEmail);
+  const sReferred = escapeHtml(referredName);
+  const sReferredEmail = escapeHtml(referredEmail);
+  await sendEmail(env, {
+    to: 'derek@ddaltondesigns.com',
+    subject: `🤝 New Referral: ${referredName} from ${referrerName}`,
+    html:
+      `<p><strong>${sReferrer}</strong> (${sReferrerEmail}) submitted a new referral.</p>` +
+      `<p><strong>Referred client:</strong> ${sReferred} (${sReferredEmail})</p>` +
+      (notes ? `<p><strong>Notes:</strong></p><blockquote>${escapeHtml(String(notes))}</blockquote>` : ''),
   });
 
   return json({ success: true });

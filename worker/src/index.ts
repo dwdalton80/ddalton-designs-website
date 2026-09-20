@@ -22,6 +22,7 @@ import { handleEntity } from './routes/entities';
 import { getSpec, isPublicRead } from './lib/entities';
 import { uploadFile, getPrivateFile } from './routes/files';
 import {
+  submitReferral,
   sendLeadQualification,
   sendReferrerConfirmation,
   sendReferralThankyou,
@@ -33,6 +34,10 @@ type Handler = (req: Request, env: Env, actor: string) => Promise<Response>;
 /** Reachable without authentication. Keep this list as small as possible. */
 const PUBLIC_ROUTES: Record<string, Handler> = {
   sendContactConfirmation: (req, env) => sendContactConfirmation(req, env),
+  // The referral form is public, so its submit path has to be too. It writes
+  // the row and sends the emails itself rather than the form calling
+  // Referral.create plus the two admin email routes separately.
+  submitReferral: (req, env) => submitReferral(req, env),
 };
 
 /** Require a valid Cloudflare Access token. */

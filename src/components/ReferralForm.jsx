@@ -5,6 +5,7 @@ import { CheckCircle } from 'lucide-react';
 export default function ReferralForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     referrer_name: '',
     referrer_email: '',
@@ -21,33 +22,12 @@ export default function ReferralForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
-      const referral = await base44.entities.Referral.create({
-        ...formData,
-        referral_date: new Date().toISOString(),
-        status: 'pending'
-      });
-
-      // Send confirmation email to referrer
-      await base44.functions.invoke('sendReferrerConfirmation', {
-        referrer_email: formData.referrer_email,
-        referrer_name: formData.referrer_name,
-        referred_client_name: formData.referred_client_name,
-      });
-
-      // Send lead qualification email to referred person
-      await base44.functions.invoke('sendLeadQualification', {
-        referred_client_name: formData.referred_client_name,
-        referred_client_email: formData.referred_client_email,
-        referrer_name: formData.referrer_name,
-      });
-
-      // Notify Derek
-      await base44.integrations.Core.SendEmail({
-        to: 'derek@ddaltondesigns.com',
-        subject: `🤝 New Referral: ${formData.referred_client_name} from ${formData.referrer_name}`,
-        body: `${formData.referrer_name} (${formData.referrer_email}) submitted a new referral.\n\nReferred Client: ${formData.referred_client_name} (${formData.referred_client_email})${formData.notes ? `\n\nNotes: ${formData.notes}` : ''}`,
-      });
+      // One public endpoint. It writes the referral and sends all three emails
+      // server-side, so the form doesn't need entity-write or email routes
+      // exposed to the public.
+      await base44.functions.invoke('submitReferral', formData);
 
       setSubmitted(true);
       setFormData({
@@ -59,6 +39,7 @@ export default function ReferralForm() {
       });
     } catch (error) {
       console.error('Error submitting referral:', error);
+      setError("Something went wrong sending that referral. Please try again, or email derek@ddaltondesigns.com directly.");
     } finally {
       setLoading(false);
     }
@@ -151,6 +132,12 @@ export default function ReferralForm() {
           className={`${inputClass} resize-none`}
         />
       </div>
+
+      {error && (
+        <p className="text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
+          {error}
+        </p>
+      )}
 
       <button
         type="submit"
