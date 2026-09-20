@@ -92,9 +92,9 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.15 }}
               className="relative"
             >
-              <div className="aspect-[4/5] rounded-2xl overflow-hidden" style={{ background: '#F2EDE4' }}>
+              <div className="aspect-[4/5] rounded-2xl overflow-hidden">
                 <img
-                  src="https://assets.ddaltondesigns.com/site/e0c91c156_6F5A8F1E-6CBA-471E-B410-138262ACBD75.png"
+                  src="https://assets.ddaltondesigns.com/site/b1a170443b_hero-design-showcase.webp"
                   alt="Web Design Development"
                   className="w-full h-full object-contain"
                   fetchpriority="high"
@@ -102,7 +102,10 @@ export default function Home() {
                   decoding="sync"
                 />
               </div>
-              <div className="absolute -bottom-6 -left-6 bg-accent text-white px-6 py-4 rounded-xl font-display font-bold text-3xl shadow-xl">
+              {/* Anchored to where the artwork actually ends (~88% down the
+                  frame), not the frame itself — the image has transparent
+                  padding below it. */}
+              <div className="absolute bottom-[calc(12%_-_1.25rem)] -left-6 bg-accent text-white px-6 py-4 rounded-xl font-display font-bold text-3xl shadow-xl">
                 15+<br /><span className="text-sm font-body font-normal opacity-80">Years Exp.</span>
               </div>
             </motion.div>
