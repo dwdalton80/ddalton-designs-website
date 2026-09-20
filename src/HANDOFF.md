@@ -2,6 +2,12 @@
 
 A guide for any developer taking over this project. Read this first.
 
+> **This app used to run on Base44 and no longer does.** It was migrated to
+> Cloudflare (Workers + D1 + R2 + Access). If you find a doc, comment, or
+> tutorial that talks about the Base44 SDK, RLS rules, or `base44.auth`, it
+> predates the migration. `worker/README.md` is the authoritative reference for
+> the backend; `migration/` holds the migration scripts and the DNS runbook.
+
 ---
 
 ## 1. What this app is
@@ -13,10 +19,9 @@ A guide for any developer taking over this project. Read this first.
 
 It is **no-login for clients.** Estimates, invoices, and project plans are emailed to clients (PDF link + full details in the body); clients accept, pay, or sign by replying to the email, and the admin manually updates statuses in the dashboard. Clients send files through the contact form. Referrals are submitted via a public form, and referrers get status updates by email (no tracker dashboard).
 
-It is built on **Base44** (backend-as-a-service: auth, database, integrations, hosting). The frontend is **React + Vite + Tailwind CSS** with shadcn/ui components. There is no separate backend server to run — all data, auth, and integrations are provided by Base44.
+There is exactly **one** class of authenticated user: the studio owner. Cloudflare Access is what authenticates them.
 
-**Live URL:** https://ddalton-designs.base44.app
-**(Custom domain — ask the owner for the connected domain before linking to it externally.)**
+**Live URL:** https://ddaltondesigns.com
 
 ---
 
@@ -32,25 +37,35 @@ It is built on **Base44** (backend-as-a-service: auth, database, integrations, h
 | Rich text | react-quill |
 | PDF generation | jspdf + html2canvas (client-side, in `src/lib/invoicePdf.js`) |
 | Icons | lucide-react |
-| Backend / DB / Auth / Integrations | Base44 (`@base44/sdk`) |
-
-Key packages already installed — **do not add new libraries without checking the installed list first**; only the packages in `package.json` are supported by the platform build.
+| Frontend hosting | Cloudflare Workers (static assets, `wrangler.json` at the repo root) |
+| API | Cloudflare Worker — `worker/`, TypeScript, serves `/api/*` |
+| Database | Cloudflare D1 (SQLite) — `ddalton-designs` |
+| File storage | Cloudflare R2 — `ddalton-designs-assets` (public), `ddalton-designs-private` (private) |
+| Auth | Cloudflare Access (Zero Trust) |
+| Email | Resend |
 
 ---
 
 ## 3. Getting started locally
 
 1. Clone the repo.
-2. `npm install`
-3. Create `.env.local`:
-   ```
-   VITE_BASE44_APP_ID=<app id from Base44 dashboard>
-   VITE_BASE44_APP_BASE_URL=https://ddalton-designs.base44.app
-   ```
-4. `npm run dev`
-5. Publish changes from the Base44 dashboard (the repo is 2-way synced via GitHub — pushes to `main` are reflected in the builder).
+2. `npm install` (frontend), then `cd worker && npm install` (API).
+3. Frontend: `npm run dev` — Vite dev server.
+4. API: `cd worker && npm run dev` — `wrangler dev`.
 
-> **Note:** GitHub 2-way sync requires the Builder plan or higher, and only the app owner can do the initial connection.
+No `.env.local` and no API keys are needed to run the frontend. There are no
+`VITE_*` variables; the API is same-origin at `/api`.
+
+**Deploying** — two separate Workers, each deployed from its own config:
+
+```bash
+npm run build && npx wrangler deploy --config wrangler.json   # frontend
+cd worker && npm run deploy                                    # API
+```
+
+> Always pass `--config`. A bare `wrangler deploy` inside `worker/` picks up the
+> **root** `wrangler.json` and deploys the wrong project. The worker's npm
+> scripts already pin it; the root one is the trap.
 
 ---
 
@@ -61,16 +76,20 @@ src/
   App.jsx                # Router — all routes live here (source of truth for pages)
   main.jsx               # Entry point
   index.css              # Design tokens (colors, fonts) — :root + .dark
-  tailwind.config.js     # Token → Tailwind class mapping
   pages/                 # Page components (public, admin/)
   components/            # Shared components + ui/ (shadcn) + admin/
-  lib/                   # AuthContext, ThemeContext, utils, sanitizeHtml, invoicePdf
-  api/base44Client.js    # Pre-initialized Base44 SDK client
-base44/
-  entities/              # JSON schemas + RLS rules for each data type
-  functions/             # Backend functions (Deno, entry.ts) — external API calls
-  workflows/             # Automated trigger→action workflows (.jsonc)
-public/                  # Static assets, robots.txt
+  lib/                   # ThemeContext, utils, sanitizeHtml, invoicePdf, PageNotFound
+  api/client.js          # API client — the Base44 SDK's replacement
+  api/base44Client.js    # Thin re-export of client.js (kept so page imports still resolve)
+worker/                  # The API. See worker/README.md — start there.
+  src/index.ts           # Router: PUBLIC_ROUTES vs ADMIN_ROUTES, entity CRUD, files
+  src/routes/            # One module per former Base44 function
+  src/lib/access.ts      # Access JWT verification
+  src/lib/entities.ts    # Entity registry — the real write boundary
+  wrangler.jsonc         # Bindings: D1, both R2 buckets, Access vars
+migration/               # Export/load scripts, schema.sql, DNS cutover runbook
+base44/                  # Legacy source of record. Not executed. See §8.
+wrangler.json            # Frontend Worker (static assets) config
 ```
 
 **Import rule:** always use the `@/` alias (`@/components/...`, `@/lib/...`). Never use relative `src/` paths — they break on moves.
@@ -79,119 +98,149 @@ public/                  # Static assets, robots.txt
 
 ## 5. Routing & access control
 
-Routes are defined in `src/App.jsx`. Access is enforced two ways:
+Routes are defined in `src/App.jsx`. Access is enforced in two layers, and the
+**first one is the real boundary**:
 
-- **Client-side:** `ProtectedRoute` (`src/components/ProtectedRoute.jsx`) wraps authenticated routes and redirects unauthenticated users to `/login`.
-- **Server-side:** **Row-Level Security (RLS)** on each entity in `base44/entities/*.jsonc`. This is the real security boundary — frontend gating is just UX. **Always check RLS when changing data access.**
+- **Cloudflare Access (the edge).** Authenticates the request before it reaches
+  any Worker and injects a signed JWT. There is no login page in this app, no
+  session code, and no user table.
+- **The Worker (defence in depth).** `worker/src/lib/access.ts` verifies the JWT
+  signature and the `aud` claim. `worker/src/lib/entities.ts` allowlists which
+  entities and which fields a request may touch — the entity name arrives from
+  the client, so this is what stops "write any column of any table".
+
+There is deliberately **no `ProtectedRoute`** any more. Client-side gating was
+only ever UX; the boundary now sits in front of the origin.
+
+Two Access applications exist and both matter — the exact destinations and the
+wildcard trap are documented in `worker/README.md`. In short: `/admin` and
+`/api/*` require login, and a short list of public read endpoints is bypassed so
+the marketing pages work for logged-out visitors.
 
 ### Public routes (no login)
 `/` (Home), `/portfolio`, `/portfolio/:id`, `/about`, `/services`, `/contact`, `/referrals`, `/terms`, `/privacy`
 
 ### Auth routes
-`/login`, `/forgot-password`, `/reset-password`
+**None.** Access owns identity. `Login.jsx`, `Register.jsx`, `ForgotPassword.jsx`,
+`ResetPassword.jsx`, `OAuthConsent.jsx` and `AuthContext` were deleted — don't
+recreate them.
 
-> There is **no `/register` route** and no `Register.jsx`. Public registration was removed — auth is email/password only, admin-only. Do not re-add public registration without the owner's OK.
+### Protected routes (Access required — admin only)
+- `/admin/*` — admin back-office
 
-### Protected routes (login required — admin only)
-- `/admin/*` — admin back-office (admin role only)
-
-> There is no client portal and no "My Referrals" tracker. Clients never log in. Auth is admin-only.
+> There is no client portal and no "My Referrals" tracker. Clients never log in.
 
 ### Admin sub-routes (under `/admin`)
 `/admin` (dashboard), `requests`, `clients`, `estimates`, `invoices`, `tasks`, `portfolio`, `plans`, `expenses`, `referrals`, `testimonials`
 
 ---
 
-## 6. Data model (entities)
+## 6. Data model
 
-All entity schemas live in `base44/entities/`. Every record has built-in `id`, `created_date`, `updated_date`, `created_by_id` (do not redeclare these).
+Data lives in **D1**. `migration/schema.sql` is the schema of record (11 tables).
+The app-level contract for each entity — table name, writable fields, sortable
+columns, and whether it is public-read — is `worker/src/lib/entities.ts`.
 
-| Entity | Purpose | Who can read | Who can write |
+| Entity | Purpose | Read | Write |
 |---|---|---|---|
-| **Client** | Studio's client directory | Admin only | Admin only |
-| **ClientRequest** | Public contact-form submissions | Admin only | Anyone (create) |
-| **Estimate** | Price estimates (emailed to clients) | Admin + the matched client (by email) | Admin; client can accept/decline* |
-| **Invoice** | Invoices (emailed to clients) | Admin + matched client | Admin only |
-| **ProjectPlan** | Scope/timeline plans (emailed; signed by email reply) | Admin + matched client | Admin; client can sign* |
-| **PortfolioItem** | Portfolio projects shown on the public site | Public (everyone) | Admin only |
-| **Testimonial** | Client reviews shown on home page | Public | Admin only |
-| **ClientFile** | Files sent by clients via the contact form | Admin + matched client | Admin + matched client (create) |
-| **Referral** | Referral + payout tracking (email-based updates) | Admin + the referrer (by email) | Anyone (create); admin (update) |
-| **Expense** | Business expense tracking | Admin only | Admin only |
-| **Task** | Internal task tracking | Admin only | Admin only |
-| **User** | Built-in — app users (admins only in practice) | Built-in security (admins manage others) | — |
+| **Client** | Studio's client directory | Access | Access |
+| **ClientRequest** | Public contact-form submissions | Access | Anyone (via the contact route) |
+| **Estimate** | Price estimates (emailed to clients) | Access | Access |
+| **Invoice** | Invoices (emailed to clients) | Access | Access |
+| **ProjectPlan** | Scope/timeline plans (emailed; signed by email reply) | Access | Access |
+| **PortfolioItem** | Portfolio projects shown on the public site | **Public** (list/filter/get) | Access |
+| **Testimonial** | Client reviews shown on home page | **Public** (list/filter/get) | Access |
+| **ClientFile** | Files sent by clients via the contact form | Access | Access |
+| **Referral** | Referral + payout tracking (email-based updates) | Access | Anyone (create) |
+| **Expense** | Business expense tracking | Access | Access |
+| **Task** | Internal task tracking | Access | Access |
 
-> *Estimate/plan "client write" RLS rules remain on the entity for safety, but the online accept/sign UI has been removed. Acceptance and signing now happen by email reply, and the admin updates the status manually.
+> **No `User` table.** Access owns identity. **`PortalMessage` was dropped** with
+> two-way messaging and is not in the schema.
 
-> **PortalMessage was dropped** — two-way messaging was removed and the entity is no longer in the schema.
+Public read is **per operation, not per entity**: only `list`, `filter` and `get`
+on PortfolioItem and Testimonial are open. Every write goes through Access.
 
 ### Critical data conventions
-- **Emails are normalized to lowercase** everywhere (frontend + backend functions) for case-insensitive RLS matching. Always lowercase client/referrer emails on input.
-- RLS matches records to users by `data.client_email === "{{user.email}}"` (or `referrer_email`). If you add an email field, lowercase it or RLS breaks.
-- **Never store large content (base64, PDFs, blobs)** in entity fields — upload via `UploadPublicFile`/`UploadPrivateFile` and store the URL.
+- **Emails are normalized to lowercase** everywhere. Matching records to people by email is still how referrals and client lookups work.
+- **Never store large content (base64, PDFs, blobs)** in a column — upload via the file routes and store the URL.
+- **Arrays are JSON TEXT** in D1 with a `json_valid()` check; booleans are `INTEGER` 0/1; money is `REAL`. `worker/src/lib/db.ts` handles the encode/decode.
+- D1 rejects explicit `BEGIN TRANSACTION` / `COMMIT` — it manages its own batching.
 
 ---
 
-## 7. Backend functions (`base44/functions/*/entry.ts`)
+## 7. The API (`worker/src/routes/*`)
 
-Deno TypeScript handlers for anything that needs server-side logic or external APIs. Invoke from the frontend via `base44.functions.invoke('name', payload)`.
+TypeScript handlers, one module per former Base44 function. Called from the
+frontend as `base44.functions.invoke('name', payload)`, which is now just
+`POST /api/<name>`. Everything is POST except private file downloads.
 
-| Function | What it does |
+| Route | What it does |
 |---|---|
-| `sendContactConfirmation` | Contact form → confirmation email + internal notification (no portal invite) |
-| `sendEstimate` | Admin-only: emails the estimate (line items + PDF link) to the client; asks them to reply to accept/decline |
-| `sendInvoice` | Admin-only: emails the invoice (line items + PDF link) to the client; asks them to reply when paid |
-| `sendProjectPlan` | Admin-only: emails the project plan (full details) to the client; asks them to reply to sign |
-| `sendLeadQualification` | Admin-only: sends referral intro email to the referred person |
-| `sendReferrerConfirmation` | Sends referral confirmation email to the referrer (admin or referrer only) |
-| `sendReferralThankyou` | Sends thank-you email to referrer |
-| `sendReferralStatusUpdate` | Admin-only: sends referral status update email |
+| `sendContactConfirmation` | Contact form → confirmation email + internal notification. **Public.** Also writes the `client_request` row itself. |
+| `sendEstimate` | Emails the estimate (line items + PDF link); asks the client to reply to accept/decline |
+| `sendInvoice` | Emails the invoice (line items + PDF link); asks the client to reply when paid |
+| `sendProjectPlan` | Emails the project plan; asks the client to reply to sign |
+| `sendLeadQualification` | Sends referral intro email to the referred person |
+| `sendReferrerConfirmation` | Sends referral confirmation email to the referrer |
+| `sendReferralThankyou` | Sends thank-you email to the referrer |
+| `sendReferralStatusUpdate` | Sends a referral status update email |
 | `createTask` / `updateTask` / `deleteTask` | Task CRUD wrappers |
+| `entities/<Name>/<op>` | Generic entity CRUD, gated by the registry |
+| `files/upload`, `files/<key>` | Upload (public or private bucket) and private download |
+| `me` | Reports who Access says you are |
 
-> **Removed:** `handleEstimateAccept` (online acceptance), `sendPortalInvite` (portal invites), `postPortfolioToInstagram`, and `postPortfolioToLinkedin` (social auto-posting) — no longer needed.
+`sendContactConfirmation` is the **only** entry in `PUBLIC_ROUTES`. Everything
+else requires a valid Access JWT.
 
 ### Email-only delivery flow
-- The admin clicks **Send** on an estimate/invoice → the frontend generates the PDF client-side (`src/lib/invoicePdf.js`), uploads it via `UploadPublicFile`, and passes the `pdf_url` to the backend function, which emails the client a download link plus the full line-item breakdown.
+- The admin clicks **Send** on an estimate/invoice → the frontend generates the PDF client-side (`src/lib/invoicePdf.js`), uploads it, and passes the `pdf_url` to the route, which emails the client a download link plus the full line-item breakdown.
 - The client replies by email to accept/pay/sign → the admin manually updates the status in the dashboard.
 
 ### Security rules already enforced (preserve these)
-- All email-sending functions call `base44.auth.me()` to authenticate the caller.
-- Admin-only functions check `user.role === 'admin'`.
-- Referrer confirmation is restricted to admin **or** the referrer themselves.
+- Admin routes authenticate via the Access JWT (`authenticate()`); there is no role string to check, because Access only admits admins.
 - All user input in email templates is HTML-escaped to prevent injection/XSS.
 - Portfolio descriptions are sanitized via an allowlist (`src/lib/sanitizeHtml.js`).
 - URL fields are validated to `http`/`https` only.
+- The contact route validates email format, name and message length, and project type before sending, so it can't be used as an open relay.
 
 ### Secrets
-- `RESEND_API_KEY` — used by all email functions (set in dashboard → Secrets). Do not commit it.
+- `RESEND_API_KEY` — set with `cd worker && npx wrangler secret put RESEND_API_KEY`. Never commit it. Everything else in `wrangler.jsonc` is non-secret config.
 
 ---
 
-## 8. Automations (workflows)
+## 8. The `base44/` directory
 
-Workflows live in `base44/workflows/*.jsonc`. They trigger on entity events.
+Kept as the **source of record for the original behaviour** — entity schemas and
+the Deno function handlers the Worker routes were ported from. Nothing in it
+executes any more, and nothing imports it. It is a reference for "what did this
+used to do", useful when a ported route looks wrong.
 
-> **No active workflows.** The two social auto-publish workflows (Instagram, LinkedIn) were archived when the social connectors were removed. There are currently no trigger-driven automations in the app.
+Workflows are gone: the two social auto-publish workflows were archived when the
+connectors were removed. There are no trigger-driven automations.
 
 ---
 
-## 9. Auth & user management
+## 9. Auth
 
-- The platform owns auth (tokens, sessions, email verification, password reset). **Do not implement auth backend logic.**
-- Auth pages exist at `src/pages/Login.jsx`, `ForgotPassword.jsx`, `ResetPassword.jsx` — these three routes are registered in `App.jsx`. **There is no `Register.jsx` and no `/register` route.**
-- **Auth is admin-only in practice.** Public registration is disabled and there is no client portal. Only the studio owner logs in (to reach `/admin`).
-- Login is **email/password only** — social login providers (Google, Facebook, Apple) were removed.
-- Roles: `admin` (studio owner) and `user`. The `user` role is effectively unused now since clients don't have accounts.
-- User records can't be created/imported directly — users join via invite (`base44.users.inviteUser`). You generally won't need to invite anyone except additional admins.
-- The public nav no longer links to login/register or a client portal. The footer keeps a discreet "Admin" link so the owner can reach the dashboard.
+- **Cloudflare Access is the entire auth system.** No tokens to attach, no
+  refresh, no storage, no password handling, no user records.
+- `base44.auth.me()` still exists in `src/api/client.js`, but it just asks the
+  Worker who Access says you are (`POST /api/me`).
+- To grant someone admin: add their email to the Access policy in the Cloudflare
+  Zero Trust dashboard. That is the whole process.
+- If `me()` rejects, the client reloads once to re-trigger the Access login — the
+  retry is guarded by a `sessionStorage` flag so a failing API can't spin forever.
 
 ---
 
 ## 10. Integrations
 
-> **No OAuth connectors are authorized.** The Instagram Business, LinkedIn, and Facebook Pages connectors and their auto-publish workflows were removed — the studio no longer auto-posts portfolio items to social media. Portfolio items are published on the public site only.
+> **No OAuth connectors.** The Instagram Business, LinkedIn, and Facebook Pages
+> connectors and their auto-publish workflows were removed before the migration.
+> Portfolio items are published on the public site only.
 
-If social auto-posting is needed again, re-authorize the relevant connector(s) in the dashboard → Integrations, recreate the `postPortfolioTo*` backend function(s), and add an entity-create workflow. Load the connector's usage guide via `get_connectors_info(["<integration_type>"])` before writing connector-backed code.
+Resend is the only external service, used for all outbound email.
 
 ---
 
@@ -203,6 +252,7 @@ If social auto-posting is needed again, re-authorize the relevant connector(s) i
 - Fonts: `Playfair Display` (display/headings) + `Inter` (body).
 - Shared nav/footer: `src/components/PublicNav.jsx`, `src/components/PublicFooter.jsx`.
 - Theme toggle: `src/components/ThemeToggle.jsx` + `src/lib/ThemeContext.jsx`.
+- `public/_headers` sets the CSP. **If you add an external script, font, image or API host, update it** or the browser silently blocks the resource in production. The inline GA snippet is allowlisted by sha256 hash — changing that snippet means recomputing the hash.
 
 ---
 
@@ -214,27 +264,25 @@ If social auto-posting is needed again, re-authorize the relevant connector(s) i
 - Icons: `lucide-react` only, and only icons that exist.
 - Write Tailwind classes as **literal strings** (the build purges dynamic names).
 - New components/pages → new files, ~50 lines or less. Don't bloat existing files.
-- Let errors bubble up — no try/catch unless it's a user-facing form/auth flow (or a non-critical upload that shouldn't block the main action).
-- Edit `src/App.jsx` surgically — never rewrite it; preserve the auth scaffold and all existing routes.
-- Entity files (`base44/entities/*.jsonc`) are stored as objects — always write the **complete schema**, no placeholders.
+- Let errors bubble up — no try/catch unless it's a user-facing form (or a non-critical upload that shouldn't block the main action).
+- Edit `src/App.jsx` surgically — never rewrite it.
+- Adding a field to an entity means touching **three** places: the D1 column (migration), `fields` in `worker/src/lib/entities.ts`, and the form. Miss the registry and the value is silently dropped before it reaches SQL.
 
 ---
 
 ## 13. Common tasks
 
-**Add a portfolio item:** Admin → Portfolio → New. Fill title, category (`website` | `logo` | `marketing` | `app development`), cover image, description, images. It appears on the public portfolio only (no social auto-posting).
+**Add a portfolio item:** Admin → Portfolio → New. Fill title, category (`website` | `logo` | `marketing` | `app development`), cover image, description, images. Images upload to the **public** bucket via `UploadPublicFile` and are served from `assets.ddaltondesigns.com`. Do not switch these to `UploadFile` — that is the private bucket, and the images would 302 to an Access login for every visitor.
 
-**Estimate → Invoice flow (email-only):** Admin → Estimates → create estimate → click **Send** (emails PDF + details to client) → client replies by email to accept → admin clicks **Mark Accepted & Invoice** (creates invoice + client record) → admin sends the invoice (emails PDF) → client pays by email/external method and replies → admin records payment / marks paid. No online acceptance or payment.
+**Estimate → Invoice flow (email-only):** Admin → Estimates → create estimate → click **Send** (emails PDF + details to client) → client replies by email to accept → admin clicks **Mark Accepted & Invoice** (creates invoice + client record) → admin sends the invoice (emails PDF) → client pays externally and replies → admin records payment / marks paid. No online acceptance or payment.
 
-**Project plan flow (email-only):** Admin → Project Plans → create plan → click **Send** (emails the plan to the client) → client replies to sign → admin clicks **Mark Signed**. No online signing.
+**Project plan flow (email-only):** Admin → Project Plans → create plan → click **Send** → client replies to sign → admin clicks **Mark Signed**.
 
-**Add a client:** Either they submit the contact form (creates a ClientRequest) or admin adds them manually from Clients. Clients are not invited to any portal — there is none.
+**Add a client:** Either they submit the contact form (creates a ClientRequest) or admin adds them manually from Clients.
 
-**Client sends a file:** Via the contact form's attachment field. The file is uploaded and a `ClientFile` record is created; admin views it from Clients → file icon. (The contact form currently stores the attachment reference on the ClientRequest; a dedicated ClientFile upload can be added if needed.)
+**Add a new entity:** Add the table to D1, then register it in `worker/src/lib/entities.ts` with its `fields` and `sortable` allowlists. It is then addressable as `base44.entities.<Name>` from the frontend. An unregistered entity name is simply not addressable — that's by design.
 
-**Change the home page:** The `/` route in `App.jsx` points to `Home.jsx`. Edit there.
-
-**Add a new entity:** Create `base44/entities/<Name>.jsonc` with full schema + RLS. Use it via `base44.entities.<Name>` in the SDK.
+**Run a SQL query against production data:** `cd worker && npx wrangler d1 execute ddalton-designs --remote --command "..."`.
 
 ---
 
@@ -244,34 +292,36 @@ If social auto-posting is needed again, re-authorize the relevant connector(s) i
 |---|---|
 | Change a route | `src/App.jsx` |
 | Change colors/fonts | `src/index.css` + `tailwind.config.js` |
-| Change who can access data | `base44/entities/<Name>.jsonc` (RLS) |
-| Edit an email template | `base44/functions/send*/entry.ts` |
-| Fix estimate/invoice email + PDF | `base44/functions/sendEstimate` & `sendInvoice` + `src/lib/invoicePdf.js` + admin pages |
-| Fix project plan email | `base44/functions/sendProjectPlan/entry.ts` + `src/pages/admin/ProjectPlans.jsx` |
+| Change who can access data | Access policy (Cloudflare dashboard) + `worker/src/lib/entities.ts` |
+| Change the DB schema | `migration/schema.sql` + a `wrangler d1 execute` migration |
+| Edit an email template | `worker/src/routes/*.ts` (+ `worker/src/lib/template.ts` for the shared shell) |
+| Fix estimate/invoice email + PDF | `worker/src/routes/billing.ts` + `src/lib/invoicePdf.js` + admin pages |
 | Fix the admin dashboard | `src/pages/admin/*` + `src/components/admin/*` |
-| Fix PDF generation | `src/lib/invoicePdf.js` |
 | Sanitize rich text | `src/lib/sanitizeHtml.js` |
+| Understand the API or Access setup | `worker/README.md` |
+| See how data/assets were migrated | `migration/` |
 
 ---
 
 ## 15. Gotchas
 
-- **RLS is the security boundary.** A missing or loose rule exposes data to any logged-in user; a too-tight rule locks users out of their own records. Load the RLS guide before editing any `rls` block.
-- **Emails must be lowercase** or RLS email matching silently fails.
-- **There is no client portal and no public registration.** Don't re-add either without the owner's OK.
-- **Login is email/password only.** Social login providers were removed; don't re-add them.
-- **GitHub sync backs up code only**, not database records.
-- **Don't recreate auth pages** — they exist and are functional; edit in place only on request.
-- **PDF email flow** generates the PDF in the browser, uploads it to public storage, and emails a link — if the upload fails, the email still sends with the full details in the body (no PDF link).
+- **Access is the security boundary, and it only works because the apex is bound to the Worker.** An Access app on a hostname that Cloudflare merely proxies to a third-party origin looks configured but never runs. This cost a day during the migration — see `worker/README.md`.
+- **Public-read bypasses must name exact operations**, never `api/entities/PortfolioItem/*`. A wildcard also bypasses writes, and a bypassed request carries no JWT, so the admin's own saves come back 403.
+- **The entity registry is the write boundary.** A field missing from `fields` is dropped silently — no error, no value.
+- **Portfolio images must use `UploadPublicFile`.** `UploadFile` is the private bucket.
+- **`--config` on every wrangler command.** The root `wrangler.json` shadows the worker's.
+- **Emails should stay lowercase** or email-based record matching silently fails.
+- **Don't recreate auth pages or a client portal** — both were removed on purpose.
+- **CSP is only enforced in production** (`public/_headers`); `npm run preview` won't catch a violation. Check the console on the deployed site after changing external resources.
+- **PDF email flow** generates the PDF in the browser, uploads it, and emails a link — if the upload fails, the email still sends with the full details in the body.
 
 ---
 
 ## 16. Contacts & escalation
 
 - App owner: Derek Dalton (derek@ddaltondesigns.com)
-- Platform support: https://app.base44.com/support
-- Base44 docs: https://docs.base44.com
+- Hosting / DNS / DB / auth: Cloudflare dashboard, account `dwdalton80@gmail.com`
+- Email delivery: Resend (`resend.com`), domain `ddaltondesigns.com`
+- Domain registrar: GoDaddy (DNS is delegated to Cloudflare)
 
 ---
-
-*Last updated: 2026-09-18. Update this document whenever you make a structural change.*
