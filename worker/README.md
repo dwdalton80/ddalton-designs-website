@@ -102,70 +102,48 @@ authenticated routes, both of which need the secrets above.
   without this submissions would email through but never appear in the admin
   list.
 
+## Cloudflare Access: how it's wired, and the trap to avoid
 
-## Open issue: Access is not enforcing yet
+Access enforces on `/admin` and `/api/*`, and the Worker verifies the JWT it
+injects (`lib/access.ts`). Two applications exist, and both are load-bearing:
 
-As of 2026-09-18 the Access application exists and is configured correctly, but
-`https://ddaltondesigns.com/admin` still returns 200 from the Base44 origin
-(`x-render-origin-server: uvicorn`) with no redirect to the Access login.
+**"DDalton Designs Admin"** — Allow policy, destinations:
 
-**This has not exposed anything.** Verified directly: anonymous reads of the
-protected Base44 entities (Client, Invoice, Expense, Estimate) return 0 records,
-and only PortfolioItem and Testimonial — public by design — return data. The
-admin SPA shell loads for anyone, as it always did, but carries no data without
-a session. The security posture is exactly what it was before Access existed.
+- `ddaltondesigns.com/admin`
+- `ddaltondesigns.com/admin/*`
+- `ddaltondesigns.com/api/*`
 
-### Ruled out
+**"DDalton Designs Public API"** — Bypass policy (Everyone), destinations:
 
-- **Not a proxy problem.** `cf-ray` and `server: cloudflare` are on the
-  response, so traffic reaches the Cloudflare edge.
-- **Not a pending zone.** The zone showed "pending" when the application was
-  first created but is now Active, and the app was re-saved afterwards.
-- **Not path matching.** Destinations are both `ddaltondesigns.com/admin` and
-  `ddaltondesigns.com/admin/*`; both persist after save. `/admin`, `/admin/`
-  and `/admin/invoices` all return 200.
-- **Not a missing policy.** "Admin access" (Allow) is attached, listing two
-  email addresses.
-- **Not a stale browser session.** Plain `curl` with no cookies, and with a
-  browser user agent, both get 200.
-- **Not propagation alone.** Still unenforced ~30 minutes after creation and
-  ~5 minutes after re-saving.
+- `ddaltondesigns.com/api/entities/PortfolioItem/{list,filter,get}`
+- `ddaltondesigns.com/api/entities/Testimonial/{list,filter,get}`
+- `ddaltondesigns.com/api/sendContactConfirmation`
 
-- **Not a missing identity provider.** Integrations → Identity providers lists
-  "Cloudflare" (one-time PIN), which is the free-plan default. The app's empty
-  provider list just means "accept all available", which is correct.
-- **Not a stale application.** The app was first created while the zone was
-  pending, so it was deleted and recreated from scratch against the now-active
-  zone, reusing the same policy. Behaviour is unchanged.
-- **Access has never evaluated a request.** Access authentication logs show
-  Allowed 0 / Blocked 0 over 12 hours with no entries — the application exists
-  in configuration but is not being applied at the edge.
+The bypass list exists because the public marketing pages read those endpoints
+anonymously. Access runs at the edge *before* the Worker, so it can't know about
+`isPublicRead()` — without the bypasses, a logged-out visitor hitting the
+portfolio would be redirected to a login page.
 
-### Ruled out definitively: this is not a path-matching problem
+Scope the bypasses to the exact read operations, **not** to
+`api/entities/PortfolioItem/*`. A wildcard also bypasses `update`/`create`/
+`delete`, and a bypassed request arrives with no JWT header, so the Worker's own
+check then rejects the admin's own writes with 403.
 
-Added a third, temporary destination covering the entire hostname with no path
-restriction (`ddaltondesigns.com`, blank path — matches every path). Polled the
-site root for 90 seconds; still 200, still no Access involvement. Removed that
-destination immediately afterward, confirmed only `admin` and `admin/*` remain.
+### Why it appeared broken for a day
 
-This eliminates the last plausible configuration explanation. If Access were
-enforcing at all, protecting the whole hostname would have gated the homepage
-too. It didn't. The application is not being applied at the edge, full stop —
-not for a specific path, not for any path.
+Access was configured correctly long before it did anything, and the Access
+authentication logs sat at Allowed 0 / Blocked 0. Everything configurable was
+checked and ruled out — policy, IdP, path matching (including a temporary
+destination covering the whole hostname), zone status, cache, cookies — and it
+looked like a zone-level provisioning fault on Cloudflare's side.
 
-### Next step: Cloudflare support
+It wasn't. **The zone had no Cloudflare-native resource bound to it.** The apex
+was still a proxied `A` record pointing at the old Base44/Render origin, so
+requests passed through the edge to that origin and Access never entered the
+request path. Binding the Worker as a custom domain on the apex and `www` — the
+last step of the DNS cutover — made Access start enforcing immediately, with no
+change to any Access setting.
 
-Everything configurable has been checked and the behaviour is inconsistent with
-the configuration, so this is almost certainly something on Cloudflare's side —
-most likely the zone's Access feature never finished provisioning, despite the
-zone itself showing Active for DNS purposes. Worth quoting in the ticket: a
-self-hosted Access application with an Allow policy and a valid IdP, on a
-proxied, Active free-plan zone, does not intercept requests to *any* path on
-that hostname — confirmed by temporarily protecting the entire domain — and
-Access authentication logs show zero events (not zero-and-blocked, zero
-period) since the application was created.
-
-This must be resolved
-before cutover: deploying the Worker while Access is not enforcing leaves the
-admin UI unusable (the Worker's own JWT check returns 403 with no token) rather
-than insecure.
+Worth remembering: an Access application on a hostname that Cloudflare only
+proxies to a third-party origin can look configured-but-inert. Check what the
+hostname actually resolves to before suspecting the product.

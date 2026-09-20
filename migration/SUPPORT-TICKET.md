@@ -1,3 +1,9 @@
+> **RESOLVED — never needed to be filed.** Access was not inert because of a
+> Cloudflare fault. The apex was still a proxied `A` record pointing at the old
+> Base44/Render origin, so requests never entered the Access path. Binding the
+> Worker as a custom domain on the apex and `www` fixed it instantly. Kept as a
+> record of what was ruled out. See `worker/README.md`.
+
 Subject: Self-hosted Access application not enforcing on any path — zero entries in Access authentication logs
 
 Account: Dwdalton80@gmail.com's Account
