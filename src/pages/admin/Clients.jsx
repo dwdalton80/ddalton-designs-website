@@ -22,10 +22,11 @@ export default function Clients() {
 
   const save = async (e) => {
     e.preventDefault();
+    const payload = { ...form, name: form.name.trim(), email: form.email.trim().toLowerCase() };
     if (modal === 'add') {
-      await base44.entities.Client.create(form);
+      await base44.entities.Client.create(payload);
     } else {
-      await base44.entities.Client.update(modal.id, form);
+      await base44.entities.Client.update(modal.id, payload);
     }
     setModal(null);
     fetch();
@@ -64,7 +65,7 @@ export default function Clients() {
             <div key={c.id} className="bg-card rounded-2xl border border-border p-5">
               <div className="flex items-start justify-between mb-3">
                 <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center font-display font-bold text-accent flex-shrink-0">
-                  {c.name[0].toUpperCase()}
+                  {(c.name || '?').charAt(0).toUpperCase()}
                 </div>
                 <div className="flex gap-1">
                   <button onClick={() => setFilesClient(c)} className="p-1.5 rounded-lg hover:bg-secondary transition-colors text-muted-foreground" title="View files"><Paperclip size={14} /></button>
@@ -74,7 +75,7 @@ export default function Clients() {
               </div>
               <div className="font-semibold">{c.name}</div>
               {c.company && <div className="text-xs text-muted-foreground">{c.company}</div>}
-              <div className="text-xs text-muted-foreground mt-1">{c.email}</div>
+              <div className="text-xs text-muted-foreground mt-1 break-all">{c.email}</div>
               {c.phone && <div className="text-xs text-muted-foreground">{c.phone}</div>}
             </div>
           ))}
@@ -86,8 +87,8 @@ export default function Clients() {
 
       {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 w-full max-w-md">
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 w-full max-w-md my-auto">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display font-bold text-xl">{modal === 'add' ? 'Add Client' : 'Edit Client'}</h2>
               <button onClick={() => setModal(null)}><X size={18} /></button>

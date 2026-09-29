@@ -122,17 +122,17 @@ export default function ProjectPlans() {
         <div className="space-y-4">
           {plans.map(plan => (
             <div key={plan.id} className="bg-card border border-border rounded-2xl p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center">
                     <FileSignature size={17} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <div className="font-display font-bold text-lg">{plan.title}</div>
-                    <div className="text-sm text-muted-foreground">{plan.client_email}</div>
+                    <div className="text-sm text-muted-foreground break-all">{plan.client_email}</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap shrink-0">
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[plan.status] || statusColors.draft}`}>
                     {plan.status === 'signed' && plan.client_signature ? `Signed by ${plan.client_signature}` : plan.status}
                   </span>
