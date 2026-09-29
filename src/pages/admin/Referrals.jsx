@@ -119,7 +119,7 @@ export default function AdminReferrals() {
       </div>
 
       {/* Stats */}
-      <div className="grid md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         {[
           { label: 'Total Referrals', value: stats.total },
           { label: 'Pending', value: stats.pending },

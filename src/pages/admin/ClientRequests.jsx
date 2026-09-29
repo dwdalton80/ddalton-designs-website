@@ -41,7 +41,7 @@ export default function ClientRequests() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display font-black text-3xl">Client Requests</h1>
           <p className="text-muted-foreground mt-1">{requests.filter(r => r.status === 'new').length} new requests</p>
@@ -57,7 +57,7 @@ export default function ClientRequests() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-3">
           {loading ? (
             [...Array(5)].map((_, i) => <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />)

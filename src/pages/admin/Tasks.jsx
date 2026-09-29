@@ -58,7 +58,7 @@ export default function Tasks() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="font-display font-black text-3xl">Productivity</h1>
         </div>
@@ -67,7 +67,7 @@ export default function Tasks() {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="bg-card rounded-2xl border border-border p-5">
           <Zap size={18} className="text-accent mb-2" />
           <div className="font-display font-black text-2xl">{tasks.filter(t => t.status === 'in_progress').length}</div>
@@ -131,7 +131,7 @@ export default function Tasks() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-lg">
+          <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 w-full max-w-lg">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display font-bold text-xl">New Task</h2>
               <button onClick={() => setShowForm(false)}><X size={18} /></button>
@@ -142,7 +142,7 @@ export default function Tasks() {
                 <input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}
                   className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" placeholder="What needs to be done?" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Project</label>
                   <input value={form.project_name} onChange={e => setForm({ ...form, project_name: e.target.value })}
@@ -154,7 +154,7 @@ export default function Tasks() {
                     className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Status</label>
                   <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
@@ -170,7 +170,7 @@ export default function Tasks() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Est. Hours</label>
                   <input type="number" step="0.5" value={form.estimated_hours} onChange={e => setForm({ ...form, estimated_hours: e.target.value })}

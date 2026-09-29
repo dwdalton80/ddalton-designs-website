@@ -35,7 +35,7 @@ export default function Home() {
       {/* Hero */}
       <section className="min-h-screen flex flex-col justify-center pt-20 pb-16 px-6">
         <div className="max-w-7xl mx-auto w-full">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -131,7 +131,7 @@ export default function Home() {
               All Services <ArrowUpRight size={16} />
             </Link>
           </motion.div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map(({ icon: Icon, title, desc }, i) => (
               <motion.div
                 key={title}
@@ -172,7 +172,7 @@ export default function Home() {
                 View All <ArrowUpRight size={16} />
               </Link>
             </motion.div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featured.map((item, i) => (
                 <motion.div
                   key={item.id}

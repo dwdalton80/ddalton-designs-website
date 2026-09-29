@@ -69,7 +69,7 @@ export default function AdminTestimonials() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display font-black text-3xl">Testimonials</h1>
           <p className="text-muted-foreground text-sm mt-1">Manage client success stories displayed on the homepage.</p>
@@ -144,7 +144,7 @@ export default function AdminTestimonials() {
             <DialogTitle>{editing ? 'Edit Testimonial' : 'Add Testimonial'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-2">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Client Name *</Label>
                 <Input value={form.client_name} onChange={e => set('client_name', e.target.value)} placeholder="Jane Smith" />
@@ -154,7 +154,7 @@ export default function AdminTestimonials() {
                 <Input value={form.client_title} onChange={e => set('client_title', e.target.value)} placeholder="CEO" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Company</Label>
                 <Input value={form.client_company} onChange={e => set('client_company', e.target.value)} placeholder="Acme Inc." />
@@ -168,7 +168,7 @@ export default function AdminTestimonials() {
               <Label>Quote *</Label>
               <Textarea value={form.quote} onChange={e => set('quote', e.target.value)} placeholder="What did this client say about working with you?" rows={4} className="resize-none" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Rating (1–5)</Label>
                 <Input type="number" min={1} max={5} value={form.rating} onChange={e => set('rating', Number(e.target.value))} />

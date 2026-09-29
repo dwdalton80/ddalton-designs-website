@@ -96,7 +96,7 @@ export default function ProjectPlans() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="font-display font-black text-3xl">Project Plans</h1>
           <p className="text-muted-foreground mt-1 text-sm">Create plans, email them to clients, and mark signed when they confirm by email.</p>
@@ -181,14 +181,14 @@ export default function ProjectPlans() {
       {/* New Plan Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 py-10 overflow-y-auto">
-          <div className="bg-card rounded-2xl border border-border p-8 max-w-2xl w-full shadow-xl my-auto">
+          <div className="bg-card rounded-2xl border border-border p-5 sm:p-8 max-w-2xl w-full shadow-xl my-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display font-bold text-2xl">New Project Plan</h2>
               <button onClick={() => setShowForm(false)} className="p-1 rounded-lg hover:bg-secondary"><X size={18} /></button>
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">Plan Title *</label>
                   <input
@@ -263,7 +263,7 @@ export default function ProjectPlans() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">Timeline</label>
                   <input

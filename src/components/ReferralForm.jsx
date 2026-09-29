@@ -67,7 +67,7 @@ export default function ReferralForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">Your Name *</label>
           <input
@@ -94,7 +94,7 @@ export default function ReferralForm() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">Client Name *</label>
           <input

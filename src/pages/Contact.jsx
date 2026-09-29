@@ -102,7 +102,7 @@ export default function Contact() {
       <PublicNav />
       <section className="pt-32 pb-24 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
             {/* Left info */}
             <div>
               <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Let's Connect</div>

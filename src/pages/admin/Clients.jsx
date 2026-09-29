@@ -39,7 +39,7 @@ export default function Clients() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display font-black text-3xl">Clients</h1>
           <p className="text-muted-foreground mt-1">{clients.length} total clients</p>
@@ -50,7 +50,7 @@ export default function Clients() {
       </div>
 
       {loading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => <div key={i} className="h-28 rounded-2xl bg-muted animate-pulse" />)}
         </div>
       ) : clients.length === 0 ? (
@@ -59,7 +59,7 @@ export default function Clients() {
           <p>No clients yet. Add your first client or convert a request.</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {clients.map(c => (
             <div key={c.id} className="bg-card rounded-2xl border border-border p-5">
               <div className="flex items-start justify-between mb-3">
@@ -87,7 +87,7 @@ export default function Clients() {
       {/* Modal */}
       {modal && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-md">
+          <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display font-bold text-xl">{modal === 'add' ? 'Add Client' : 'Edit Client'}</h2>
               <button onClick={() => setModal(null)}><X size={18} /></button>
