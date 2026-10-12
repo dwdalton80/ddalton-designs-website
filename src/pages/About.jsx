@@ -16,7 +16,7 @@ export default function About() {
       <PublicNav />
       <section className="pt-32 pb-16 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-16 items-center mb-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center mb-24">
             <div>
               <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">About Me</div>
               <h1 className="font-display font-black text-6xl md:text-7xl mb-6">Derek Dalton</h1>
@@ -69,7 +69,7 @@ export default function About() {
           {/* Skills */}
           <div className="bg-[#111] text-white rounded-2xl p-10 md:p-16">
             <h2 className="font-display font-black text-4xl mb-10">Skills & Expertise</h2>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
               { title: 'Web Design & Development', items: ['UI/UX Design', 'Responsive Layouts', 'WordPress', 'Custom Web Apps', 'Landing Pages'] },
               { title: 'Brand & Graphic Design', items: ['Logo Design', 'Brand Identity', 'Typography', 'Color Theory', 'Print Design'] },

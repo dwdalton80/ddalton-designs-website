@@ -34,7 +34,7 @@ export default function RecordPaymentModal({ invoice, onClose, onRecorded }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-md">
+      <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 w-full max-w-md">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-bold text-xl">Record Payment</h2>
           <button onClick={onClose}><X size={18} /></button>

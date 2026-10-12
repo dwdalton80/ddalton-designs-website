@@ -46,7 +46,7 @@ export default function Services() {
             <p className="text-lg text-muted-foreground max-w-xl">Bold design solutions for businesses ready to make a statement. Every project is custom — no templates, no shortcuts.</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {services.map(({ icon: Icon, title, desc, features, price }) => (
               <div key={title} className="border border-border rounded-2xl p-8 hover:border-accent transition-all duration-300 group">
                 <div className="flex items-start justify-between mb-6">

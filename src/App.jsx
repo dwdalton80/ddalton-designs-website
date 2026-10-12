@@ -1,8 +1,8 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { ThemeProvider } from '@/lib/ThemeContext';
 
@@ -44,8 +44,28 @@ const PageLoader = () => (
   </div>
 );
 
+/**
+ * The Meta Pixel's snippet fires one PageView at load. This is a SPA, so every
+ * click after that is a history push the pixel never hears about — without
+ * this, only the first page of a visit is ever counted. The init in
+ * index.html already covers that first view, so the first run here is skipped
+ * rather than double-counted.
+ */
+function PixelPageViews() {
+  const { pathname, search } = useLocation();
+  const first = useRef(true);
+
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    if (typeof window.fbq === 'function') window.fbq('track', 'PageView');
+  }, [pathname, search]);
+
+  return null;
+}
+
 const AppRoutes = () => (
   <Suspense fallback={<PageLoader />}>
+    <PixelPageViews />
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Home />} />

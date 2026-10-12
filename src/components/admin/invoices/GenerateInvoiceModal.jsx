@@ -79,7 +79,7 @@ export default function GenerateInvoiceModal({ onClose, onCreated }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-lg">
+      <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 w-full max-w-lg">
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-display font-bold text-xl">Generate Invoice from Estimate</h2>
           <button onClick={onClose}><X size={18} /></button>
@@ -123,7 +123,7 @@ export default function GenerateInvoiceModal({ onClose, onCreated }) {
         </div>
 
         {/* Payment Terms */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Payment Terms</label>
             <select value={paymentTerms} onChange={e => handleTermsChange(e.target.value)}

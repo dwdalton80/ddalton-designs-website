@@ -82,7 +82,7 @@ export default function Expenses() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="font-display font-black text-3xl">Expenses</h1>
           <p className="text-muted-foreground mt-1">{expenses.length} records</p>
@@ -167,13 +167,13 @@ export default function Expenses() {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center p-4 overflow-y-auto">
-          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-lg my-8">
+          <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 w-full max-w-lg my-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display font-bold text-xl">{editing ? 'Edit' : 'Add'} Expense</h2>
               <button onClick={() => setShowForm(false)}><X size={18} /></button>
             </div>
             <form onSubmit={save} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Date *</label>
                   <input required type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
@@ -190,7 +190,7 @@ export default function Expenses() {
                 <input required value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
                   className="w-full px-3 py-2.5 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Category</label>
                   <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}

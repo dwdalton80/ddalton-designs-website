@@ -70,7 +70,12 @@ export async function uploadFile(req: Request, env: Env): Promise<Response> {
 
   // Public objects are addressable on the asset domain; private ones only
   // through this Worker, so the caller never gets a directly-fetchable URL.
-  const url = isPrivate ? `/api/files/${key}` : `${env.ASSETS_BASE_URL}/${key}`;
+  // Absolute either way: a private URL ends up in notification emails, and a
+  // relative path there is dead — safeUrl() rejects it and the link vanishes
+  // from the message with no sign anything was attached.
+  const url = isPrivate
+    ? new URL(`/api/files/${key}`, req.url).toString()
+    : `${env.ASSETS_BASE_URL}/${key}`;
 
   return json({ file_url: url, file_name: file.name, file_size: file.size, key });
 }

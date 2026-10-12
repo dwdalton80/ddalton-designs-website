@@ -193,7 +193,7 @@ export default function Estimates() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display font-black text-3xl">Estimates</h1>
           <p className="text-muted-foreground mt-1">{estimates.filter(e => e.status === 'draft').length} drafts</p>
@@ -203,7 +203,7 @@ export default function Estimates() {
         </button>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-3">
           {loading ? [...Array(4)].map((_, i) => <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />) :
             estimates.length === 0 ? <div className="text-center py-20 text-muted-foreground"><FileText size={32} className="mx-auto mb-3 opacity-30" /><p>No estimates yet</p></div> :
@@ -289,7 +289,7 @@ export default function Estimates() {
       {/* New Estimate Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center p-4 overflow-y-auto">
-          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-2xl my-8">
+          <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 w-full max-w-2xl my-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display font-bold text-xl">{editingEstimate ? 'Edit Estimate' : 'New Estimate'}</h2>
               <button onClick={() => { setShowForm(false); setSelectValue(''); setEditingEstimate(null); }}><X size={18} /></button>
@@ -353,12 +353,12 @@ export default function Estimates() {
                   {form.line_items.map((item, idx) => (
                     <div key={idx} className="grid grid-cols-12 gap-2 items-center">
                       <input placeholder="Description" value={item.description} onChange={e => updateItem(idx, 'description', e.target.value)}
-                        className="col-span-5 px-3 py-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
+                        className="col-span-12 sm:col-span-5 px-3 py-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
                       <input type="number" placeholder="Qty" value={item.quantity} onChange={e => updateItem(idx, 'quantity', parseFloat(e.target.value))}
-                        className="col-span-2 px-3 py-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
+                        className="col-span-4 sm:col-span-2 px-3 py-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
                       <input type="number" placeholder="Rate" value={item.rate} onChange={e => updateItem(idx, 'rate', parseFloat(e.target.value))}
-                        className="col-span-2 px-3 py-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
-                      <div className="col-span-2 text-sm font-medium text-right">${item.total || 0}</div>
+                        className="col-span-4 sm:col-span-2 px-3 py-2 rounded-xl border border-border bg-background focus:outline-none focus:border-accent text-sm" />
+                      <div className="col-span-3 sm:col-span-2 text-sm font-medium text-right">${item.total || 0}</div>
                       <button type="button" onClick={() => setForm({ ...form, line_items: form.line_items.filter((_, i) => i !== idx) })}
                         className="col-span-1 text-muted-foreground hover:text-destructive"><Trash2 size={14} /></button>
                     </div>
@@ -366,7 +366,7 @@ export default function Estimates() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Tax Rate %</label>
                   <input type="number" value={form.tax_rate} onChange={e => setForm({ ...form, tax_rate: parseFloat(e.target.value) || 0 })}

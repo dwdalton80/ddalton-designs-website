@@ -77,7 +77,7 @@ export default function PortfolioManager() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display font-black text-3xl">Portfolio Manager</h1>
           <p className="text-muted-foreground mt-1">{items.length} items</p>
@@ -88,7 +88,7 @@ export default function PortfolioManager() {
       </div>
 
       {loading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => <div key={i} className="aspect-[4/3] rounded-2xl bg-muted animate-pulse" />)}
         </div>
       ) : items.length === 0 ? (
@@ -97,7 +97,7 @@ export default function PortfolioManager() {
           <p>No portfolio items yet. Add your first project!</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map(item => (
             <div key={item.id} className="bg-card rounded-2xl border border-border overflow-hidden group">
               <div className="aspect-[4/3] bg-secondary relative">
@@ -132,13 +132,13 @@ export default function PortfolioManager() {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center p-4 overflow-y-auto">
-          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-2xl my-8">
+          <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 w-full max-w-2xl my-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display font-bold text-xl">{editing ? 'Edit' : 'Add'} Portfolio Item</h2>
               <button onClick={() => setShowForm(false)}><X size={18} /></button>
             </div>
             <form onSubmit={save} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Title *</label>
                   <input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}
@@ -152,7 +152,7 @@ export default function PortfolioManager() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1.5">Client Name</label>
                   <input value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })}

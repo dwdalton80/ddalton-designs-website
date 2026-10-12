@@ -101,7 +101,7 @@ export default function AdminLayout() {
           </button>
           <img src="https://assets.ddaltondesigns.com/site/0fe3541a3_Untitleddesign.png" alt="DDalton Designs" className="h-7 w-auto" />
         </header>
-        <main className="flex-1 p-6 md:p-8 overflow-auto">
+        <main className="flex-1 p-4 md:p-8 overflow-auto">
           <Outlet />
         </main>
       </div>

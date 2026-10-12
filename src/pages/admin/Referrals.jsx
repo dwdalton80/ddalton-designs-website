@@ -16,6 +16,29 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+/** Per-row actions, shared by the phone cards and the desktop table. */
+function RowMenu({ referral, onDelete }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="p-2 hover:bg-secondary rounded-lg transition-colors">
+          <MoreVertical size={16} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem asChild>
+          <a href={`mailto:${referral.referrer_email}`} className="flex items-center gap-2">
+            <Mail size={14} /> Email Referrer
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onDelete} className="text-red-600">
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export default function AdminReferrals() {
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -99,8 +122,10 @@ export default function AdminReferrals() {
     total: referrals.length,
     pending: referrals.filter(r => r.status === 'pending').length,
     converted: referrals.filter(r => r.status === 'converted').length,
-    unpaid: referrals.filter(r => r.payout_status === 'unpaid').length,
-    totalPayable: referrals.filter(r => r.status === 'converted').length * 100
+    unpaid: referrals.filter(r => (r.payout_status || 'unpaid') === 'unpaid').length,
+    totalPayable: referrals.filter(
+      r => r.status === 'converted' && (r.payout_status || 'unpaid') !== 'paid'
+    ).length * 100
   };
 
   if (loading) {
@@ -119,13 +144,13 @@ export default function AdminReferrals() {
       </div>
 
       {/* Stats */}
-      <div className="grid md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         {[
           { label: 'Total Referrals', value: stats.total },
           { label: 'Pending', value: stats.pending },
           { label: 'Converted', value: stats.converted },
           { label: 'Unpaid', value: stats.unpaid },
-          { label: 'Total Payable', value: `$${stats.totalPayable}` }
+          { label: 'Max Payable', value: `$${stats.totalPayable}` }
         ].map((stat, i) => (
           <div key={i} className="bg-card border border-border rounded-xl p-4">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{stat.label}</div>
@@ -135,7 +160,7 @@ export default function AdminReferrals() {
       </div>
 
       {/* Filter */}
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 flex gap-2 flex-wrap">
         {['all', 'pending', 'contacted', 'converted', 'rejected'].map(status => (
           <button
             key={status}
@@ -158,7 +183,49 @@ export default function AdminReferrals() {
             No referrals found
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Six columns need a horizontal scroll on a phone, which buries the
+              status and payout controls. Below md each referral is a card. */}
+          <div className="md:hidden divide-y divide-border">
+            {filteredReferrals.map(referral => (
+              <div key={referral.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{referral.referred_client_name}</div>
+                    <div className="text-xs text-muted-foreground break-all">{referral.referred_client_email}</div>
+                  </div>
+                  <div className="shrink-0">
+                    <RowMenu referral={referral} onDelete={() => setDeleteId(referral.id)} />
+                  </div>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Referred by <span className="text-foreground font-medium">{referral.referrer_name}</span>
+                  {' · '}{new Date(referral.referral_date).toLocaleDateString()}
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <select
+                    value={referral.status}
+                    onChange={(e) => handleStatusChange(referral.id, e.target.value)}
+                    className={`px-3 py-1 rounded-lg text-sm font-medium border-0 ${statusColors[referral.status]}`}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="converted">Converted</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                  <select
+                    value={referral.payout_status || 'unpaid'}
+                    onChange={(e) => handlePayoutChange(referral.id, e.target.value)}
+                    className={`px-3 py-1 rounded-lg text-sm font-medium border-0 ${payoutColors[referral.payout_status || 'unpaid']}`}
+                  >
+                    <option value="unpaid">Unpaid</option>
+                    <option value="paid">Paid</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead className="border-b border-border bg-secondary/50">
                 <tr className="text-sm font-semibold">
@@ -207,29 +274,14 @@ export default function AdminReferrals() {
                       {new Date(referral.referral_date).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="p-2 hover:bg-secondary rounded-lg transition-colors">
-                            <MoreVertical size={16} />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <a href={`mailto:${referral.referrer_email}`} className="flex items-center gap-2">
-                              <Mail size={14} /> Email Referrer
-                            </a>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeleteId(referral.id)} className="text-red-600">
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <RowMenu referral={referral} onDelete={() => setDeleteId(referral.id)} />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 
