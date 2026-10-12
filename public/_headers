@@ -4,7 +4,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://www.googletagmanager.com https://connect.facebook.net https://challenges.cloudflare.com 'sha256-VPntFmRQNDUc/gOxMsiUU/LLtgvBJXUMuBOs3bgSQvE=' 'sha256-kFRpvyLSrNDfTmrnKASxc6bMHj9ieo2wGI3eOuHZGNo='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://assets.ddaltondesigns.com https://www.googletagmanager.com https://www.google-analytics.com https://www.facebook.com; connect-src 'self' https://assets.ddaltondesigns.com https://www.google-analytics.com https://region1.google-analytics.com https://www.facebook.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://www.googletagmanager.com https://connect.facebook.net https://static.cloudflareinsights.com https://challenges.cloudflare.com 'sha256-VPntFmRQNDUc/gOxMsiUU/LLtgvBJXUMuBOs3bgSQvE=' 'sha256-kFRpvyLSrNDfTmrnKASxc6bMHj9ieo2wGI3eOuHZGNo='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://assets.ddaltondesigns.com https://www.googletagmanager.com https://www.google-analytics.com https://www.facebook.com; connect-src 'self' https://assets.ddaltondesigns.com https://www.google-analytics.com https://region1.google-analytics.com https://www.facebook.com https://cloudflareinsights.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
 
 # Notes on the CSP above:
 #  - googletagmanager + google-analytics: the site runs GA4 (G-QYG47D09V7),
@@ -16,5 +16,10 @@
 #    connect.facebook.net serves fbevents.js, www.facebook.com receives the
 #    /tr beacon and the <noscript> fallback pixel. The second sha256 covers
 #    the inline fbq init block — same rule as the gtag one above.
+#  - static.cloudflareinsights.com + cloudflareinsights.com: Cloudflare
+#    auto-injects its Web Analytics beacon into every HTML response. It is
+#    not in the repo, so it is easy to forget here — and without these two
+#    the browser blocks it and the dashboard quietly reports nothing. The
+#    script loads from static., the RUM beacon POSTs to the apex.
 #  - challenges.cloudflare.com: Turnstile on the contact form.
 #  - assets.ddaltondesigns.com: the R2 bucket serving portfolio and site images.
