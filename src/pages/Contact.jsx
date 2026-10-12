@@ -1,11 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { CheckCircle, Mail, Phone, Paperclip, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
+import Turnstile, { turnstileEnabled } from '@/components/Turnstile';
 
 const PROJECT_TYPES = [
   { value: 'website', label: 'Website Design' },
@@ -32,6 +33,8 @@ export default function Contact() {
   const [attachedFile, setAttachedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const handleToken = useCallback((t) => setTurnstileToken(t), []);
   const fileInputRef = useRef(null);
   const submitTimeRef = useRef(Date.now());
 
@@ -74,6 +77,11 @@ export default function Contact() {
 
     const { _honeypot, ...payload } = data;
     setError('');
+
+    if (turnstileEnabled && !turnstileToken) {
+      setError('Please complete the verification check below, then send again.');
+      return;
+    }
     try {
       // One call. ClientRequest.create used to run first, but entity writes sit
       // behind Access: for a visitor it redirected to the login page, the await
@@ -89,12 +97,17 @@ export default function Contact() {
         file_name: attachedFile?.name,
         file_url: attachedFile?.url,
         file_size: attachedFile?.size,
+        turnstileToken,
       });
       setSubmittedName(data.name);
       setSubmitted(true);
     } catch (err) {
       console.error('Contact form submission failed:', err);
       setError("Something went wrong sending that. Please try again, or email derek@ddaltondesigns.com directly.");
+      // The token is spent whether or not the request succeeded, so a retry
+      // needs a fresh one.
+      setTurnstileToken('');
+      if (window.turnstile) window.turnstile.reset();
     }
   };
 
@@ -261,6 +274,8 @@ export default function Contact() {
                   {error}
                 </p>
               )}
+
+              <Turnstile onToken={handleToken} />
 
               <button
                 type="submit"
