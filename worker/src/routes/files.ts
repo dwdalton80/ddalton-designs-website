@@ -95,3 +95,46 @@ export async function getPrivateFile(key: string, env: Env): Promise<Response> {
 
   return new Response(obj.body, { headers });
 }
+
+/** Extensions a stranger may upload through the contact form. */
+const CONTACT_EXTS = new Set(['png', 'jpg', 'jpeg', 'webp', 'gif', 'pdf', 'heic', 'eps']);
+const CONTACT_MAX_BYTES = 10 * 1024 * 1024;
+
+/**
+ * POST /api/files/contact-upload  (multipart/form-data, field: file)
+ *
+ * The public half of uploadFile, for attachments on the contact form. The
+ * form's Turnstile check cannot cover this — the file is chosen before the
+ * form is submitted — so the limits here are the only thing standing between
+ * an anonymous caller and the bucket: a short allowlist of document and image
+ * types, 10MB instead of 25, and no caller control over the destination. It
+ * always writes to the private bucket under client-files/, so nothing landing
+ * here is publicly readable; retrieving it still goes through Access.
+ */
+export async function uploadContactFile(req: Request, env: Env): Promise<Response> {
+  const form = await req.formData().catch(() => null);
+  if (!form) return badRequest('Expected multipart/form-data');
+
+  const file = form.get('file');
+  if (!(file instanceof File)) return badRequest('file is required');
+  if (file.size === 0) return badRequest('file is empty');
+  if (file.size > CONTACT_MAX_BYTES) return badRequest('File must be 10MB or smaller');
+
+  const name = safeName(file.name || 'file');
+  const ext = name.includes('.') ? name.split('.').pop()!.toLowerCase() : '';
+  if (!CONTACT_EXTS.has(ext)) {
+    return badRequest('That file type is not accepted. Try a PDF or an image.');
+  }
+
+  const key = `client-files/${randomPrefix()}_${name}`;
+  await env.PRIVATE_FILES.put(key, file.stream(), {
+    httpMetadata: { contentType: EXT_TYPES[ext] ?? 'application/octet-stream' },
+  });
+
+  return json({
+    file_url: new URL(`/api/files/${key}`, req.url).toString(),
+    file_name: file.name,
+    file_size: file.size,
+    key,
+  });
+}

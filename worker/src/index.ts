@@ -20,7 +20,7 @@ import { sendProjectPlan } from './routes/plans';
 import { sendContactConfirmation } from './routes/contact';
 import { handleEntity } from './routes/entities';
 import { getSpec, isPublicRead } from './lib/entities';
-import { uploadFile, getPrivateFile } from './routes/files';
+import { uploadFile, uploadContactFile, getPrivateFile } from './routes/files';
 import {
   submitReferral,
   sendLeadQualification,
@@ -69,6 +69,19 @@ export default {
     }
 
     if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+    // --- contact-form attachment: POST /api/files/contact-upload ------------
+    // Public by necessity: the visitor picks the file before submitting, so
+    // there is no Turnstile token to check yet. uploadContactFile carries its
+    // own limits — see the note there.
+    if (path === 'files/contact-upload') {
+      try {
+        return await uploadContactFile(request, env);
+      } catch (err) {
+        console.error('files/contact-upload failed:', err);
+        return json({ error: 'Upload failed' }, 500);
+      }
+    }
 
     // --- file upload: POST /api/files/upload --------------------------------
     if (path === 'files/upload') {

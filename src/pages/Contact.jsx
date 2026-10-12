@@ -31,6 +31,7 @@ export default function Contact() {
   const [submittedName, setSubmittedName] = useState('');
   const [attachedFile, setAttachedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
   const fileInputRef = useRef(null);
   const submitTimeRef = useRef(Date.now());
 
@@ -38,9 +39,19 @@ export default function Contact() {
     const file = e.target.files[0];
     if (!file) return;
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setAttachedFile({ name: file.name, url: file_url });
-    setUploading(false);
+    setError('');
+    try {
+      // Public endpoint — the admin upload route is behind Access and 302s a
+      // visitor to the login page. See uploadContactFile in the worker.
+      const { file_url, file_size } = await base44.uploadContactFile(file);
+      setAttachedFile({ name: file.name, url: file_url, size: file_size });
+    } catch (err) {
+      console.error('Attachment upload failed:', err);
+      setError(err?.message || "That file couldn't be uploaded. Try a PDF or image under 10MB.");
+      e.target.value = '';
+    } finally {
+      setUploading(false);
+    }
   };
 
   const {
@@ -62,18 +73,29 @@ export default function Contact() {
     if (Date.now() - submitTimeRef.current < 3000) return;
 
     const { _honeypot, ...payload } = data;
-    await base44.entities.ClientRequest.create({ ...payload, description: attachedFile ? `Attachment: ${attachedFile.url}` : payload.description });
-    await base44.functions.invoke('sendContactConfirmation', {
-      name: data.name,
-      email: data.email,
-      project_type: data.project_type,
-      budget: data.budget,
-      message: data.message,
-      file_name: attachedFile?.name,
-      file_url: attachedFile?.url,
-    });
-    setSubmittedName(data.name);
-    setSubmitted(true);
+    setError('');
+    try {
+      // One call. ClientRequest.create used to run first, but entity writes sit
+      // behind Access: for a visitor it redirected to the login page, the await
+      // threw, and the submission died before the email was ever sent. The
+      // worker writes that row itself.
+      await base44.functions.invoke('sendContactConfirmation', {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        project_type: data.project_type,
+        budget: data.budget,
+        message: data.message,
+        file_name: attachedFile?.name,
+        file_url: attachedFile?.url,
+        file_size: attachedFile?.size,
+      });
+      setSubmittedName(data.name);
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Contact form submission failed:', err);
+      setError("Something went wrong sending that. Please try again, or email derek@ddaltondesigns.com directly.");
+    }
   };
 
   const inputClass = (field) =>
@@ -216,7 +238,7 @@ export default function Contact() {
                 {attachedFile ? (
                   <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-background text-sm">
                     <Paperclip size={14} className="text-accent flex-shrink-0" />
-                    <span className="flex-1 truncate">{attachedFile.name}</span>
+                    <span className="flex-1 min-w-0 truncate">{attachedFile.name}</span>
                     <button type="button" onClick={() => setAttachedFile(null)} className="text-muted-foreground hover:text-foreground">
                       <X size={14} />
                     </button>
@@ -231,7 +253,14 @@ export default function Contact() {
                     {uploading ? 'Uploading...' : '+ Attach a file (mockup, logo, reference, etc.)'}
                   </button>
                 )}
+                <p className="text-xs text-muted-foreground mt-1.5">PDF or image, up to 10MB.</p>
               </div>
+
+              {error && (
+                <p className="text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
+                  {error}
+                </p>
+              )}
 
               <button
                 type="submit"

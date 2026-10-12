@@ -135,5 +135,19 @@ export async function sendContactConfirmation(req: Request, env: Env): Promise<R
     status: 'new',
   });
 
+  // The attachment was only ever a link in the email. Recording it as a
+  // ClientFile is what makes it show up under the client in the admin panel —
+  // the files panel matches on client_email, hence the same lowercasing.
+  if (file_name && sFileUrl) {
+    await db.create(env.DB, 'client_file', {
+      client_email: emailStr.toLowerCase(),
+      client_name: String(name).trim(),
+      file_url: String(file_url),
+      file_name: String(file_name),
+      file_size: typeof payload.file_size === 'number' ? payload.file_size : null,
+      notes: 'Attached to contact form submission',
+    });
+  }
+
   return json({ success: true });
 }
