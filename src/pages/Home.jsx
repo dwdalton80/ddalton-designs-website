@@ -35,7 +35,7 @@ export default function Home() {
       {/* Hero */}
       <section className="min-h-screen flex flex-col justify-center pt-20 pb-16 px-6">
         <div className="max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1.15fr] gap-12 items-center">
             <div>
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -95,7 +95,7 @@ export default function Home() {
               {/* 3/2 to match the artwork, and object-cover because this one is
                   an opaque photo that fills its frame — the previous hero was a
                   transparent PNG that had to be letterboxed instead. */}
-              <div className="aspect-[3/2] rounded-2xl overflow-hidden">
+              <div className="aspect-[3/2] md:aspect-[5/4] rounded-2xl overflow-hidden">
                 <img
                   src="https://assets.ddaltondesigns.com/site/649d11df9c_hero-brand-mockup.webp"
                   alt="DDalton Designs branding shown across a website, business cards and print collateral"
