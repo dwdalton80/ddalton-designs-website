@@ -62,9 +62,26 @@ const ENTITY_NAMES = [
   'Referral',
   'Task',
   'Expense',
+  'ReviewRequest',
 ];
 
-const entities = Object.fromEntries(ENTITY_NAMES.map((n) => [n, entity(n)]));
+const entities = new Proxy(
+  Object.fromEntries(ENTITY_NAMES.map((n) => [n, entity(n)])),
+  {
+    get(target, name) {
+      if (typeof name === 'string' && !(name in target)) {
+        // Without this, a name missing from ENTITY_NAMES returns undefined and
+        // the first `.list()` throws deep inside a lazy route, which React
+        // renders as a blank page with no clue what went wrong.
+        throw new Error(
+          `Unknown entity "${String(name)}". Add it to ENTITY_NAMES in src/api/client.js ` +
+          `and to ENTITIES in worker/src/lib/entities.ts.`
+        );
+      }
+      return target[name];
+    },
+  }
+);
 
 async function upload(file, { visibility = 'public', prefix } = {}) {
   const form = new FormData();
