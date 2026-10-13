@@ -83,8 +83,24 @@ async function upload(file, { visibility = 'public', prefix } = {}) {
   return data; // { file_url, file_name, file_size, key }
 }
 
+/**
+ * Contact-form attachment. Separate from upload() because it hits the public
+ * endpoint: /files/upload is behind Access and redirects a visitor to the
+ * login page.
+ */
+async function uploadContactFile(file) {
+  const form = new FormData();
+  form.append('file', file);
+
+  const res = await fetch(`${API}/files/contact-upload`, { method: 'POST', body: form });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new ApiError(data.error || `Upload failed (${res.status})`, res.status);
+  return data; // { file_url, file_name, file_size, key }
+}
+
 export const base44 = {
   entities,
+  uploadContactFile,
 
   functions: {
     /** base44.functions.invoke('sendInvoice', payload) -> POST /api/sendInvoice */

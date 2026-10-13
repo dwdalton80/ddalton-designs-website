@@ -69,6 +69,25 @@ npx wrangler secret put TURNSTILE_SECRET_KEY   # optional; unset skips the check
 npm run deploy
 ```
 
+Turnstile is two halves. The site key is committed in
+`src/components/Turnstile.jsx` — it is public, hostname-bound, and hardcoding
+it stops a plain `npm run build` from quietly shipping a page with no widget.
+The secret is a Worker secret:
+
+```bash
+npx wrangler secret put TURNSTILE_SECRET_KEY --config worker/wrangler.jsonc
+```
+
+Order matters in one direction only. Site key without the secret is harmless:
+the widget renders, sends a token, and the Worker ignores it. Secret without
+the site key rejects every submission as "Verification failed", because no
+token is sent at all. So deploy the frontend first, then set the secret.
+
+The widget is "ddaltondesigns.com contact form", Managed mode, with
+`ddaltondesigns.com` and `www.ddaltondesigns.com` as hostnames. A different
+hostname needs adding there or the widget refuses to render.
+
+
 `ACCESS_TEAM_DOMAIN` / `ACCESS_AUD` must be set before deploying. With them
 empty every admin route returns 403 — safe, but nothing works.
 

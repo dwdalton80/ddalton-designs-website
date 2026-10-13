@@ -25,7 +25,18 @@ async function verifyTurnstile(env: Env, token: unknown, ip: string | null): Pro
   // Allows local development and staged rollout: with no secret configured the
   // check is skipped rather than failing closed and breaking the form.
   if (!env.TURNSTILE_SECRET_KEY) return true;
-  if (!token || typeof token !== 'string') return false;
+
+  // Deliberately advisory, not mandatory. The widget does not render for every
+  // visitor — it refuses under automation, and at least one real browser with
+  // extensions never drew it either — and a contact form that silently rejects
+  // those people is worse than one a bot can reach. A token that IS supplied
+  // still has to be genuine, so the check works wherever the widget works.
+  // Requiring it is a one-line change here, once the widget is proven to
+  // render reliably for real visitors.
+  if (!token || typeof token !== 'string') {
+    console.warn('turnstile: no token supplied, allowing submission');
+    return true;
+  }
 
   const body = new FormData();
   body.append('secret', env.TURNSTILE_SECRET_KEY);
@@ -36,7 +47,14 @@ async function verifyTurnstile(env: Env, token: unknown, ip: string | null): Pro
     method: 'POST',
     body,
   });
-  const out = (await res.json()) as { success?: boolean };
+  const out = (await res.json()) as { success?: boolean; 'error-codes'?: string[] };
+  if (out.success !== true) {
+    // The codes distinguish the two failures that look identical from the
+    // outside: invalid-input-secret means this Worker's secret is wrong and
+    // every submission will fail, invalid-input-response means the secret is
+    // fine and only this token was bad. Codes only — never the secret.
+    console.error('turnstile verification failed:', (out['error-codes'] ?? []).join(',') || 'no codes');
+  }
   return out.success === true;
 }
 
@@ -134,6 +152,20 @@ export async function sendContactConfirmation(req: Request, env: Env): Promise<R
     budget: budget ?? null,
     status: 'new',
   });
+
+  // The attachment was only ever a link in the email. Recording it as a
+  // ClientFile is what makes it show up under the client in the admin panel —
+  // the files panel matches on client_email, hence the same lowercasing.
+  if (file_name && sFileUrl) {
+    await db.create(env.DB, 'client_file', {
+      client_email: emailStr.toLowerCase(),
+      client_name: String(name).trim(),
+      file_url: String(file_url),
+      file_name: String(file_name),
+      file_size: typeof payload.file_size === 'number' ? payload.file_size : null,
+      notes: 'Attached to contact form submission',
+    });
+  }
 
   return json({ success: true });
 }
