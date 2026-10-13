@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, X, ChevronRight, FileSignature, LogOut, TrendingDown, Gift, Star } from 'lucide-react';
+import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, X, ChevronRight, FileSignature, LogOut, TrendingDown, Gift, Star, MessageSquareQuote } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 const navItems = [
@@ -14,6 +14,7 @@ const navItems = [
   { href: '/admin/plans', label: 'Project Plans', icon: FileSignature },
   { href: '/admin/referrals', label: 'Referrals', icon: Gift },
   { href: '/admin/expenses', label: 'Expenses', icon: TrendingDown },
+  { href: '/admin/reviews', label: 'Reviews', icon: MessageSquareQuote },
   { href: '/admin/testimonials', label: 'Testimonials', icon: Star },
 ];
 

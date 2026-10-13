@@ -18,6 +18,7 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Referrals = lazy(() => import('./pages/Referrals'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const WriteReview = lazy(() => import('./pages/WriteReview'));
 
 // Admin layout + pages — code split.
 // These are gated by Cloudflare Access at the edge, not in the app: an
@@ -37,6 +38,7 @@ const ProjectPlans = lazy(() => import('./pages/admin/ProjectPlans'));
 const Expenses = lazy(() => import('./pages/admin/Expenses'));
 const AdminReferrals = lazy(() => import('./pages/admin/Referrals'));
 const AdminTestimonials = lazy(() => import('./pages/admin/Testimonials'));
+const AdminReviews = lazy(() => import('./pages/admin/Reviews'));
 
 const PageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -77,6 +79,8 @@ const AppRoutes = () => (
       <Route path="/referrals" element={<Referrals />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
+      {/* Reached only from an emailed one-time link. */}
+      <Route path="/review/:token" element={<WriteReview />} />
 
       {/* Admin — behind Cloudflare Access */}
       <Route path="/admin" element={<AdminLayout />}>
@@ -90,6 +94,7 @@ const AppRoutes = () => (
         <Route path="plans" element={<ProjectPlans />} />
         <Route path="expenses" element={<Expenses />} />
         <Route path="referrals" element={<AdminReferrals />} />
+        <Route path="reviews" element={<AdminReviews />} />
         <Route path="testimonials" element={<AdminTestimonials />} />
       </Route>
 

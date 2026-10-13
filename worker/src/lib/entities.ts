@@ -98,6 +98,18 @@ export const ENTITIES: Record<string, EntitySpec> = {
     fields: ['title', 'project_name', 'estimated_hours', 'actual_hours', 'status', 'due_date', 'notes', 'priority'],
     sortable: [...COMMON_SORT, 'status', 'priority', 'due_date'],
   },
+  ReviewRequest: {
+    table: 'review_request',
+    // token is deliberately absent: it is minted server-side and is the only
+    // thing standing between a stranger and someone else's review form, so the
+    // admin UI has no reason to write it.
+    fields: [
+      'client_id', 'client_name', 'client_email', 'status', 'sent_at',
+      'submitted_at', 'rating', 'quote', 'client_title', 'client_company',
+      'testimonial_id',
+    ],
+    sortable: [...COMMON_SORT, 'status', 'submitted_at'],
+  },
   Expense: {
     table: 'expense',
     fields: ['date', 'description', 'category', 'amount', 'vendor', 'notes', 'receipt_url'],

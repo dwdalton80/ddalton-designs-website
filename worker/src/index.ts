@@ -22,6 +22,12 @@ import { handleEntity } from './routes/entities';
 import { getSpec, isPublicRead } from './lib/entities';
 import { uploadFile, uploadContactFile, getPrivateFile } from './routes/files';
 import {
+  sendReviewRequest,
+  getReviewInvite,
+  submitReview,
+  approveReview,
+} from './routes/reviews';
+import {
   submitReferral,
   sendLeadQualification,
   sendReferrerConfirmation,
@@ -38,6 +44,11 @@ const PUBLIC_ROUTES: Record<string, Handler> = {
   // the row and sends the emails itself rather than the form calling
   // Referral.create plus the two admin email routes separately.
   submitReferral: (req, env) => submitReferral(req, env),
+  // The client following an emailed review link is a stranger to Access. Both
+  // routes are scoped to the single row their token names, and the token is
+  // minted server-side — see routes/reviews.ts.
+  getReviewInvite: (req, env) => getReviewInvite(req, env),
+  submitReview: (req, env) => submitReview(req, env),
 };
 
 /** Require a valid Cloudflare Access token. */
@@ -52,6 +63,8 @@ const ADMIN_ROUTES: Record<string, Handler> = {
   sendReferrerConfirmation: (req, env) => sendReferrerConfirmation(req, env),
   sendReferralThankyou: (req, env) => sendReferralThankyou(req, env),
   sendReferralStatusUpdate: (req, env) => sendReferralStatusUpdate(req, env),
+  sendReviewRequest: (req, env) => sendReviewRequest(req, env),
+  approveReview: (req, env) => approveReview(req, env),
 };
 
 export default {
