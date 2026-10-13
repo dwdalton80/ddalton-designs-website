@@ -36,7 +36,14 @@ async function verifyTurnstile(env: Env, token: unknown, ip: string | null): Pro
     method: 'POST',
     body,
   });
-  const out = (await res.json()) as { success?: boolean };
+  const out = (await res.json()) as { success?: boolean; 'error-codes'?: string[] };
+  if (out.success !== true) {
+    // The codes distinguish the two failures that look identical from the
+    // outside: invalid-input-secret means this Worker's secret is wrong and
+    // every submission will fail, invalid-input-response means the secret is
+    // fine and only this token was bad. Codes only — never the secret.
+    console.error('turnstile verification failed:', (out['error-codes'] ?? []).join(',') || 'no codes');
+  }
   return out.success === true;
 }
 
