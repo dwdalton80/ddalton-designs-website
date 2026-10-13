@@ -92,20 +92,24 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.15 }}
               className="relative"
             >
-              <div className="aspect-[4/5] rounded-2xl overflow-hidden">
+              {/* 3/2 to match the artwork, and object-cover because this one is
+                  an opaque photo that fills its frame — the previous hero was a
+                  transparent PNG that had to be letterboxed instead. */}
+              <div className="aspect-[3/2] rounded-2xl overflow-hidden">
                 <img
-                  src="https://assets.ddaltondesigns.com/site/b1a170443b_hero-design-showcase.webp"
-                  alt="Web Design Development"
-                  className="w-full h-full object-contain"
+                  src="https://assets.ddaltondesigns.com/site/649d11df9c_hero-brand-mockup.webp"
+                  alt="DDalton Designs branding shown across a website, business cards and print collateral"
+                  className="w-full h-full object-cover"
+                  width="1536"
+                  height="1024"
                   fetchpriority="high"
                   loading="eager"
                   decoding="sync"
                 />
               </div>
-              {/* Anchored to where the artwork actually ends (~88% down the
-                  frame), not the frame itself — the image has transparent
-                  padding below it. */}
-              <div className="absolute bottom-[calc(12%_-_1.25rem)] -left-6 bg-accent text-white px-6 py-4 rounded-xl font-display font-bold text-3xl shadow-xl">
+              {/* Straddles the bottom-left corner of the frame. The artwork now
+                  reaches the edge, so this anchors to the frame itself. */}
+              <div className="absolute -bottom-5 -left-6 bg-accent text-white px-6 py-4 rounded-xl font-display font-bold text-3xl shadow-xl">
                 15+<br /><span className="text-sm font-body font-normal opacity-80">Years Exp.</span>
               </div>
             </motion.div>
