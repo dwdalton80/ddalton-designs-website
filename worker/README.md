@@ -69,20 +69,23 @@ npx wrangler secret put TURNSTILE_SECRET_KEY   # optional; unset skips the check
 npm run deploy
 ```
 
-Turnstile is two halves and they must be set together. The Worker skips
-verification when `TURNSTILE_SECRET_KEY` is unset, and the contact form renders
-no widget when `VITE_TURNSTILE_SITE_KEY` is unset at build time. Setting the
-secret without rebuilding the frontend with the site key means every
-submission arrives without a token and is rejected as "Verification failed".
-
-Create the widget under Turnstile in the Cloudflare dashboard with
-`ddaltondesigns.com` as the hostname, then:
+Turnstile is two halves. The site key is committed in
+`src/components/Turnstile.jsx` — it is public, hostname-bound, and hardcoding
+it stops a plain `npm run build` from quietly shipping a page with no widget.
+The secret is a Worker secret:
 
 ```bash
 npx wrangler secret put TURNSTILE_SECRET_KEY --config worker/wrangler.jsonc
-VITE_TURNSTILE_SITE_KEY=<site key> npm run build
-npx wrangler deploy --config wrangler.json
 ```
+
+Order matters in one direction only. Site key without the secret is harmless:
+the widget renders, sends a token, and the Worker ignores it. Secret without
+the site key rejects every submission as "Verification failed", because no
+token is sent at all. So deploy the frontend first, then set the secret.
+
+The widget is "ddaltondesigns.com contact form", Managed mode, with
+`ddaltondesigns.com` and `www.ddaltondesigns.com` as hostnames. A different
+hostname needs adding there or the widget refuses to render.
 
 
 `ACCESS_TEAM_DOMAIN` / `ACCESS_AUD` must be set before deploying. With them

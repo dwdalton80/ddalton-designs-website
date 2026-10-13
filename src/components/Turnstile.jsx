@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 
-const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+// A Turnstile site key is public by design — it ships in the page source of
+// every site that uses one — and it only works on the hostnames the widget is
+// configured for. Committing it keeps a plain `npm run build` from silently
+// dropping the widget, which an env-var-only setup would do on any machine
+// that forgot to export it. The env var still overrides, for a staging key.
+const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAAFVFHbsxHeJUBBDw';
 const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
 
 let scriptPromise = null;
