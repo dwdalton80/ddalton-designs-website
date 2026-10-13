@@ -25,7 +25,18 @@ async function verifyTurnstile(env: Env, token: unknown, ip: string | null): Pro
   // Allows local development and staged rollout: with no secret configured the
   // check is skipped rather than failing closed and breaking the form.
   if (!env.TURNSTILE_SECRET_KEY) return true;
-  if (!token || typeof token !== 'string') return false;
+
+  // Deliberately advisory, not mandatory. The widget does not render for every
+  // visitor — it refuses under automation, and at least one real browser with
+  // extensions never drew it either — and a contact form that silently rejects
+  // those people is worse than one a bot can reach. A token that IS supplied
+  // still has to be genuine, so the check works wherever the widget works.
+  // Requiring it is a one-line change here, once the widget is proven to
+  // render reliably for real visitors.
+  if (!token || typeof token !== 'string') {
+    console.warn('turnstile: no token supplied, allowing submission');
+    return true;
+  }
 
   const body = new FormData();
   body.append('secret', env.TURNSTILE_SECRET_KEY);

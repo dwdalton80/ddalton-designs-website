@@ -6,7 +6,7 @@ import { CheckCircle, Mail, Phone, Paperclip, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
-import Turnstile, { turnstileEnabled } from '@/components/Turnstile';
+import Turnstile from '@/components/Turnstile';
 
 const PROJECT_TYPES = [
   { value: 'website', label: 'Website Design' },
@@ -78,10 +78,10 @@ export default function Contact() {
     const { _honeypot, ...payload } = data;
     setError('');
 
-    if (turnstileEnabled && !turnstileToken) {
-      setError('Please complete the verification check below, then send again.');
-      return;
-    }
+    // No hard gate on the token. The widget does not render for every visitor,
+    // and blocking the send on something they cannot see strands them with an
+    // instruction they have no way to follow. The token is sent when there is
+    // one and the Worker validates it then; see verifyTurnstile.
     try {
       // One call. ClientRequest.create used to run first, but entity writes sit
       // behind Access: for a visitor it redirected to the login page, the await
