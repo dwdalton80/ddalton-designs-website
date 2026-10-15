@@ -99,6 +99,11 @@ export default function Contact() {
         file_size: attachedFile?.size,
         turnstileToken,
       });
+
+      // Fires only once the submission actually succeeded — not on the button
+      // click — so a failed send is never counted as a lead.
+      if (typeof fbq === 'function') { fbq('track', 'Lead'); }
+
       setSubmittedName(data.name);
       setSubmitted(true);
     } catch (err) {
