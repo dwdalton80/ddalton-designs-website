@@ -8,10 +8,10 @@ export const SITE = 'https://ddaltondesigns.com';
 
 export const ROUTE_META = {
   '/': {
-    title: 'Web Design & Logo Design in Durant, OK | DDalton Designs',
-    description: 'Derek Dalton — bold web design, logo design, marketing materials and photography for businesses in Durant, Oklahoma and beyond. 15+ years of experience.',
+    title: 'Web Design & Logo Design | Durant, OK & Nationwide | DDalton Designs',
+    description: 'Derek Dalton — bold web design, logo design, marketing materials and photography. Based in Durant, Oklahoma, working with businesses across the US. 15+ years of experience.',
     h1: 'Design That Demands Attention',
-    summary: 'Web design, logo design, marketing materials and photography by Derek Dalton in Durant, Oklahoma.',
+    summary: 'Web design, logo design, marketing materials and photography by Derek Dalton. Based in Durant, Oklahoma, working with businesses across the United States.',
   },
   '/about': {
     title: 'About Derek Dalton | Durant, OK Web Designer',
@@ -21,7 +21,7 @@ export const ROUTE_META = {
   },
   '/services': {
     title: 'Services: Web Design, Logos, Marketing & Photography | DDalton Designs',
-    description: 'Custom websites, memorable logos, marketing materials and professional photography for Durant, Oklahoma businesses and beyond.',
+    description: 'Custom websites, memorable logos, marketing materials and professional photography. Based in Durant, Oklahoma, working with businesses across the US.',
     h1: 'Services',
     summary: 'Web design, logo design, marketing materials and photography.',
   },
