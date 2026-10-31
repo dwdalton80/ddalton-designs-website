@@ -5,6 +5,10 @@ import { base44 } from '@/api/base44Client';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
+// The Google Business Profile link, same one declared as sameAs in the
+// homepage JSON-LD.
+const GOOGLE_REVIEW_URL = 'https://share.google/TVE3XOgjTQ9OSJyzU';
+
 export default function WriteReview() {
   const { token } = useParams();
   const [state, setState] = useState('loading'); // loading | ready | done | invalid | used
@@ -96,6 +100,23 @@ export default function WriteReview() {
         <p className="text-muted-foreground mb-8">
           That genuinely helps. I read every one of these, and I will let you know if it ends up on the site.
         </p>
+        {/* Asked only after they have already written something, so it reads as
+            an optional extra rather than a second request up front. */}
+        <div className="bg-card border border-border rounded-2xl p-6 mb-8 text-left">
+          <p className="font-semibold mb-1">Would you post it on Google too?</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            Totally optional — but a Google review is the single biggest help for a small business like mine.
+            You can paste what you just wrote.
+          </p>
+          <a
+            href={GOOGLE_REVIEW_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white font-semibold rounded-xl text-sm hover:bg-red-600 transition-all"
+          >
+            <Star size={15} className="fill-white" /> Leave a Google review
+          </a>
+        </div>
         <a href="/" className="inline-block px-7 py-3.5 bg-foreground text-primary-foreground font-semibold rounded-full text-sm">
           Go to the homepage
         </a>

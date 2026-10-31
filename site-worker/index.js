@@ -81,14 +81,18 @@ function render(shell, { meta, path, status, noindex }) {
 async function sitemap(env) {
   const items = (await loadPortfolio(env)) || [];
   const today = new Date().toISOString().slice(0, 10);
+  // No lastmod on the static routes. It used to be stamped with today's date
+  // on every request, which told crawlers the whole site changed daily and
+  // trains them to ignore the field. Omitting it is better than lying; the
+  // portfolio entries below carry a real date from the database.
   const urls = Object.keys(ROUTE_META).map((p) => ({
-    loc: `${SITE}${p === '/' ? '/' : p}`, lastmod: today, priority: p === '/' ? '1.0' : ['/privacy', '/terms'].includes(p) ? '0.3' : '0.8',
+    loc: `${SITE}${p === '/' ? '/' : p}`, priority: p === '/' ? '1.0' : ['/privacy', '/terms'].includes(p) ? '0.3' : '0.8',
   }));
   for (const it of items) {
     const slug = slugify(it.title) || it.id;
     urls.push({ loc: `${SITE}/portfolio/${slug}`, lastmod: (it.updated_date || today).slice(0, 10), priority: '0.6' });
   }
-  const body = urls.map((u) => `  <url><loc>${esc(u.loc)}</loc><lastmod>${u.lastmod}</lastmod><priority>${u.priority}</priority></url>`).join('\n');
+  const body = urls.map((u) => `  <url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ''}<priority>${u.priority}</priority></url>`).join('\n');
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`, {
     headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' },
   });
@@ -97,6 +101,15 @@ async function sitemap(env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // www served the entire site at a second set of URLs. The canonical tags
+    // pointed at the apex so Google mostly coped, but every page genuinely
+    // existed twice. 301 so the duplicate resolves rather than competes.
+    if (url.hostname.startsWith('www.')) {
+      url.hostname = url.hostname.slice(4);
+      return Response.redirect(url.toString(), 301);
+    }
+
     const path = url.pathname.length > 1 ? url.pathname.replace(/\/+$/, '') : url.pathname;
     const isRead = request.method === 'GET' || request.method === 'HEAD';
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Plus, X, Trash2, Send, FileText, Eye, CheckCircle, XCircle, AlertTriangle, Download, Pencil } from 'lucide-react';
+import { Plus, X, Trash2, Send, FileText, CheckCircle, XCircle, Download, Pencil } from 'lucide-react';
 import { generateEstimatePdf } from '@/lib/invoicePdf';
 import { format } from 'date-fns';
 import { toast } from 'sonner';

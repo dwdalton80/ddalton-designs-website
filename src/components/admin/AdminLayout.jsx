@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, X, ChevronRight, FileSignature, LogOut, TrendingDown, Gift, Star, MessageSquareQuote } from 'lucide-react';
+import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, ChevronRight, FileSignature, LogOut, TrendingDown, Gift, Star, MessageSquareQuote } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import Seo from '@/components/Seo';
 

@@ -105,7 +105,7 @@ export default function Home() {
                   className="w-full h-full object-cover"
                   width="1536"
                   height="1024"
-                  fetchpriority="high"
+                  fetchPriority="high"
                   loading="eager"
                   decoding="sync"
                 />

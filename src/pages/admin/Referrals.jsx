@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { MoreVertical, Mail, DollarSign } from 'lucide-react';
+import { MoreVertical, Mail } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,

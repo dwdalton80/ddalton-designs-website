@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function RecentActivity({ requests, invoices }) {
