@@ -31,6 +31,24 @@ export const ROUTE_META = {
     h1: 'Portfolio',
     summary: 'Selected web design, app development and branding projects.',
   },
+  '/services/web-design': {
+    title: 'Web Design in Durant, OK | Custom Websites | DDalton Designs',
+    description: 'Custom, mobile-friendly websites for businesses in Durant, Oklahoma and across the US, built to turn visitors into customers. Starting at $1,200.',
+    h1: 'Web Design in Durant, Oklahoma',
+    summary: 'Custom websites built around your business: mobile-friendly, fast, and designed to turn visitors into customers. Starting at $1,200. Typical timeline three to six weeks.',
+  },
+  '/services/logo-design': {
+    title: 'Logo Design in Durant, OK | Brand Identity | DDalton Designs',
+    description: 'Logo design and brand identity in Durant, Oklahoma. Three concepts, unlimited revisions and a full brand kit. Starting at $499.',
+    h1: 'Logo Design in Durant, Oklahoma',
+    summary: 'Timeless, versatile logos with three initial concepts, unlimited revisions, brand guidelines and every file format. Starting at $499. Most logos take 7 to 10 days.',
+  },
+  '/services/marketing-materials': {
+    title: 'Business Cards, Flyers & Marketing Design | Durant, OK',
+    description: 'Business cards, flyers, brochures and social media graphics for Durant, Oklahoma businesses. Starting at $299.',
+    h1: 'Marketing Materials and Print Design in Durant, Oklahoma',
+    summary: 'Business cards, flyers, brochures, social graphics, email templates and signage that match your brand. Starting at $299. Most projects take 7 to 10 days.',
+  },
   '/contact': {
     title: 'Start a Project: Get a Free Quote | DDalton Designs',
     description: 'Tell Derek about your website, logo or marketing project and get a free quote.',
