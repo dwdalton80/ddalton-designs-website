@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import Seo from '@/components/Seo';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import { sanitizeHtml } from '@/lib/sanitizeHtml';
@@ -38,6 +39,7 @@ export default function PortfolioDetail() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title={`${item.title} | ${item.category ? item.category + ' Project' : 'Project'} | DDalton Designs`} description={`${item.title}${item.client_name ? ' for ' + item.client_name : ''} — a ${item.category || 'design'} project by DDalton Designs.`} path={`/portfolio/${id}`} image={item.cover_image || item.images?.[0] || undefined} />
       <PublicNav />
       <section className="pt-32 pb-24 px-6">
         <div className="max-w-5xl mx-auto">

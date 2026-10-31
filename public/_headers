@@ -23,3 +23,10 @@
 #    script loads from static., the RUM beacon POSTs to the apex.
 #  - challenges.cloudflare.com: Turnstile on the contact form.
 #  - assets.ddaltondesigns.com: the R2 bucket serving portfolio and site images.
+
+/admin
+  X-Robots-Tag: noindex, nofollow
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+/review/*
+  X-Robots-Tag: noindex, nofollow

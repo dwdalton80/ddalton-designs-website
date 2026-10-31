@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Globe, Palette, Megaphone, Camera, Check } from 'lucide-react';
+import Seo from '@/components/Seo';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
@@ -37,6 +38,7 @@ const services = [
 export default function Services() {
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="Services: Web Design, Logos, Marketing & Photography | DDalton Designs" description="Custom websites, memorable logos, marketing materials and professional photography to help your business stand out." path="/services" />
       <PublicNav />
       <section className="pt-32 pb-24 px-6">
         <div className="max-w-7xl mx-auto">

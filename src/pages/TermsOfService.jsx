@@ -1,9 +1,11 @@
+import Seo from '@/components/Seo';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="Terms of Service | DDalton Designs" description="Terms of service for DDalton Designs web design, branding and photography work." path="/terms" />
       <PublicNav />
       <div className="max-w-3xl mx-auto px-6 pt-32 pb-24">
         <h1 className="font-display font-black text-4xl mb-2">Terms of Service</h1>

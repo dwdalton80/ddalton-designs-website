@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import Seo from '@/components/Seo';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
@@ -8,25 +8,9 @@ export default function PageNotFound() {
   const location = useLocation();
   const pageName = location.pathname.replace(/^\//, '');
 
-  useEffect(() => {
-    const prevTitle = document.title;
-    document.title = 'Page Not Found | DDalton Designs';
-
-    // A 404 should never be indexed; the tag is removed again on unmount so it
-    // can't leak onto a real page during client-side navigation.
-    const robots = document.createElement('meta');
-    robots.name = 'robots';
-    robots.content = 'noindex';
-    document.head.appendChild(robots);
-
-    return () => {
-      document.title = prevTitle;
-      robots.remove();
-    };
-  }, []);
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Seo title="Page Not Found | DDalton Designs" noindex />
       <PublicNav />
       <section className="flex-1 flex items-center justify-center px-6 pt-32 pb-24">
         <div className="max-w-2xl mx-auto text-center">
