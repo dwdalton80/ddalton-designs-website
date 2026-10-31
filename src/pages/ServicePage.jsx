@@ -19,7 +19,13 @@ export default function ServicePage({ path }) {
         <div className="max-w-3xl mx-auto">
           <Link to="/services" className="text-sm text-muted-foreground hover:text-foreground transition-colors">← All services</Link>
           <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mt-8 mb-3">{page.eyebrow}</div>
-          <h1 className="font-display font-black text-5xl md:text-6xl mb-6">{meta.h1}</h1>
+          <h1 className="font-display font-black text-5xl md:text-6xl mb-3">{meta.h1}</h1>
+          {/* Durant is where the studio is, not the limit of who it serves.
+              Keeping the town on the page preserves the local search signal
+              while the second half makes the reach explicit. */}
+          <p className="text-sm text-muted-foreground mb-6">
+            Based in Durant, Oklahoma · Working with businesses across the United States
+          </p>
           {page.intro.map(p => (
             <p key={p} className="text-lg text-muted-foreground leading-relaxed mb-4">{p}</p>
           ))}
