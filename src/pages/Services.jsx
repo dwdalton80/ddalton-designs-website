@@ -12,20 +12,23 @@ const services = [
     desc: 'A website that works as hard as you do. I design and build custom websites that look stunning, load fast, and are built to convert visitors into clients.',
     features: ['Custom design (no templates)', 'Mobile-responsive', 'SEO-ready structure', 'Contact forms & CTAs', 'Portfolio/gallery pages', 'Ongoing support available'],
     price: 'Starting at $1,200',
+    href: '/services/web-design',
   },
   {
     icon: Palette,
     title: 'Logo & Brand Identity',
     desc: 'Your logo is the face of your business. I create timeless, versatile marks that capture your brand\'s personality and look great at every size.',
-    features: ['3 initial concepts', 'Unlimited revisions', 'Full brand guidelines', 'All file formats (SVG, PNG, PDF)', 'Color palette + typography', 'Social media kit'],
+    features: ['3 initial concepts', 'Up to 5 revisions', 'Full brand guidelines', 'All file formats (SVG, PNG, PDF)', 'Color palette + typography', 'Social media kit'],
     price: 'Starting at $499',
+    href: '/services/logo-design',
   },
   {
     icon: Megaphone,
-    title: 'Marketing Materials',
-    desc: 'From business cards to full campaign assets — I create cohesive, professional print and digital marketing materials that make your brand unforgettable.',
+    title: 'Marketing & Ad Design',
+    desc: 'From a single Facebook ad to business cards and full campaign assets — I create cohesive, professional print and digital design that makes your brand unforgettable.',
     features: ['Business cards & stationery', 'Flyers & brochures', 'Social media graphics', 'Email templates', 'Banners & signage', 'Consistent with your brand'],
     price: 'Starting at $299',
+    href: '/services/marketing-materials',
   },
   {
     icon: Camera,
@@ -50,7 +53,7 @@ export default function Services() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {services.map(({ icon: Icon, title, desc, features, price }) => (
+            {services.map(({ icon: Icon, title, desc, features, price, href }) => (
               <div key={title} className="border border-border rounded-2xl p-8 hover:border-accent transition-all duration-300 group">
                 <div className="flex items-start justify-between mb-6">
                   <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-accent transition-all duration-300">
@@ -68,12 +71,19 @@ export default function Services() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  to="/contact"
-                  className="inline-flex items-center gap-2 text-sm font-semibold hover:text-accent transition-colors"
-                >
-                  Get a Quote <ArrowRight size={14} />
-                </Link>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                  {href && (
+                    <Link to={href} className="inline-flex items-center gap-2 text-sm font-semibold hover:text-accent transition-colors">
+                      Learn More <ArrowRight size={14} />
+                    </Link>
+                  )}
+                  <Link
+                    to="/contact"
+                    className="inline-flex items-center gap-2 text-sm font-semibold hover:text-accent transition-colors"
+                  >
+                    Get a Quote <ArrowRight size={14} />
+                  </Link>
+                </div>
               </div>
             ))}
           </div>

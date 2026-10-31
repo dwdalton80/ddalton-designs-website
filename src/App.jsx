@@ -14,6 +14,7 @@ const Portfolio = lazy(() => import('./pages/Portfolio'));
 const PortfolioDetail = lazy(() => import('./pages/PortfolioDetail'));
 const About = lazy(() => import('./pages/About'));
 const Services = lazy(() => import('./pages/Services'));
+const ServicePage = lazy(() => import('./pages/ServicePage'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Referrals = lazy(() => import('./pages/Referrals'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
@@ -75,6 +76,9 @@ const AppRoutes = () => (
       <Route path="/portfolio/:id" element={<PortfolioDetail />} />
       <Route path="/about" element={<About />} />
       <Route path="/services" element={<Services />} />
+      <Route path="/services/web-design" element={<ServicePage path="/services/web-design" />} />
+      <Route path="/services/logo-design" element={<ServicePage path="/services/logo-design" />} />
+      <Route path="/services/marketing-materials" element={<ServicePage path="/services/marketing-materials" />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/referrals" element={<Referrals />} />
       <Route path="/terms" element={<TermsOfService />} />
