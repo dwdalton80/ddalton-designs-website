@@ -84,8 +84,13 @@ export function portfolioMeta(item) {
     ? ` for ${item.client_name}`
     : '';
 
+  // "a app development project" — categories are free text, so pick the
+  // article from the first letter rather than hardcoding "a".
+  const kind = item.category || 'design';
+  const article = /^[aeiou]/i.test(kind) ? 'an' : 'a';
+
   return {
     title: `${item.title} | ${cat[0].toUpperCase()}${cat.slice(1)} | DDalton Designs`,
-    description: `${item.title}${client} — a ${item.category || 'design'} project by DDalton Designs.`,
+    description: `${item.title}${client} — ${article} ${kind} project by DDalton Designs.`,
   };
 }
