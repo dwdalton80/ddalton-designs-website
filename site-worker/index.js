@@ -11,7 +11,7 @@
  * The /api/* routes are handled by the separate API Worker; its more specific
  * route pattern wins before a request ever reaches this Worker.
  */
-import { ROUTE_META, SITE, slugify } from '../src/lib/seo-meta.js';
+import { ROUTE_META, SITE, slugify, portfolioMeta as baseMeta } from '../src/lib/seo-meta.js';
 
 const DEFAULT_IMAGE = 'https://assets.ddaltondesigns.com/site/2cbe21348_generated_image.png';
 
@@ -38,14 +38,7 @@ function coverOf(item) {
 }
 
 function portfolioMeta(item) {
-  const cat = item.category ? `${item.category} project` : 'project';
-  return {
-    title: `${item.title} | ${cat[0].toUpperCase()}${cat.slice(1)} | DDalton Designs`,
-    description: `${item.title}${item.client_name ? ` for ${item.client_name}` : ''} — a ${item.category || 'design'} project by DDalton Designs.`,
-    h1: item.title,
-    summary: item.description || '',
-    image: coverOf(item),
-  };
+  return { ...baseMeta(item), h1: item.title, summary: item.description || '', image: coverOf(item) };
 }
 
 /** Rewrite the SPA shell's <head> and add a no-JS summary to the body. */
