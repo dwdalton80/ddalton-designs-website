@@ -70,3 +70,12 @@ export function slugify(text) {
 export function portfolioPath(item) {
   return `/portfolio/${slugify(item.title) || item.id}`;
 }
+
+/** Title/description for a portfolio item — shared by the Worker and the page. */
+export function portfolioMeta(item) {
+  const cat = item.category ? `${item.category} project` : 'project';
+  return {
+    title: `${item.title} | ${cat[0].toUpperCase()}${cat.slice(1)} | DDalton Designs`,
+    description: `${item.title}${item.client_name ? ` for ${item.client_name}` : ''} — a ${item.category || 'design'} project by DDalton Designs.`,
+  };
+}
