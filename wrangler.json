@@ -1,8 +1,18 @@
 {
   "name": "ddalton-designs-website",
+  "main": "site-worker/index.js",
   "compatibility_date": "2026-01-01",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
-  }
+    "binding": "ASSETS",
+    "not_found_handling": "none",
+    "run_worker_first": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ddalton-designs",
+      "database_id": "fbf9070e-ada1-463f-9a81-5cd6d04c11ab"
+    }
+  ]
 }

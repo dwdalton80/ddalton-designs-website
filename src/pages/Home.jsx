@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, Globe, Palette, Megaphone, Camera } from 'luc
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import Seo from '@/components/Seo';
+import { ROUTE_META, portfolioPath } from '@/lib/seo-meta';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import TestimonialsSection from '@/components/TestimonialsSection';
@@ -31,7 +32,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="Web Design & Logo Design in Durant, OK | DDalton Designs" description="Derek Dalton — bold web design, logo design, marketing materials and photography for businesses in Durant, Oklahoma and beyond. 15+ years of experience." path="/" />
+      <Seo title={ROUTE_META['/'].title} description={ROUTE_META['/'].description} path="/" />
       <PublicNav />
 
       {/* Hero */}
@@ -188,7 +189,7 @@ export default function Home() {
                   viewport={{ once: true }}
                   variants={fadeUp}
                 >
-                  <Link to={`/portfolio/${item.id}`} className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted block" style={{ position: 'relative' }}>
+                  <Link to={portfolioPath(item)} className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted block" style={{ position: 'relative' }}>
                     {(item.cover_image || item.images?.[0]) && (
                       <img
                         src={item.cover_image || item.images[0]}

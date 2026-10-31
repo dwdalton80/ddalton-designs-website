@@ -5,6 +5,7 @@ import { useState, useRef, useCallback } from 'react';
 import { CheckCircle, Mail, Phone, Paperclip, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import Seo from '@/components/Seo';
+import { ROUTE_META } from '@/lib/seo-meta';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import Turnstile from '@/components/Turnstile';
@@ -124,7 +125,7 @@ export default function Contact() {
 
   if (submitted) return (
     <div className="min-h-screen bg-background">
-      <Seo title="Start a Project: Get a Free Quote | DDalton Designs" description="Tell Derek about your website, logo or marketing project and get a free quote." path="/contact" />
+      <Seo title={ROUTE_META['/contact'].title} description={ROUTE_META['/contact'].description} path="/contact" />
       <PublicNav />
       <div className="min-h-screen flex items-center justify-center px-6">
         <div className="text-center max-w-md">

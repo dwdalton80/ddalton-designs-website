@@ -4,6 +4,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import Seo from '@/components/Seo';
+import { ROUTE_META, portfolioPath } from '@/lib/seo-meta';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
@@ -24,7 +25,7 @@ export default function Portfolio() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="Portfolio: Websites, Apps & Branding | DDalton Designs" description="Selected web design, app development and branding projects by DDalton Designs." path="/portfolio" />
+      <Seo title={ROUTE_META['/portfolio'].title} description={ROUTE_META['/portfolio'].description} path="/portfolio" />
       <PublicNav />
       <section className="pt-32 pb-16 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
@@ -78,7 +79,7 @@ export default function Portfolio() {
                     transition={{ delay: i * 0.05, duration: 0.35 }}
                   >
                     <Link
-                      to={`/portfolio/${item.id}`}
+                      to={portfolioPath(item)}
                       className="group relative rounded-2xl overflow-hidden bg-muted block aspect-[4/3]"
                     >
                       {(item.cover_image || item.images?.[0]) ? (
