@@ -31,7 +31,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="Web Design, Logo Design & Marketing | DDalton Designs" description="Derek Dalton — bold web design, logo design, marketing materials and photography. 15+ years crafting brand identities for small businesses." path="/" />
+      <Seo title="Web Design & Logo Design in Durant, OK | DDalton Designs" description="Derek Dalton — bold web design, logo design, marketing materials and photography for businesses in Durant, Oklahoma and beyond. 15+ years of experience." path="/" />
       <PublicNav />
 
       {/* Hero */}

@@ -38,7 +38,7 @@ const services = [
 export default function Services() {
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="Services: Web Design, Logos, Marketing & Photography | DDalton Designs" description="Custom websites, memorable logos, marketing materials and professional photography to help your business stand out." path="/services" />
+      <Seo title="Services: Web Design, Logos, Marketing & Photography | DDalton Designs" description="Custom websites, memorable logos, marketing materials and professional photography for Durant, Oklahoma businesses and beyond." path="/services" />
       <PublicNav />
       <section className="pt-32 pb-24 px-6">
         <div className="max-w-7xl mx-auto">
