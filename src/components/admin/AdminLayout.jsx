@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import { LayoutDashboard, Inbox, FileText, Receipt, CheckSquare, Image, Users, Menu, X, ChevronRight, FileSignature, LogOut, TrendingDown, Gift, Star, MessageSquareQuote } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import Seo from '@/components/Seo';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -50,6 +51,7 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-background flex">
+      <Seo title="Admin | DDalton Designs" noindex />
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#111] text-white flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:flex`}>
         <div className="px-6 py-6 border-b border-white/10">

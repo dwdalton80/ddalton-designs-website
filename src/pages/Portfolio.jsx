@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import Seo from '@/components/Seo';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
@@ -23,6 +24,7 @@ export default function Portfolio() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="Portfolio: Websites, Apps & Branding | DDalton Designs" description="Selected web design, app development and branding projects by DDalton Designs." path="/portfolio" />
       <PublicNav />
       <section className="pt-32 pb-16 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">

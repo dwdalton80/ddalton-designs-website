@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Globe, Palette, Megaphone, Camera } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import Seo from '@/components/Seo';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import TestimonialsSection from '@/components/TestimonialsSection';
@@ -30,6 +31,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="Web Design & Logo Design in Durant, OK | DDalton Designs" description="Derek Dalton — bold web design, logo design, marketing materials and photography for businesses in Durant, Oklahoma and beyond. 15+ years of experience." path="/" />
       <PublicNav />
 
       {/* Hero */}

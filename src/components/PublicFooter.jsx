@@ -47,7 +47,7 @@ export default function PublicFooter() {
           <Link to="/terms" className="hover:text-white/60 transition-colors">Terms of Service</Link>
           <Link to="/privacy" className="hover:text-white/60 transition-colors">Privacy Policy</Link>
           <span>Design & Photography by Derek Dalton</span>
-          <Link to="/admin" className="hover:text-white/60 transition-colors">Admin</Link>
+          <Link to="/admin" rel="nofollow" className="hover:text-white/60 transition-colors">Admin</Link>
         </div>
       </div>
     </footer>

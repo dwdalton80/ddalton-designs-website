@@ -1,0 +1,11 @@
+{
+  "name": "DDalton Designs",
+  "short_name": "DDalton",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "icons": [
+    { "src": "https://assets.ddaltondesigns.com/site/da58f6f42_Untitleddesign.png", "sizes": "1024x1024", "type": "image/png" }
+  ]
+}

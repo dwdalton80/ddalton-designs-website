@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Award, Clock, Star, Camera } from 'lucide-react';
+import Seo from '@/components/Seo';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
@@ -13,6 +14,7 @@ const stats = [
 export default function About() {
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="About Derek Dalton | Durant, OK Web Designer" description="Meet Derek Dalton, a Durant, Oklahoma designer and photographer with 15+ years of experience building websites, logos and brand identities." path="/about" />
       <PublicNav />
       <section className="pt-32 pb-16 px-6">
         <div className="max-w-7xl mx-auto">
