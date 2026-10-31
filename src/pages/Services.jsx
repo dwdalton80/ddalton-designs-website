@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Globe, Palette, Megaphone, Camera, Check } from 'lucide-react';
 import Seo from '@/components/Seo';
+import { ROUTE_META } from '@/lib/seo-meta';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
@@ -38,7 +39,7 @@ const services = [
 export default function Services() {
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="Services: Web Design, Logos, Marketing & Photography | DDalton Designs" description="Custom websites, memorable logos, marketing materials and professional photography for Durant, Oklahoma businesses and beyond." path="/services" />
+      <Seo title={ROUTE_META['/services'].title} description={ROUTE_META['/services'].description} path="/services" />
       <PublicNav />
       <section className="pt-32 pb-24 px-6">
         <div className="max-w-7xl mx-auto">

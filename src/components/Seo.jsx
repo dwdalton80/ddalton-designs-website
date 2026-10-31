@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const SITE = 'https://ddaltondesigns.com';
+import { SITE } from '@/lib/seo-meta';
 const DEFAULT_IMAGE = 'https://assets.ddaltondesigns.com/site/2cbe21348_generated_image.png';
 
 function setMeta(attr, key, content) {
