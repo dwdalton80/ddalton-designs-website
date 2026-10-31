@@ -74,8 +74,18 @@ export function portfolioPath(item) {
 /** Title/description for a portfolio item — shared by the Worker and the page. */
 export function portfolioMeta(item) {
   const cat = item.category ? `${item.category} project` : 'project';
+
+  // Most projects here are named after the client, which made the description
+  // read "Jingleheimer Novelties for Jingleheimer Novelties". Compare the two
+  // slugified so punctuation differences ("Infinitely. Faithful") count as the
+  // same name. client_name is still shown on the portfolio pages themselves —
+  // this only drops the redundant half of the sentence.
+  const client = item.client_name && slugify(item.client_name) !== slugify(item.title)
+    ? ` for ${item.client_name}`
+    : '';
+
   return {
     title: `${item.title} | ${cat[0].toUpperCase()}${cat.slice(1)} | DDalton Designs`,
-    description: `${item.title}${item.client_name ? ` for ${item.client_name}` : ''} — a ${item.category || 'design'} project by DDalton Designs.`,
+    description: `${item.title}${client} — a ${item.category || 'design'} project by DDalton Designs.`,
   };
 }
