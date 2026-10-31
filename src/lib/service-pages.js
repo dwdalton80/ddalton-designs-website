@@ -14,9 +14,9 @@ export const SERVICE_PAGES = {
       'Ongoing support after launch, if you want it',
     ],
     steps: [
-      ['Talk', "Reach me by phone or email, on a video call, or in person if you're local."],
-      ['Design', "I create the look and layout for your approval, and make as many changes as it takes until you're happy."],
-      ['Build and launch', 'Most sites take three to six weeks, depending on the size of the site. I test on real devices and launch.'],
+      ['Talk', 'Fill out the contact form and tell me about your project. We can take it from there by email, on a video call, or in person if you are local.'],
+      ['Design', 'I create the look and layout for your approval, with up to 5 rounds of revisions.'],
+      ['Build and launch', 'Most sites take three to six weeks, though a more complex build can take longer. I test on real devices and launch.'],
       ['Support', "After launch I provide basic updates. I host static sites for free. If your site needs a database, I'll set up hosting through your preferred option."],
     ],
     pricing: "Websites start at $1,200. The final price depends on what you need, such as an online store, a booking feature or a custom WordPress theme design. I'll give you a clear quote before any work begins.",
@@ -28,7 +28,7 @@ export const SERVICE_PAGES = {
     ],
     faq: [
       ['How much does a website cost?', 'Starting at $1,200. The price depends on needs like an online store, a booking feature or a WordPress theme design.'],
-      ['How long does it take?', 'Typically three to six weeks, depending on the size of the site.'],
+      ['How long does it take?', 'Typically three to six weeks. A larger or more complex project can take longer, and I will tell you up front.'],
       ['Can you update my existing site?', 'Yes. I can update, redesign or fix an existing website.'],
       ['Do you work with businesses outside Durant?', 'Yes. I work with clients anywhere in the US.'],
     ],
@@ -41,7 +41,7 @@ export const SERVICE_PAGES = {
     ],
     included: [
       '3 initial concepts',
-      "Unlimited revisions until you're happy",
+      'Up to 5 rounds of revisions',
       'Full brand guidelines',
       'All file formats (SVG, PNG, PDF)',
       'Color palette and typography',
@@ -57,9 +57,9 @@ export const SERVICE_PAGES = {
     cta: 'Ready for a logo that sets you apart?',
   },
   '/services/marketing-materials': {
-    eyebrow: 'Marketing Materials',
+    eyebrow: 'Marketing & Ad Design',
     intro: [
-      'From business cards to full campaign assets, I create professional print and digital materials that match your brand and make your business memorable.',
+      'From a single Facebook ad to business cards, brochures and full campaign assets, I create professional print and digital design that matches your brand and makes your business memorable.',
     ],
     included: [
       'Business cards and stationery',
@@ -70,7 +70,7 @@ export const SERVICE_PAGES = {
       'Designs that match your brand',
     ],
     timeline: 'Most projects take about 7 to 10 days, depending on what you need.',
-    pricing: 'Marketing materials start at $299.',
+    pricing: 'Marketing and ad design starts at $299 — that covers something as small as a single Facebook ad design, and scales up from there.',
     work: [
       ['D&D Insurance Group Tri Fold', 'd-and-d-insurance-group-tri-fold', 'A multi-panel Medicare brochure that explains complex coverage options clearly.'],
       ['Wildflower Hair Co.', 'wildflower-hair-co', 'A social media ad campaign promoting the business and fall specials.'],
