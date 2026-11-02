@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Star, Send, Check, X, Trash2, MessageSquareQuote } from 'lucide-react';
+import { Star, Send, Check, X, Trash2, MessageSquareQuote, RotateCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 
 const STATUS_STYLES = {
   sent: 'bg-blue-500/15 text-blue-500',
@@ -29,6 +29,7 @@ export default function Reviews() {
   const [showSend, setShowSend] = useState(false);
   const [sending, setSending] = useState(false);
   const [choice, setChoice] = useState('');
+  const [resending, setResending] = useState('');
   const [form, setForm] = useState({ client_id: '', client_name: '', client_email: '' });
 
   const fetch = () => {
@@ -63,6 +64,19 @@ export default function Reviews() {
       toast.error(`Couldn't send: ${err?.message || 'Unknown error'}`);
     } finally {
       setSending(false);
+    }
+  };
+
+  const resend = async (r) => {
+    setResending(r.id);
+    try {
+      await base44.functions.invoke('resendReviewRequest', { id: r.id });
+      toast.success(`Reminder sent to ${r.client_email}`);
+      fetch();
+    } catch (err) {
+      toast.error(`Couldn't resend: ${err?.message || 'Unknown error'}`);
+    } finally {
+      setResending('');
     }
   };
 
@@ -164,9 +178,20 @@ export default function Reviews() {
                     )}
                   </>
                 ) : (
-                  <p className="text-sm text-muted-foreground italic">
-                    Sent {r.sent_at ? format(new Date(r.sent_at), 'MMM d, yyyy') : ''} — no reply yet.
-                  </p>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <p className="text-sm text-muted-foreground italic">
+                      {r.sent_at
+                        ? `Last asked ${formatDistanceToNow(new Date(r.sent_at), { addSuffix: true })} (${format(new Date(r.sent_at), 'MMM d')}) — no reply yet.`
+                        : 'No reply yet.'}
+                    </p>
+                    <button
+                      onClick={() => resend(r)}
+                      disabled={resending === r.id}
+                      className="flex items-center gap-1.5 px-4 py-2 border border-border rounded-lg text-xs font-semibold hover:border-foreground transition-all disabled:opacity-60 self-start shrink-0"
+                    >
+                      <RotateCw size={13} /> {resending === r.id ? 'Sending…' : 'Send reminder'}
+                    </button>
+                  </div>
                 )}
 
                 {r.status === 'submitted' && (

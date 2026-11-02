@@ -29,6 +29,39 @@ async function findByToken(env: Env, token: unknown) {
   return row ?? null;
 }
 
+/**
+ * The invite email. `reminder` only changes the framing — same link, same
+ * token — so a nudge reads as a nudge rather than as a duplicate of the first
+ * message.
+ */
+function inviteEmail(name: string, token: string, reminder: boolean) {
+  const link = `${SITE}/review/${token}`;
+  const sName = escapeHtml(name);
+
+  const opening = reminder
+    ? `<p>I know you're busy, so this is just a gentle nudge — I asked a little while back whether you'd be willing to leave a short review, and the link is still open.</p>
+       <p>A sentence or two is plenty, and if now isn't a good time, feel free to ignore this one.</p>`
+    : `<p>Thanks again for trusting me with your project. If you have two minutes, I'd be grateful for a short review — a sentence or two about how it went is plenty.</p>
+       <p>Word of mouth is how this business grows, and hearing it in your words means more to the next person than anything I could write myself.</p>`;
+
+  return {
+    replyTo: 'derek@ddaltondesigns.com',
+    subject: reminder
+      ? `A quick nudge, ${name} — your review link is still open`
+      : `${name}, would you share a few words about working together?`,
+    html: emailShell({
+      title: 'Share your experience - DDalton Designs',
+      body: `<h2>Hi ${sName},</h2>
+        ${opening}
+        <div class="btn-wrap">
+          <a href="${link}" class="btn">Write Your Review</a>
+        </div>
+        <p style="font-size:13px;color:#666;">This link is just for you and can only be used once. Nothing is published until I've read it — and if you'd rather not, no hard feelings at all.</p>
+        <p>— Derek Dalton<br>DDalton Designs<br><a href="mailto:derek@ddaltondesigns.com" style="color:#FF4F00;">derek@ddaltondesigns.com</a></p>`,
+    }),
+  };
+}
+
 /** POST /api/sendReviewRequest — admin. Creates the invite and emails it. */
 export async function sendReviewRequest(req: Request, env: Env): Promise<Response> {
   const payload = (await req.json().catch(() => null)) as Record<string, unknown> | null;
@@ -60,27 +93,42 @@ export async function sendReviewRequest(req: Request, env: Env): Promise<Respons
     sent_at: now,
   });
 
-  const link = `${SITE}/review/${token}`;
-  const sName = escapeHtml(name);
-
-  await sendEmail(env, {
-    to: email,
-    replyTo: 'derek@ddaltondesigns.com',
-    subject: `${name}, would you share a few words about working together?`,
-    html: emailShell({
-      title: 'Share your experience - DDalton Designs',
-      body: `<h2>Hi ${sName},</h2>
-        <p>Thanks again for trusting me with your project. If you have two minutes, I'd be grateful for a short review — a sentence or two about how it went is plenty.</p>
-        <p>Word of mouth is how this business grows, and hearing it in your words means more to the next person than anything I could write myself.</p>
-        <div class="btn-wrap">
-          <a href="${link}" class="btn">Write Your Review</a>
-        </div>
-        <p style="font-size:13px;color:#666;">This link is just for you and can only be used once. Nothing is published until I've read it — and if you'd rather not, no hard feelings at all.</p>
-        <p>— Derek Dalton<br>DDalton Designs<br><a href="mailto:derek@ddaltondesigns.com" style="color:#FF4F00;">derek@ddaltondesigns.com</a></p>`,
-    }),
-  });
+  await sendEmail(env, { to: email, ...inviteEmail(name, token, false) });
 
   return json({ success: true, id: row.id });
+}
+
+/**
+ * POST /api/resendReviewRequest — admin. Sends the same invite again.
+ *
+ * Deliberately reuses the original token rather than minting a new one: the
+ * first email is still sitting in their inbox, and invalidating that link
+ * would punish the client who eventually goes looking for it.
+ */
+export async function resendReviewRequest(req: Request, env: Env): Promise<Response> {
+  const payload = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+  const id = payload?.id;
+  if (typeof id !== 'string' || !id) return badRequest('Missing id');
+
+  const row = await db.get<Record<string, unknown>>(env.DB, 'review_request', id);
+  if (!row) return notFound('Review request not found');
+  if (row.status !== 'sent') {
+    return badRequest(
+      row.status === 'submitted'
+        ? 'They have already written a review — it is waiting for your approval.'
+        : 'That request is closed, so there is nothing to remind them about.',
+    );
+  }
+
+  await sendEmail(env, {
+    to: String(row.client_email),
+    ...inviteEmail(String(row.client_name), String(row.token), true),
+  });
+  // sent_at becomes the last time they were contacted, which is what the
+  // admin list needs in order to show how long a reminder has been pending.
+  await db.update(env.DB, 'review_request', id, { sent_at: new Date().toISOString() });
+
+  return json({ success: true });
 }
 
 /** POST /api/getReviewInvite — public. Tells the review page whose form it is. */

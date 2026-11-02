@@ -23,6 +23,7 @@ import { getSpec, isPublicRead } from './lib/entities';
 import { uploadFile, uploadContactFile, getPrivateFile } from './routes/files';
 import {
   sendReviewRequest,
+  resendReviewRequest,
   getReviewInvite,
   submitReview,
   approveReview,
@@ -64,6 +65,7 @@ const ADMIN_ROUTES: Record<string, Handler> = {
   sendReferralThankyou: (req, env) => sendReferralThankyou(req, env),
   sendReferralStatusUpdate: (req, env) => sendReferralStatusUpdate(req, env),
   sendReviewRequest: (req, env) => sendReviewRequest(req, env),
+  resendReviewRequest: (req, env) => resendReviewRequest(req, env),
   approveReview: (req, env) => approveReview(req, env),
 };
 
